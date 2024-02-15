@@ -1,0 +1,22 @@
+{
+  "name": "pixelgrid",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@techstark/opencv-js": "^4.9.0-release.2",
+    "artnet": "^1.4.0",
+    "dmx": "^0.2.5",
+    "electron": "^13.2.3",
+    "image-js": "^0.35.5",
+    "serialport": "^12.0.0",
+    "webpack": "^5.90.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

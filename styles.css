@@ -1,0 +1,459 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    font-family: monospace;
+    color: white;
+    font-size: 10px;
+    line-height: 15px;
+    margin:0;
+    overflow: hidden;
+}
+
+#top {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    height: 100%;
+    /*top: 0;*/
+}
+
+#video-container {
+    position: relative;
+    width: 100%;
+    /*height: 100%;*/
+    /*overflow: hidden;*/
+}
+
+#fps-display {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+    transform: scaleX(-1); /* Initially mirror along with video container */
+}
+#video-container::before {
+    /*content: "";*/
+    /*display: block;*/
+    /*padding-top: 100%; !* This sets the aspect ratio to 1:1 (square) *!*/
+}
+#video1,
+#video2 {
+    flex: 1; /* Distribute available space equally for both videos */
+    height: 100%; /* Ensure the videos take up the full height of the container */
+    object-fit: cover;
+}
+#video {
+    width: 100%;
+    height: 100%; /* Ensure video fills its container */
+    object-fit: cover; /* Adjust as needed to maintain aspect ratio */
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#blackCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /*background-color: rgba(1,1,1,.2);*/
+}
+#top-image-container {
+    position: relative;
+    width: 66.66%;
+    height: 100%;
+    /*background-color: red;*/
+    align-items: flex-start;
+    display: flex;
+    margin: 0; /* Reset margin to ensure no default margin */
+    padding: 0; /* Reset padding to ensure no default padding */
+    overflow: hidden;
+
+}
+
+.top-image,
+.next-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    object-fit: cover;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /*transition: opacity 1s linear; !* Adjust the duration as needed *!*/
+
+}
+
+.current-image {
+    opacity: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.next-image {
+    opacity: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#top-image-container img {
+    margin: 0; /* Reset margin to ensure no default margin */
+    padding: 0; /* Reset padding to ensure no default padding */
+    /*position: relative;*/
+    width: 100%;
+    overflow: hidden;
+
+    height: 100%;
+    /*height: auto; !* Allow the images to maintain their aspect ratio *!*/
+    object-fit: cover;
+}
+
+.top-image{
+    overflow: hidden;
+
+}
+
+#bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    flex-grow: 1;
+    overflow: hidden;
+
+}
+
+#bottom-image-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+
+    /*justify-content: flex-start; */
+    /*align-items: stretch;*/
+}
+
+#bottom-image-container img {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    flex: 1; /* Fill the available space */
+}
+
+.grid-row {
+    display: flex;
+    align-items:center;
+    width: 100%;
+    justify-content: space-between; /* or any other layout style you prefer */
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    z-index: 1000; /* Ensure it's on top of other elements */
+}
+
+
+.grid-image {
+    display: block; /* Make the image a block-level element */
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    /*transition: opacity 2s ease-in-out; !* Opacity transition *!*/
+
+}
+
+.image-item-container {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    padding:0;
+    /*object-fit: cover;*/
+
+    margin: 0; /* Reset margin to ensure consistent spacing */
+}
+
+.image-item-container img{
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+
+}
+
+
+.text-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /*width: 100%;*/
+    z-index: 1; /* Ensure it's above the image */
+    box-sizing: border-box;
+    padding-left: 3px; /* Adjust the padding as needed */
+    padding-right : 3px;
+    line-height: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 2vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/*.text-overlay {*/
+/*    box-sizing: border-box;*/
+/*    padding: 5px; !* Adjust the padding as needed *!*/
+/*    background-color: rgba(0, 0, 0, 0.3);*/
+/*    color: white;*/
+/*    font-size: 2vw;*/
+/*    white-space: nowrap;*/
+/*    overflow: hidden;*/
+/*    text-overflow: ellipsis;*/
+/*}*/
+/* Add media query for larger screens if needed */
+@media screen and (min-width: 768px) {
+    .text-overlay {
+        font-size: 12px; /* Set a specific font size for screens larger than 768px */
+    }
+}
+
+.placeholder {
+    height: 100%;
+    width: 50%;
+    background-color: red; /* Set the background color to red for the placeholders */
+}
+
+.play-pause-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.3); /* Transparent background */
+    border: none;
+    cursor: pointer;
+    outline: none;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: scaleX(-1); /* Flip horizontally */
+}
+
+#zoom-slider-container {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    width:10px; /* Adjust the width as needed */
+}
+
+#zoom-slider {
+    flex: 1;
+}
+
+label[for="zoom-slider"] {
+    width: 80px; /* Set a specific width for the label */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+    margin-right: 10px;
+}
+
+.top-image {
+    /*transition: opacity 2s ease-in-out; !* Opacity transition *!*/
+}
+
+.panel-button {
+    position: absolute;
+    top: 0;
+    left: 0; /* Move to the left side */
+    background-color: transparent;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    display: block; /* Make the buttons initially visible */
+    z-index: 3;
+    color: #333;
+}
+
+.close-button {
+    font-size: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    color: #333;
+    display: block; /* Make the buttons initially visible */
+}
+.checkbox-label {
+    margin-top: 30px; /* Add margin to the top of this specific label */
+}
+/* Side panel styles */
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: -150px; /* Initially hidden on the left side */
+    width: 150px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease-in-out; /* Change from right to left */
+    z-index: 2;
+    overflow-y: auto;
+    color: black;
+}
+#sidePanel label {
+    display: block; /* Make labels stack vertically */
+    margin-bottom: 5px; /* Add some spacing between elements */
+}
+.side-panel.open {
+    left: 0; /* Display side panel when open class is applied */
+}
+
+/* Add this CSS to your styles.css file */
+.radio-container {
+    margin: 10px 0;
+}
+
+.radio-label {
+    font-weight: bold;
+}
+
+.radio-options {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.radio-options input[type="radio"] {
+    margin-right: 5px;
+}
+
+/* Style the selected radio button */
+.radio-options input[type="radio"]:checked + label {
+    color: #007BFF; /* Change the color to your preference */
+}
+
+/* Add hover effect to radio labels */
+.radio-options label:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.canvas-wrapper {
+    width: 300px;
+    height: 300px;
+    position: relative; /* Important for maintaining aspect ratio */
+
+}
+#cropped-canvas {
+    /*position: absolute; !* Important for maintaining aspect ratio *!*/
+    width: 100%;
+    height: auto;
+    /*top: 0;*/
+    /*left: 0;*/
+}
+#pixel-canvas {
+    /*position: absolute; !* Important for maintaining aspect ratio *!*/
+    width: 100%;
+    height: auto;
+    /*top: 0;*/
+    /*left: 0;*/
+}
+#gray-canvas {
+    /*position: absolute; !* Important for maintaining aspect ratio *!*/
+    width: 100%;
+    height: auto;
+    /*top: 0;*/
+    /*left: 0;*/
+}
+#grayscaleSlider, #grayscaleMapSlider, #contrastEnhSlider, #grayscaleExpoSlider, #brightnessRangeSlider {
+    width: 80%; /* Adjust the width as needed */
+    margin: 10px auto; /* Center the slider */
+    height: 10px; /* Adjust the height as needed */
+    content: ''; /* Remove any content */
+}
+
+/* Style the slider handles (thumbs) */
+#grayscaleSlider .noUi-handle,
+#grayscaleMapSlider .noUi-handle,
+#contrastEnhSlider .noUi-handle,
+#grayscaleExpoSlider .noUi-handle,
+#brightnessRangeSlider .noUi-handle {
+    width: 16px; /* Adjust the width of the thumbs */
+    height: 16px; /* Adjust the height of the thumbs */
+    border-radius: 50%; /* Make the thumbs circular */
+    /*background-color: #007BFF; !* Change the thumb color as needed *!*/
+    content: ''; /* Remove any content */
+    transform: translateX(-30%);
+}
+
+/* Style the slider connect bar */
+#grayscaleSlider .noUi-connect,
+#grayscaleMapSlider .noUi-connect,
+#contrastEnhSlider .noUi-connect,
+#grayscaleExpoSlider .noUi-connect,
+#brightnessRangeSlider .noUi-connect {
+    height: 10px; /* Adjust the height of the connect bar */
+    background-color: #007BFF; /* Change the bar color as needed */
+}
+
+/* Adjust the appearance of the slider thumbs if needed */
+#grayscaleSlider .noUi-handle:before,
+#grayscaleSlider .noUi-handle:after,
+#grayscaleMapSlider .noUi-handle:before,
+#grayscaleMapSlider .noUi-handle:after,
+#contrastEnhSlider .noUi-handle:before,
+#contrastEnhSlider .noUi-handle:after,
+#grayscaleExpoSlider .noUi-handle:before,
+#grayscaleExpoSlider .noUi-handle:after,
+#brightnessRangeSlider .noUi-handle:before,
+#brightnessRangeSlider .noUi-handle:after {
+    content: ''; /* Remove any content */
+    border: none; /* Remove any borders */
+    background-color: transparent; /* Set background color to transparent */
+}
+
+#exposureModeWrapper{
+    display: none;
+}
+#exposureCompWrapper{
+    display: none;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px;
+}
+li {
+    padding: 2px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    margin-bottom: 2px;
+    cursor: grab;
+}
+
+select{
+    font-family: monospace;
+    font-size : 10px;
+    margin-bottom: 10px;
+}
