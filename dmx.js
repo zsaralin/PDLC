@@ -6,6 +6,8 @@
 // var artnet = require('artnet');
 
 
+import {updateDMXGrid} from "./dmxGrid.js";
+
 var options = {
     host: '10.0.7.190',
     port: '1' // Default Art-Net port
@@ -23,41 +25,28 @@ var options = {
 // dmx.close();
 let count = 0;
 
-export function setDMXFromPixelCanvas(pixelCanvas) {
-    const gridWidth = 10; // Focus on the first 10 columns
-    const gridHeight = 28; // Total height of the grid
-    const ctx = pixelCanvas.getContext('2d');
+export async function setDMXFromPixelCanvas(imageData) {
 
-    const totalWidth = pixelCanvas.width;
-    const totalHeight = pixelCanvas.height;
-
-    const cellWidth = totalWidth / 30; // Original grid width is 30 cells
-    const cellHeight = totalHeight / gridHeight;
-
-    // Array to store the brightness of each cell in the first 10 columns
     let brightnessValues = [];
+    const data = imageData.data;
+    const imageWidth = imageData.width; // Actual width of the imageData
+    const cols = 30; // First 10 columns
+    const rows = 28; // First 28 rows
 
-    // Loop through the grid cells in the first 10 columns
-    for (let y = 0; y < gridHeight; y++) {
-        for (let x = 0; x < gridWidth; x++) {
-            // Calculate the coordinates of the current cell
-            const cellX = x * cellWidth;
-            const cellY = y * cellHeight;
-
-            // Extract the pixel data from the pixelated canvas for the current cell
-            const cellImageData = ctx.getImageData(cellX, cellY, 1, 1); // Get just one pixel
-            const cellData = cellImageData.data;
-
-            // Directly use the Red component for brightness as R=G=B in grayscale
-            const brightness = cellData[0]; // No need to calculate total or average
-
-            // Store the brightness of the cell
-            brightnessValues.push(brightness);
+// Loop through each row and column within the specified grid size
+    for (let row = 0; row < rows; row++) {
+        let rowBrightness = []; // Array to store brightness values for the current row
+        for (let col = 0; col < cols; col++) {
+            const index = (row * imageWidth + col) * 4; // Adjust index for RGBA
+            const red = data[index];
+            const green = data[index + 1];
+            const blue = data[index + 2];
+            const brightness = 0.299 * red + 0.587 * green + 0.114 * blue;
+            rowBrightness.push(brightness);
         }
+        brightnessValues.push(rowBrightness); // Push the array of brightness values for this row
     }
-    // Make sure to replace 'count' with your actual condition or mechanism to control the fetch call frequency
-    if (count === 100) { // Adjust according to your actual condition
-        count = 0;
+    updateDMXGrid(brightnessValues);
         fetch('http://localhost:3000/set-dmx', {
             method: 'POST',
             headers: {
@@ -69,9 +58,7 @@ export function setDMXFromPixelCanvas(pixelCanvas) {
         })
             .then(response => response.json())
             .catch(error => console.error('Error:', error));
-    } else {
-        count++; // Make sure 'count' is defined and incremented properly
-    }
+
 }
 
 // let currentChannel = 0;

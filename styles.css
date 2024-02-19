@@ -457,3 +457,17 @@ select{
     font-size : 10px;
     margin-bottom: 10px;
 }
+
+#dmxGrid {
+    display: grid;
+    grid-template-columns: repeat(10, 5px); /* Adjust the size as needed */
+    grid-gap: 2px;
+    width: max-content;
+    margin: 20px;
+}
+
+.dmxCell {
+    width: 5px; /* Adjust the size as needed */
+    height: 5px; /* Adjust the size as needed */
+    background-color: #000; /* Default color */
+}

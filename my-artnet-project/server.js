@@ -21,41 +21,119 @@ createCsvMapping()
     .catch(error => {
         console.error('Failed to create CSV mapping:', error);
     });
-app.post('/set-dmx', async (req, res) => {
-    try {
-        const { dmxValues } = req.body;
 
-        // Object to hold channel values keyed by universe
-        let universeData = {};
+let once = false;
+app.post('/test-dmx', async (req, res) => {
+    if (once) {
 
-        // Populate universeData with channel values
-        dmxValues.forEach((brightness, index) => {
-            const mapping = csvMapping[index.toString()]; // Assuming index correlates directly with csvMapping keys
+        // return res.status(400).json({ error: 'Sequence already triggered' });
+    } else {
+        once = true;
+        try {
+            const { dmxValues } = req.body; // Received all 30 columns brightness values
 
-            if (mapping) {
-                const { dmxUniverse, dmxChannel } = mapping;
-                if (!universeData[dmxUniverse]) {
-                    universeData[dmxUniverse] = [];
-                }
-                universeData[dmxUniverse].push({ channel: dmxChannel, value: brightness });
+            console.log(dmxValues)
+            // Function to delay execution
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+            // Get all the keys from csvMapping and sort them if necessary
+            const keys = Object.keys(csvMapping).map(key => parseInt(key)).sort((a, b) => a - b).reverse();
+
+            // Sequentially set each channel based on csvMapping
+            for (const key of keys) {
+                const { dmxUniverse, dmxChannel } = csvMapping[key.toString()];
+                let dmxValues = new Array(dmxChannel).fill(0); // Initialize with zeros up to the current channel
+                dmxValues[dmxChannel - 1] = 255; // Set the specific channel to white
+
+                // Assuming sendDMXSignal is a function that accepts universe and values
+                await sendDMXSignal( dmxValues);
+
+                await delay(500); // Delay for visual effect
+
+                // Reset the specific channel to 0 for the next iteration
+                dmxValues[dmxChannel - 1] = 0;
+                sendDMXSignal(dmxValues); // Turn off the channel after the delay
             }
-        });
 
-        // Now, for each universe, sort the channel data and send it using artnet.set
+            res.json({ message: 'Sequentially triggered each channel successfully.' });
+        } catch (err) {
+            console.error(`Error triggering channels: ${err}`);
+            res.status(500).json({ error: 'Error triggering channels' });
+        }
+        once = false; // Reset the flag if needed
+    }
+});
+
+// Define the sendDMXSignal function or adjust according to your actual DMX library usage
+function sendDMXSignal(dmxValues) {
+    // Implementation depends on your DMX library
+    artnet.set(1, dmxValues); // 0 is the universe number
+}
+
+app.post('/set-dmx', async (req, res) => {
+    // if(once){
+    //
+    // }
+    // else {
+    //     once = true;
+    //
+    //     async function setEachChannelInUniverseToMax(universe = 0, totalChannels = 280) {
+    //         for (let channel = 1; channel <= totalChannels; channel++) {
+    //             // Initialize all channels to 0
+    //             let values = new Array(totalChannels).fill(0);
+    //
+    //             // Set the current channel to 255
+    //             values[channel - 1] = 255;
+    //
+    //             try {
+    //                 // Send the DMX values to the specified universe
+    //                 // Adjust the universe index as needed for your implementation
+    //                 await artnet.set(universe, values);
+    //                 console.log(`Set channel ${channel} to 255 in universe ${universe + 1}`);
+    //             } catch (error) {
+    //                 console.error(`Error setting DMX values for channel ${channel}: ${error}`);
+    //                 // Optionally, break the loop or continue to the next iteration
+    //             }
+    //
+    //             // Wait for 1 second before continuing to the next channel
+    //             await new Promise(resolve => setTimeout(resolve, 500));
+    //         }
+    //     }
+//
+// Call the function to start the process
+//         setEachChannelInUniverseToMax(0); // Universe is 0-indexed in this example
+//     }
+    try {
+        const { dmxValues } = req.body; // Received all 30 columns brightness values
+        let universeData = {};
+        // console.log(dmxValues)
+        const gridWidth = 10; // Number of columns to display
+        const rows = dmxValues.length; // Total rows
+        for (let row = 0; row < rows; row++) {
+            const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
+            for (let col = 0; col < 10; col++) {
+                const colIndex = col; // Considering the gridWidth as totalColumns
+                const brightness = rowData[col]; // Set first row to black, others follow rowData values
+                const mapping = csvMapping[`${row}-${col}`]; // Assuming the mapping is based on row and colIndex
+                if (mapping) {
+                    const { dmxUniverse, dmxChannel } =
+                        mapping;
+                    if (!universeData[dmxUniverse]) {
+                        universeData[dmxUniverse] = [];
+                    }
+                    universeData[dmxUniverse].push({ channel: dmxChannel, value: brightness });
+                }
+            }
+        }
+
+        // Send DMX values for each universe
         for (const [universe, channels] of Object.entries(universeData)) {
-            // Sort channels by channel number before sending
             const sortedChannels = channels.sort((a, b) => a.channel - b.channel);
-
-            // Prepare a flat array of values for artnet.set
-            // This assumes the DMX channels are continuous and start from 1
-            let values = new Array(sortedChannels[sortedChannels.length - 1].channel).fill(0); // Initialize with 0
+            let values = new Array(sortedChannels[sortedChannels.length - 1].channel).fill(0);
             sortedChannels.forEach(({ channel, value }) => {
-                values[channel - 1] = value; // Channel numbers are 1-indexed in DMX
+                values[channel] = value;
             });
-
-            // Send the DMX values for the current universe
-            // Adjust the usage of artnet.set according to your library's API
-            await artnet.set(parseInt(universe) - 1, values);
+            artnet.set(parseInt(universe)-1, values);
         }
 
         res.json({ message: 'DMX set successfully' });

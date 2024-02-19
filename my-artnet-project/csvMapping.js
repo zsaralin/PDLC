@@ -13,7 +13,9 @@ function createCsvMapping() {
             }
             const mapping = {};
             records.forEach(record => {
-                const key = record.ID;
+                const row = parseInt(record['row'], 10); // Assuming 'row' field represents row index
+                const col = parseInt(record['col'], 10); // Assuming 'col' field represents column index
+                const key = `${row}-${col}`; // Generating key based on row and column indices
                 mapping[key] = {
                     dmxUniverse: parseInt(record['dmx universe'], 10),
                     dmxChannel: parseInt(record['dmx channel'], 10)
@@ -25,5 +27,4 @@ function createCsvMapping() {
         fs.createReadStream(filePath).pipe(parser);
     });
 }
-
 module.exports = { createCsvMapping }; // Exporting createCsvMapping function
