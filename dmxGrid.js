@@ -1,9 +1,11 @@
-export function createDMXGrid() {
-    const dmxGrid = document.getElementById('dmxGrid');
+function generateDmxGrid(gridId, startCol, endCol) {
+    let dmxGrid = document.getElementById(gridId);
+    if (!dmxGrid) return; // Exit if the element is not found
+
     dmxGrid.innerHTML = ''; // Clear existing content
 
     for (let row = 0; row < 28; row++) {
-        for (let col = 0; col < 10; col++) {
+        for (let col = startCol; col < endCol; col++) {
             const cell = document.createElement('div');
             cell.classList.add('dmxCell');
             cell.id = `dmxCell-${row}-${col}`; // Assign unique ID
@@ -11,15 +13,19 @@ export function createDMXGrid() {
         }
     }
 }
-createDMXGrid()
 
-export function updateDMXGrid(brightnessValues, startColumn = 10, totalColumns = 20) {
-    const gridWidth = 10; // Number of columns to display
+// Generate grids for dmx1, dmx2, and dmx3
+generateDmxGrid('dmx1', 0, 10);
+generateDmxGrid('dmx2', 10, 20);
+generateDmxGrid('dmx3', 20, 30);
+
+export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 30) {
+    const gridWidth = 30; // Number of columns to display
     const rows = 28; // Total rows
 
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < gridWidth; col++) {
-            const cellId = `dmxCell-${row}-${9-col}`;
+            const cellId = `dmxCell-${row}-${29-col}`;
             const cell = document.getElementById(cellId);
 
             // Calculate the actual index in brightnessValues

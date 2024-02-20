@@ -8,6 +8,7 @@ let whiteMode = 'continuous'
 let colourTemp = 5500;
 export async function initCamFilters() {
     // Assuming 'track' is passed as a parameter and is a MediaStreamTrack with video settings
+    if(!track) return
     const settings = track.getSettings();
 
     // Update initial values based on the settings

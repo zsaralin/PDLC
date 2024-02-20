@@ -458,12 +458,12 @@ select{
     margin-bottom: 10px;
 }
 
-#dmxGrid {
+.dmxGrid {
     display: grid;
     grid-template-columns: repeat(10, 5px); /* Adjust the size as needed */
-    grid-gap: 2px;
+    grid-gap: 1px;
     width: max-content;
-    margin: 20px;
+    margin: 5px;
 }
 
 .dmxCell {
