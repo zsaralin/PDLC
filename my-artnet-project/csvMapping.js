@@ -1,30 +1,35 @@
 const fs = require('fs');
 const {parse}  = require('csv-parse');
-
-// Function to parse the CSV and create a mapping object
-const filePath = './layout.csv';
-
-function createCsvMapping() {
+// Function to parse a single CSV file and create a mapping object
+function parseCsvFile(filePath) {
     return new Promise((resolve, reject) => {
-        const parser = parse({ columns: true, trim: true }, (err, records) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            const mapping = {};
-            records.forEach(record => {
-                const row = parseInt(record['row'], 10); // Assuming 'row' field represents row index
-                const col = parseInt(record['col'], 10); // Assuming 'col' field represents column index
-                const key = `${row}-${col}`; // Generating key based on row and column indices
-                mapping[key] = {
-                    dmxUniverse: parseInt(record['dmx universe'], 10),
-                    dmxChannel: parseInt(record['dmx channel'], 10)
-                };
-            });
-            resolve(mapping);
-        });
-
-        fs.createReadStream(filePath).pipe(parser);
+        const records = [];
+        fs.createReadStream(filePath)
+            .pipe(parse({ columns: true, trim: true }))
+            .on('data', (record) => {
+                records.push(record);
+            })
+            .on('end', () => {
+                const mapping = records.reduce((acc, record) => {
+                    const row = parseInt(record['row'], 10);
+                    const col = parseInt(record['col'], 10);
+                    const key = `${row}-${col}`;
+                    acc[key] = {
+                        dmxUniverse: parseInt(record['dmx universe'], 10),
+                        dmxChannel: parseInt(record['dmx channel'], 10)
+                    };
+                    return acc;
+                }, {});
+                resolve(mapping);
+            })
+            .on('error', reject);
     });
 }
-module.exports = { createCsvMapping }; // Exporting createCsvMapping function
+
+// Function to create CSV mappings for both file paths
+function createCsvMapping() {
+    const filePaths = ['./layout0.csv', './layout1.csv'];
+    return Promise.all(filePaths.map(filePath => parseCsvFile(filePath)));
+}
+
+module.exports = { createCsvMapping };

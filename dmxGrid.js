@@ -13,7 +13,7 @@ export function createDMXGrid() {
 }
 createDMXGrid()
 
-export function updateDMXGrid(brightnessValues, startColumn = 20, totalColumns = 30) {
+export function updateDMXGrid(brightnessValues, startColumn = 10, totalColumns = 20) {
     const gridWidth = 10; // Number of columns to display
     const rows = 28; // Total rows
 

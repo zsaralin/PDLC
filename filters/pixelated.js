@@ -66,26 +66,56 @@ export function pixelCanvas(filterCanvas, filterCtx) {
     //     pixelatedCtx.fillStyle = row %2 ===0 ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)';
     //     pixelatedCtx.fillRect(0, row, pixelatedCanvas.width, 1); // Fill each row with black or white
     // }
-    for (let row = 0; row < pixelatedCanvas.height; row++) {
-        for (let col = 0; col < pixelatedCanvas.width; col++) {
-            // Default to white
-            pixelatedCtx.fillStyle = 'rgb(255, 255, 255)';
 
-            // Check for the section where the column is greater than 20 and less than 30
-            if (col > 20 && col < 30) {
-                // Calculate the slope for the diagonal line
-                let slope = pixelatedCanvas.height / 10; // Adjust based on the desired angle and section width
-
-                // Draw a diagonal line
-                if (row === Math.round((col - 21) * slope)) {
-                    pixelatedCtx.fillStyle = 'rgb(0, 0, 0)'; // Set color to black for the line
-                }
-            }
-
-            pixelatedCtx.fillRect(col, row, 1, 1); // Fill each pixel with the determined color
-        }
-    }
-
+    // for (let row = 0; row < pixelatedCanvas.height; row++) {
+    //     for (let col = 0; col < pixelatedCanvas.width; col++) {
+    //         // Default to white
+    //         pixelatedCtx.fillStyle = 'rgb(255, 255, 255)';
+    //
+    //         // Check for the section where the column is greater than 20 and less than 30
+    //         if (col > 20 && col < 30) {
+    //             // Calculate the slope for the diagonal line
+    //             let slope = pixelatedCanvas.height / 5; // Adjust based on the desired angle and section width
+    //
+    //             // Draw a diagonal line
+    //             if (row === Math.round((col - 21) * slope)) {
+    //                 pixelatedCtx.fillStyle = 'rgb(0, 0, 0)'; // Set color to black for the line
+    //             }
+    //         }
+    //
+    //         pixelatedCtx.fillRect(col, row, 1, 1); // Fill each pixel with the determined color
+    //     }
+    // }
+// Draw face
+//     for (let row = 0; row < 28; row++) {
+//         for (let col = 0; col < 30; col++) {
+//             pixelatedCtx.fillStyle = 'white';
+//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
+//         }
+//     }
+//
+// // Draw eyes
+//     for (let row = 10; row < 13; row++) {
+//         for (let col = 10; col < 13; col++) {
+//             pixelatedCtx.fillStyle = 'black';
+//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
+//         }
+//     }
+//
+//     for (let row = 10; row < 13; row++) {
+//         for (let col = 16; col < 19; col++) {
+//             pixelatedCtx.fillStyle = 'black';
+//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
+//         }
+//     }
+//
+// // Draw mouth
+//     for (let row = 17; row < 19; row++) {
+//         for (let col = 0; col < 30; col++) {
+//             pixelatedCtx.fillStyle = 'black';
+//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
+//         }
+//     }
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
 
     // Pass the data URL to the updateCroppedCanvas function
