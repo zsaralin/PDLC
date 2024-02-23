@@ -2,7 +2,6 @@ const DMX = require('dmx');
 
 // Initialize the DMX universe
 const dmx = new DMX();
-const universe = dmx.addUniverse('myUniverse', 'enttec-usb-dmx-pro', '/dev/ttyUSB0'); // Replace with your device path (Linux) or COM port (Windows)
 
 export function pixelCanvasToDMX(pixelatedCanvas) {
     const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true });

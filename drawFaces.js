@@ -31,13 +31,13 @@ export function drawFaces(canvas, person, video) {
     // drawROI()
     // ctx.rect(person.detection.box.x - padding, person.detection.box.y - padding, person.detection.box.width + (padding * 2), person.detection.box.height + (padding*2));
     // ctx.stroke();
-    drawNose(person.landmarks.positions[27], person.landmarks.positions[33]);
-    drawCurvedEyebrow(person.landmarks.positions.slice(17, 22)); // Left eyebrow
-    drawCurvedEyebrow(person.landmarks.positions.slice(22, 27)); // Right eyebrow
-    drawMouth(person.landmarks.positions.slice(48, 67)); // Mouth
-    drawNoseCurve(person.landmarks.positions);
-    drawEyesWithCurves(person.landmarks.positions.slice(36, 42)); // Left eye
-    drawEyesWithCurves(person.landmarks.positions.slice(42, 48)); // Right eye
+    // drawNose(person.landmarks.positions[27], person.landmarks.positions[33]);
+    // drawCurvedEyebrow(person.landmarks.positions.slice(17, 22)); // Left eyebrow
+    // drawCurvedEyebrow(person.landmarks.positions.slice(22, 27)); // Right eyebrow
+    // drawMouth(person.landmarks.positions.slice(48, 67)); // Mouth
+    // drawNoseCurve(person.landmarks.positions);
+    // drawEyesWithCurves(person.landmarks.positions.slice(36, 42)); // Left eye
+    // drawEyesWithCurves(person.landmarks.positions.slice(42, 48)); // Right eye
 
     function drawBB(person){
         ctx.beginPath();

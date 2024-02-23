@@ -71,9 +71,9 @@ export function processVideoFrame(processingCtx, video, canvas) {
 
     // Draw the black rectangles
     processingCtx.fillStyle = 'rgba(0, 0, 0, 1)'; // Fully opaque black
-    rects.forEach(rect => {
-        processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    });
+    // rects.forEach(rect => {
+    //     processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
+    // });
     drawOuterRoi(canvas)
 }
 

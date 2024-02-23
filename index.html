@@ -41,6 +41,10 @@
         <input type="checkbox" id="mirrorCheckbox" checked> Mirror
     </label>
     <label>
+        <span>Gap: <span id="gapValue">2</span></span>
+        <input type="range" id="gap" min="0" max="10" value="2" step = "2">
+    </label>
+    <label>
         <input type="checkbox" id="histogramEqCheckbox"> Histogram Eq
     </label>
     <label>
@@ -71,8 +75,16 @@
         <input type="range" id="edge-strength-slider" min="0" max="5" step="0.1" value="2.0">
     </div>
     <label>
-        <span style="background-color: yellow;">ROI: <span id="roiValue">300</span></span>
-        <input type="range" id="roi" min="100" max="500" value="300" step="50">
+        <span style="background-color: yellow;">ROI: <span id="roiValue">.8</span></span>
+        <input type="range" id="roi" min=".1" max="2" value=".8" step=".1">
+    </label>
+    <label>
+        <span>ROI X offset: <span id="roiXOffsetVal">0</span></span>
+        <input type="range" id="roiXOffset" min="-100" max="100" value="0" step="1">
+    </label>
+    <label>
+        <span>ROI Y offset: <span id="roiYOffsetVal">0</span></span>
+        <input type="range" id="roiYOffset" min="-100" max="100" value="0" step="1">
     </label>
     <label>
         <span>Contrast: <span id="contrastValue">0</span></span>
@@ -227,13 +239,13 @@
         <div id="fps-display"></div>
     </div>
     <div class=canvas-wrapper>
-        <canvas id="gray-canvas" width=300 height=300></canvas>
+        <canvas id="gray-canvas" width=150 height=150></canvas>
     </div>
     <div class=canvas-wrapper>
-        <canvas id="cropped-canvas" width=300 height=300></canvas>
+        <canvas id="cropped-canvas" width=150 height=150></canvas>
     </div>
     <div class=canvas-wrapper>
-        <canvas id="pixel-canvas" width=300 height=300></canvas>
+        <canvas id="pixel-canvas" width=150 height=150></canvas>
     </div>
 
 </div>

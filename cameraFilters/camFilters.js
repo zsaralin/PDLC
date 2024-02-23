@@ -6,6 +6,7 @@ let saturation = 128;
 let sharpness = 128;
 let whiteMode = 'continuous'
 let colourTemp = 5500;
+let focusMode = "continuous"
 export async function initCamFilters() {
     // Assuming 'track' is passed as a parameter and is a MediaStreamTrack with video settings
     if(!track) return
@@ -18,6 +19,7 @@ export async function initCamFilters() {
      sharpness = settings["sharpness"] || 128;
     // Assume white balance mode and color temperature are part of your settings, if supported
      whiteMode = settings["whiteBalanceMode"] || 'continuous';
+
      colourTemp = settings["colorTemperature"] || 5500;
 
     const brightnessSlider = document.getElementById("camBrightness");
@@ -45,6 +47,8 @@ export async function initCamFilters() {
     const colourTempSliderVal = document.getElementById("colourTempValue");
     colourTempSliderVal.textContent = colourTemp;
     colourTempSliderVal.value = colourTemp;
+
+    await track.applyConstraints({['focusMode']: 'continuous'})
 
     const whiteBalanceModeSelect = document.getElementById("WhiteBalanceModeSelect");
     if (settings && settings['whiteBalanceMode']) {

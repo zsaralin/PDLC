@@ -7,6 +7,7 @@ import {toggleBgSeg} from "./filters/bgSeg.js";
 import {toggleAutoEV} from "./cameraFilters/autoExposure.js";
 import {initMinDistSlider} from "./minEyeDist.js";
 import {initCamFilters} from "./cameraFilters/camFilters.js";
+import {setNumCol} from "./imageRatio.js";
 export function setupSidePanel() {
     const openPanelButton = document.getElementById("openPanelButton");
     const closePanelButton = document.getElementById("closePanelButton");
@@ -52,16 +53,42 @@ export function setupSidePanel() {
         roiValue.textContent = this.value;
     });
 
+    const roiXOffset = document.getElementById("roiXOffset");
+    const roiXOffsetVal = document.getElementById("roiXOffsetVal");
+    roiXOffset.addEventListener("input", function() {
+        roiXOffsetVal.textContent = this.value;
+    });
+    const roiYOffset = document.getElementById("roiYOffset");
+    const roiYOffsetVal = document.getElementById("roiYOffsetVal");
+    roiYOffset.addEventListener("input", function() {
+        roiYOffsetVal.textContent = this.value;
+    });
+
     const contrast = document.getElementById("contrast");
     const contrastVal = document.getElementById("contrastValue");
     contrast.addEventListener("input", function() {
         contrastVal.textContent = this.value;
     });
 
+    var dmxGridElements = document.querySelectorAll('.dmxGrid');
+
+    const gap = document.getElementById("gap");
+    const gapVal = document.getElementById("gapValue");
+    gap.addEventListener("input", function() {
+        const newCol = this.value
+        gapVal.textContent = newCol;
+        setNumCol(30+parseInt(newCol))
+        dmxGridElements.forEach(function(element) {
+            element.style.margin = newCol*2 + 'px'; // Adjust the value as needed
+        });
+    });
+
+
     const lag = document.getElementById("lag");
     const lagVal = document.getElementById("lagVal");
     lag.addEventListener("input", function() {
         lagVal.textContent = this.value;
+
     });
 
 

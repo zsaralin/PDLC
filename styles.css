@@ -463,7 +463,7 @@ select{
     grid-template-columns: repeat(10, 5px); /* Adjust the size as needed */
     grid-gap: 1px;
     width: max-content;
-    margin: 5px;
+    margin: 4px;
 }
 
 .dmxCell {

@@ -13,6 +13,7 @@ import {changeOrientation} from "./videoOrientation.js";
 import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {initOuterRoi, processVideoFrame} from "./outerRoi.js";
+import {drawDMXTest} from "./dmxTests.js";
 
 // configuration options
 const modelPath = './model/'; // path to model folder that will be loaded using http
@@ -30,6 +31,7 @@ function str(json) {
 }
 
 let prevBgSeg = false;
+let currentFaces = null; // Global variable to hold the latest face detection results
 
 function detectVideo() {
     const currVideo = bgSeg ? webcamCanvas : video
@@ -46,7 +48,6 @@ function detectVideo() {
     }
     if (!video || video.paused) return Promise.resolve(false);
 
-    const t0 = performance.now();
     // Calculate FPS
     const currentTime = performance.now();
     const elapsedTime = currentTime - lastFrameTime;
@@ -59,27 +60,27 @@ function detectVideo() {
     frameCount++;
 
     processVideoFrame(processingCtx, video, canvas)
+    if (currentFaces) {
+        // console.log('saw a face')
+        drawFaces(canvas, currentFaces, currVideo);
+    } else {
+        // clearCanvas(canvas)
+    }
+    requestAnimationFrame(() => detectVideo());
+}
 
-    return faceapi
-        .detectAllFaces(processingCanvas, optionsTinyFaceDetector)
-        .withFaceLandmarks()
-        // .withFaceExpressions()
-        .withFaceDescriptors()
-        .then((result) => processDetection(result))
-        .then((face) => {
-            if (face) {
-                drawFaces(canvas, face, currVideo, roi);
-            }
-            else{
-                clearCanvas(canvas)
-            }
-            requestAnimationFrame(() => detectVideo());
-            return true;
-        })
-        .catch((err) => {
-            log(`Detect Error: ${str(err)}`);
-            return false;
-        });
+function startPeriodicFaceDetection() {
+    setInterval(async () => {
+        try {
+            await faceapi.detectAllFaces(processingCanvas, optionsTinyFaceDetector).withFaceLandmarks(true)
+                .then((result) => processDetection(result))
+                .then((face) => {
+                    currentFaces = face; // Update the global variable with the latest detection result
+                })
+        } catch (err) {
+            console.error(`Detect Error: ${err}`);
+        }
+    }, 20); // Update face detection results every second
 }
 
 let webcamCanvas;
@@ -146,12 +147,12 @@ async function setupCamera() {
         return null;
     }
 
-    const settings = track.getSettings();
-    if (settings.deviceId) delete settings.deviceId;
-    if (settings.groupId) delete settings.groupId;
-    if (settings.aspectRatio) settings.aspectRatio = Math.trunc(100 * settings.aspectRatio) / 100;
+    // const settings = track.getSettings();
+    // if (settings.deviceId) delete settings.deviceId;
+    // if (settings.groupId) delete settings.groupId;
+    // if (settings.aspectRatio) settings.aspectRatio = Math.trunc(100 * settings.aspectRatio) / 100;
     log(`Camera active: ${track.label}`);
-    log(`Camera settings: ${str(settings)}`);
+    // log(`Camera settings: ${str(settings)}`);
 
     playPauseButton.addEventListener('click', togglePlayPause);
 
@@ -184,7 +185,18 @@ async function setupCamera() {
         }
     }
     return new Promise((resolve) => {
-        video.onloadeddata = async () => {
+        // Check if the video is already in a state where it has data
+        if (video.readyState >= 2) {
+            initializeVideo();
+            resolve(true);
+        } else {
+            video.onloadeddata = async () => {
+                await initializeVideo();
+                resolve(true);
+            };
+        }
+
+        async function initializeVideo() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             webcamCanvas.width = video.videoWidth;
@@ -194,16 +206,19 @@ async function setupCamera() {
 
             processingCanvas.width = video.videoWidth; // Ensure these match the video's dimensions
             processingCanvas.height = video.videoHeight;
-            initOuterRoi(video)
+            initOuterRoi(video);
 
-            monitorBrightness(video, track)
+            // setInterval(drawDMXTest, 200); // 5000 milliseconds = 5 seconds
+            monitorBrightness(video, track);
 
             video.play();
-            await detectVideo()
+
+            await detectVideo();
+            startPeriodicFaceDetection()
+
             updatePlayPauseButtonState();
-            changeOrientation(0)
-            resolve(true);
-        };
+            changeOrientation(0);
+        }
     });
 }
 const processingCanvas = document.createElement('canvas');
@@ -216,12 +231,12 @@ async function setupFaceAPI() {
     await faceapi.nets.tinyFaceDetector.load(modelPath); // using ssdMobilenetv1
     // await faceapi.nets.ssdMobilenetv1.load(modelPath);
     // await faceapi.nets.ageGenderNet.load(modelPath);
-    await faceapi.nets.faceLandmark68Net.load(modelPath);
-    await faceapi.nets.faceRecognitionNet.load(modelPath);
+    // await faceapi.nets.faceLandmark68Net.load(modelPath);
+    // await faceapi.nets.faceRecognitionNet.load(modelPath);
     // await faceapi.nets.faceExpressionNet.load(modelPath);
     // optionsSSDMobileNet = new faceapi.SsdMobilenetv1Options({minConfidence: minScore, maxResults});
     await faceapi.loadFaceLandmarkTinyModel(modelPath)
-    optionsTinyFaceDetector = new faceapi.TinyFaceDetectorOptions({ inputSize: 480, scoreThreshold: .4 });
+    optionsTinyFaceDetector = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: .4 });
 
     // check tf engine state
     log(`Models loaded`);

@@ -1,31 +1,38 @@
 import { updateCanvas } from "../filteredCanvas.js";
 import {setDMXFromPixelCanvas} from "../dmx.js";
+import {imgCol, imgRow} from "../imageRatio.js";
 
 const roi = document.getElementById("roi");
 let lastUpdateTime = performance.now();
 let frameCount = 0;
 let fpsDisplay = document.getElementById('fps-display'); // Add an element to display FPS
 
+const pixelatedCanvas = document.createElement('canvas');
+const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true });
+pixelatedCanvas.width = imgCol;
+pixelatedCanvas.height = imgRow;
+const gridWidth = imgCol; // Number of cells horizontally
+const gridHeight = imgRow; // Number of cells vertically
 export function pixelCanvas(filterCanvas, filterCtx) {
-    const pixelatedCanvas = document.createElement('canvas');
-    pixelatedCanvas.width = 30;
-    pixelatedCanvas.height = 28;
-    const gridWidth = 30; // Number of cells horizontally
-    const gridHeight = 28; // Number of cells vertically
-    pixelatedCanvas.width = gridWidth;
-    pixelatedCanvas.height = gridHeight;
-    const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true });
+    // pixelatedCanvas.width = 30;
+    // pixelatedCanvas.height = 28;
+    // const gridWidth = 30; // Number of cells horizontally
+    // const gridHeight = 28; // Number of cells vertically
+    // pixelatedCanvas.width = gridWidth;
+    // pixelatedCanvas.height = gridHeight;
 
-    const cellWidth = filterCanvas.width / gridWidth;
-    const cellHeight = filterCanvas.height / gridHeight;
+    const cellWidth = filterCanvas.width / imgCol;
+    const cellHeight = filterCanvas.height / imgRow;
+    if(!filterCtx || cellWidth <1||  cellHeight < 1 ) return
 
     // Loop through each cell in the original canvas
-    for (let y = 0; y < gridHeight; y++) {
-        for (let x = 0; x < gridWidth; x++) {
+    for (let y = 0; y < imgRow; y++) {
+        for (let x = 0; x < imgCol; x++) {
             const cellX = x * cellWidth;
             const cellY = y * cellHeight;
 
             // Extract pixel data for the current cell
+
             const cellImageData = filterCtx.getImageData(cellX, cellY, cellWidth, cellHeight);
             const cellData = cellImageData.data;
 
@@ -87,40 +94,10 @@ export function pixelCanvas(filterCanvas, filterCtx) {
     //     }
     // }
 // Draw face
-//     for (let row = 0; row < 28; row++) {
-//         for (let col = 0; col < 30; col++) {
-//             pixelatedCtx.fillStyle = 'white';
-//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
-//         }
-//     }
-//
-// // Draw eyes
-//     for (let row = 10; row < 13; row++) {
-//         for (let col = 10; col < 13; col++) {
-//             pixelatedCtx.fillStyle = 'black';
-//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
-//         }
-//     }
-//
-//     for (let row = 10; row < 13; row++) {
-//         for (let col = 16; col < 19; col++) {
-//             pixelatedCtx.fillStyle = 'black';
-//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
-//         }
-//     }
-//
-// // Draw mouth
-//     for (let row = 17; row < 19; row++) {
-//         for (let col = 0; col < 30; col++) {
-//             pixelatedCtx.fillStyle = 'black';
-//             pixelatedCtx.fillRect(col * 1, row * 1, 1, 1);
-//         }
-//     }
-    const croppedImageData = pixelatedCanvas.toDataURL('image/png');
 
-    // Pass the data URL to the updateCroppedCanvas function
+    const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData);
-    const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
+    const imageData = pixelatedCtx.getImageData(0, 0, imgCol, imgRow);
 
     setDMXFromPixelCanvas(imageData)
 

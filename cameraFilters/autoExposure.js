@@ -28,93 +28,104 @@ export async function toggleAutoEV() {
 
 }
 
-let count = 0;
+let count = 5;
+const countThreshold = 5; // Define a threshold for the count
+
 export async function monitorBrightness(video, track) {
     const canvas = document.getElementById('gray-canvas');
-    const ctx = canvas.getContext('2d', {willReadFrequently: true});
-    const frameInterval = 50; // Interval between brightness checks in milliseconds
-    let exposureCompensation = 128; // Starting point for exposure compensation, adjust as needed
-    let exposureTime = 150; // Starting point for exposure time in microseconds, adjust as needed
-    let increasingExposureComp = true; // Direction flag for exposure compensation
-    let increasingExposureTime = true; // Direction flag for exposure time
-    let makingImageBrighter = true; // Flag for direction of adjustment
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const frameInterval = 1000; // Interval between brightness checks in milliseconds
+    const step = 10; // Increment for adjusting exposure
+    let exposureCompensation = 128; // Starting point for exposure compensation
+    let exposureTime = 150; // Starting point for exposure time in microseconds
+    const exposureTimeStep = 100; // Step size for adjusting exposure time
+    let makingImageBrighter = true; // Direction flag for adjusting brightness
 
-    track.applyConstraints({exposureMode: 'manual'});
+    // Define thresholds and limits
+    // const minValue = 100, maxValue = 150;
+    const maxExposureComp = 255, minExposureComp = 0;
+    const maxExposureTime = 1000, minExposureTime = 100;
 
+    // Apply initial manual exposure mode constraint
+    await track.applyConstraints({ exposureMode: 'manual' });
+
+    // Function to adjust exposure compensation based on brightness
+    async function adjustExposureCompensation(brightness) {
+        if (brightness < minValue && (exposureCompensation + step) < maxExposureComp) {
+            exposureCompensation += step;
+            await track.applyConstraints({ exposureCompensation, exposureTime });
+            // console.log('Exposure compensation adjusted to', exposureCompensation);
+        } else if (brightness > maxValue && (exposureCompensation - step) > minExposureComp) {
+            exposureCompensation -= step;
+            await track.applyConstraints({ exposureCompensation, exposureTime });
+            // console.log('Exposure compensation adjusted to', exposureCompensation);
+        }
+    }
+
+    // Function to adjust exposure time based on brightness and limits
+    async function adjustExposureTime(brightness) {
+        if (brightness < minValue && exposureTime < maxExposureTime) {
+            exposureTime += 2;
+            await track.applyConstraints({ exposureTime });
+            // console.log('Exposure time adjusted to', exposureTime);
+        } else if (brightness > maxValue && exposureTime > minExposureTime) {
+            exposureTime -= 2;
+            await track.applyConstraints({ exposureTime });
+            // console.log('Exposure time adjusted to', exposureTime);
+        }
+    }
+
+    // Periodically check video brightness and adjust camera settings
     const autoInt = setInterval(async () => {
-        if (auto && !video.paused) {
-            if (activeFace) {
-                let step = 5;
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const brightness = calculateBrightness(imageData.data);
-                // console.log('brightness ' + brightness + ' exposureCompensation ' + exposureCompensation)
-                if (brightness < minValue && (exposureCompensation + step) < maxExposureComp) {
-                    exposureCompensation += step; // Increase exposure compensation
-                    await track.applyConstraints({exposureCompensation: exposureCompensation});
-                    console.log('Exposure compensation increased to', exposureCompensation);
-                } else if (brightness > maxValue && (exposureCompensation - step) > minExposureComp ) {
-                    exposureCompensation -= step; // Decrease exposure compensation
-                    await track.applyConstraints({exposureCompensation: exposureCompensation});
-                    console.log('Exposure compensation decreased to', exposureCompensation);
+        if(!auto || video.paused) return
+        if (activeFace) {
+            count = 0; // Reset the counter after adjustments are made
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let brightness = calculateBrightness(imageData.data);
+            await adjustExposureCompensation(brightness);
+            // brightness = calculateBrightness(imageData.data);
+            // Additional adjustment for exposure time if needed
+            // if (brightness < minValue || brightness > maxValue) {
+            //     await adjustExposureTime(brightness);
+            // }
+        } else {
+            count++; // Increment count every time the else block is executed
+            if (count >= countThreshold) {
+                // Perform fallback adjustments only after several iterations without an active face
+                let newExposureTime = makingImageBrighter ?
+                    Math.min(exposureTime + exposureTimeStep, maxExposureTime) :
+                    Math.max(exposureTime - exposureTimeStep, minExposureTime);
+
+                if (newExposureTime !== exposureTime) {
+                    exposureTime = newExposureTime;
+                    await track.applyConstraints({ exposureTime });
+                    // console.log(`Fallback adjusted: Exposure Time = ${exposureTime}`);
                 }
 
-                // Additional check to adjust exposure time if brightness is not within desired range
-                if ((brightness < minValue || brightness > maxValue) && (exposureTime > minExposureTime || exposureTime < maxExposureTime)) {
-                    if (brightness < minValue) {
-                        exposureTime = Math.min(exposureTime + 1, maxExposureTime);
-                    } else if(brightness > maxValue) {
-                        exposureTime = Math.max(exposureTime - 1, minExposureTime);
-                    }
-                    await track.applyConstraints({exposureTime: exposureTime});
-                }
-                count = 0;
-
-            } else {
-                if (count === 25) {
-                    // count = 0;
-                    exposureCompensation = 128;
-                    let exposureTimeStep = 50
-                    if (makingImageBrighter) {
-                        if (exposureTime < maxExposureTime) {
-                            exposureTime += exposureTimeStep; // Adjust step size as needed
-                        }
-                    } else {
-                        if (exposureTime > minExposureTime) {
-                            exposureTime -= exposureTimeStep;
-                        }
-                    }
-
-                    // Apply constraints only if adjustments were made
-                    await track.applyConstraints({
-                        exposureTime: exposureTime,
-                    });
-
-                    console.log(`Adjusted: Exposure Time = ${exposureTime}`);
-
-                    // Reverse direction based on exposureTime reaching its limits, not exposureCompensation
-                    if (makingImageBrighter && exposureTime >= maxExposureTime) {
-                        makingImageBrighter = false; // Start decreasing
-                    } else if (!makingImageBrighter && exposureTime <= minExposureTime) {
-                        makingImageBrighter = true; // Start increasing
-                    }
-                } else{
-                    count++
+                // Check if the exposure time has reached its limits and reverse direction if so
+                if ((makingImageBrighter && exposureTime >= maxExposureTime) ||
+                    (!makingImageBrighter && exposureTime <= minExposureTime)) {
+                    makingImageBrighter = !makingImageBrighter; // Toggle the direction
+                    // console.log("Toggling direction to make image", makingImageBrighter ? "brighter" : "darker");
                 }
             }
-
         }
     }, frameInterval);
 }
 
-function calculateBrightness(imageData) {
-    // Calculate luminance (brightness) of an RGB pixel
+function calculateBrightness(imageData, sampleRate = 10) {
+    // Calculate luminance (brightness) of an RGB pixel based on a sample
     let sum = 0;
-    for (let i = 0; i < imageData.length; i += 4) {
-        sum += 0.299 * imageData[i] + 0.587 * imageData[i + 1] + 0.114 * imageData[i + 2];
-    }
-    return sum / (imageData.length / 4);
-}
+    let count = 0; // Keep track of the number of pixels sampled
 
+    // Only sample every 'sampleRate'th pixel to reduce computation
+    for (let i = 0; i < imageData.length; i += 4 * sampleRate) {
+        sum += 0.299 * imageData[i] + 0.587 * imageData[i + 1] + 0.114 * imageData[i + 2];
+        count++;
+    }
+
+    return sum / count;
+}
 
 const contrastEnhSlider = document.getElementById("brightnessRangeSlider");
 // Initialize the range slider with two thumbs

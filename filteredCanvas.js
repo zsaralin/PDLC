@@ -2,8 +2,11 @@ import OneEuroFilter from "./euroFilter.js";
 
 const lag = document.getElementById('lag');
 import {applyFilters} from "./filters/applyFilters.js";
+import {imgRatio} from "./imageRatio.js";
 
 const roi = document.getElementById("roi");
+const roiXOffset = document.getElementById("roiXOffset");
+const roiYOffset = document.getElementById("roiYOffset");
 
 let currentCenterX = roi.value / 2; // Initialize with the center of the canvas
 let currentCenterY = roi.value / 2;
@@ -22,8 +25,8 @@ export function toggleCenter() {
 }
 
 let ctx;
-let filterCanvas;
-let filterCtx;
+// let filterCanvas;
+// let filterCtx;
 const filterFreq = 60; // Frequency of incoming data, in Hz
 const minCutoff = 1.0; // Minimum cutoff frequency
 const beta = 0.01; // Beta parameter
@@ -31,19 +34,29 @@ const dCutoff = 1.0; // Derivative cutoff frequency
 
 const filterX = new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff);
 const filterY = new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff);
+const filterZ = new OneEuroFilter(filterFreq, 0.1, 0, dCutoff);
 
+const THRESHOLD = 50; // Define the threshold for width change
+let previousWidth = 50;
+let previousHeight = 50;
+const filterCanvas = document.createElement('canvas');
+const filterCtx = filterCanvas.getContext('2d', {willReadFrequently: true});
+filterCanvas.width = 50;
+filterCanvas.height = 50;
 export function filteredCanvas(video, canvas, person) {
     ctx = canvas.getContext('2d', {willReadFrequently: true});
-    // ctx.strokeStyle = "yellow"
     ctx.beginPath();
-    filterCanvas = document.createElement('canvas');
-    filterCtx = filterCanvas.getContext('2d', {willReadFrequently: true});
     if (!filterCtx) return;
     const {x, y, width, height} = person.detection.box;
     const centerX = x + width / 2;
     const centerY = y + height / 2;
-    filterCanvas.width = roi.value;
-    filterCanvas.height = roi.value;
+
+    let timestamp2 = Date.now();
+    let smoothedWidth = filterZ.filter(width, timestamp2);
+    filterCanvas.width = smoothedWidth * roi.value* imgRatio;
+    filterCanvas.height = smoothedWidth * roi.value
+    previousWidth = width;
+
     const leewayFactor = 1 - lag.value;
     const movementThreshold = 15; // Adjust this value based on your requirements
 
@@ -61,47 +74,18 @@ export function filteredCanvas(video, canvas, person) {
         if (Math.abs(smoothedDeltaX) > movementThreshold) {
             currentCenterX += smoothedDeltaX * (1 - lag.value);
         }
-
         if (Math.abs(smoothedDeltaY) > movementThreshold) {
             currentCenterY += smoothedDeltaY * (1 - lag.value);
         }
-        ctx.strokeStyle = "yellow"
-        ctx.lineWidth = 3
+        // Ensure centerX and centerY are within the canvas bounds
         let maxCenterX = canvas.width - filterCanvas.width / 2;
         let maxCenterY = canvas.height - filterCanvas.height / 2;
 
-        // Adjust centerX and centerY if they exceed the canvas bounds
-        let adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvas.width / 2, currentCenterX));
-        let adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvas.height / 2, currentCenterY));
+        let adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvas.width / 2, currentCenterX)) + parseInt(roiXOffset.value);
+        let adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvas.height / 2, currentCenterY)) + parseInt(roiYOffset.value);
 
-        // Calculate the top-left corner from the adjusted center
         let topLeftX = adjustedCenterX - filterCanvas.width / 2;
         let topLeftY = adjustedCenterY - filterCanvas.height / 2;
-
-        // Copy the contents inside the square to the temporary canvas
-        drawAndRect(topLeftX, topLeftY, video);
-        ctx.stroke(); // Apply the stroke with the current style (blue)
-
-        deltaX = centerX - currentCenterX;
-        deltaY = centerY - currentCenterY;
-
-        if (Math.abs(deltaX) > movementThreshold) {
-            currentCenterX += deltaX * (1 - lag.value);
-        }
-
-        if (Math.abs(deltaY) > movementThreshold) {
-            currentCenterY += deltaY * (1 - lag.value);
-        }
-        // Ensure centerX and centerY are within the canvas bounds
-        maxCenterX = canvas.width - filterCanvas.width / 2;
-        maxCenterY = canvas.height - filterCanvas.height / 2;
-
-        // Adjust centerX and centerY if they exceed the canvas bounds
-        adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvas.width / 2, currentCenterX));
-        adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvas.height / 2, currentCenterY));
-
-        currentCenterX0 += (centerX - currentCenterX0) * leewayFactor;
-        currentCenterY0 += (centerY - currentCenterY0) * leewayFactor;
 
         ctx.beginPath();
 
@@ -114,21 +98,9 @@ export function filteredCanvas(video, canvas, person) {
             filterCanvas.width,
             filterCanvas.height
         );
-        //
-        // // Ensure centerX and centerY are within the canvas bounds
-        // maxCenterX = canvas.width - filterCanvas.width / 2;
-        // maxCenterY = canvas.height - filterCanvas.height / 2;
-        //
-        // // Adjust centerX and centerY if they exceed the canvas bounds
-        // adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvas.width / 2, currentCenterX0));
-        // adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvas.height / 2, currentCenterY0));
-        //
-        // // Copy the contents inside the square to the temporary canvas
-        // ctx.rect(
-        //     adjustedCenterX - filterCanvas.width / 2, adjustedCenterY - filterCanvas.height / 2,
-        //     filterCanvas.width,
-        //     filterCanvas.height
-        // );
+
+        drawAndRect(topLeftX, topLeftY, video);
+
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -154,7 +126,6 @@ export function filteredCanvas(video, canvas, person) {
         easingFactorY = 0.1;
     }
     applyFilters(filterCanvas, filterCtx, person)
-    // ctx.stroke()
     ctx.strokeStyle = "white"
 
 }
@@ -186,17 +157,30 @@ function drawAndRect(x, y, video) {
         filterCanvas.height
     );
 }
-
+const dict = {
+    'pixel-canvas': document.getElementById('pixel-canvas')?.getContext('2d'),
+    'gray-canvas': document.getElementById('gray-canvas')?.getContext('2d'),
+    'cropped-canvas': document.getElementById('cropped-canvas')?.getContext('2d')
+}
 export function updateCanvas(canvasId, croppedImageData) {
-    const canvas = document.getElementById(canvasId);
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            const img = new Image();
-            img.src = croppedImageData;
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            };
-        }
+    const ctx = dict[canvasId];
+    if (ctx) {
+        const img = new Image();
+        img.src = croppedImageData;
+        img.onload = () => {
+            // Calculate the aspect ratio for the canvas size
+            const aspectRatio = imgRatio; // Adjust this ratio as needed
+
+            // Determine the size to draw the image
+            // Adjust these values to maintain the aspect ratio based on your requirements
+            let drawWidth = 100; // This could be dynamic based on the canvas size or image size
+            let drawHeight = drawWidth / aspectRatio;
+
+            // Update canvas size to maintain aspect ratio if necessary
+            ctx.canvas.width = drawWidth;
+            ctx.canvas.height = drawHeight;
+
+            ctx.drawImage(img, 0, 0, drawWidth, drawHeight);
+        };
     }
 }

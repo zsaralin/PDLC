@@ -7,6 +7,7 @@
 
 
 import {updateDMXGrid} from "./dmxGrid.js";
+import {imgCol, imgRow} from "./imageRatio.js";
 
 var options = {
     host: '10.0.7.190',
@@ -26,12 +27,11 @@ var options = {
 let count = 0;
 
 export async function setDMXFromPixelCanvas(imageData) {
-
     let brightnessValues = [];
     const data = imageData.data;
     const imageWidth = imageData.width; // Actual width of the imageData
-    const cols = 30; // First 10 columns
-    const rows = 28; // First 28 rows
+    const cols = imgCol; // First 10 columns
+    const rows = imgRow; // First 28 rows
 
 // Loop through each row and column within the specified grid size
     for (let row = 0; row < rows; row++) {
