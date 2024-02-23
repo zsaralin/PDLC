@@ -117,7 +117,7 @@ app.post('/set-dmx', async (req, res) => {
                     }
                 }
                 for (let row = 0; row < rows; row++) {
-                    const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
+                    const rowData = dmxValues[row]; // Get the brightness values for the current row
                     for (let col = 10; col < 20; col++) {
                         const colIndex = col; // Considering the gridWidth as totalColumns
                         const brightness = rowData[col]; // Set first row to black, others follow rowData values
