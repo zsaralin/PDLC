@@ -31,7 +31,7 @@ export function drawFaces(canvas, person, video) {
     // drawROI()
     // ctx.rect(person.detection.box.x - padding, person.detection.box.y - padding, person.detection.box.width + (padding * 2), person.detection.box.height + (padding*2));
     // ctx.stroke();
-    // drawNose(person.landmarks.positions[27], person.landmarks.positions[33]);
+    // drawNose(person);
     // drawCurvedEyebrow(person.landmarks.positions.slice(17, 22)); // Left eyebrow
     // drawCurvedEyebrow(person.landmarks.positions.slice(22, 27)); // Right eyebrow
     // drawMouth(person.landmarks.positions.slice(48, 67)); // Mouth
@@ -41,19 +41,18 @@ export function drawFaces(canvas, person, video) {
 
     function drawBB(person){
         ctx.beginPath();
-        ctx.rect(person.detection.box.x, person.detection.box.y, person.detection.box.width, person.detection.box.height);
+        // ctx.rect(person.detection.box.x, person.detection.box.y, person.detection.box.width, person.detection.box.height);
+        ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
         ctx.stroke();
     }
 
-    function drawNose(startIndex, endIndex) {
-        const start = startIndex;
-        const end = endIndex;
-        if (start && end) {
+    function drawNose(person) {
+        const start = person.keypoints[2];
             ctx.beginPath();
             ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y - 20);
+            ctx.lineTo(start.x, start.y - 20);
             ctx.stroke();
-        }
+
     }
     function calculateDistance(point1, point2) {
         const dx = point1.x - point2.x;

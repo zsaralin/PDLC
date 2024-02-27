@@ -24,7 +24,6 @@ generateDmxGrid('dmx3', 20, 30);
 export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 30) {
     const gridWidth = 30; // Number of columns to display
     const rows = 28; // Total rows
-    console.log(brightnessValues[0].length)
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < gridWidth; col++) {
             const cellId = `dmxCell-${row}-${29-col}`;
@@ -32,12 +31,14 @@ export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 
             // Calculate the actual index in brightnessValues
             // Considering the startColumn and the row's offset in the full data width
             let rowIndex = row;
-            let colIndex = startColumn + col;
-            if(colIndex > 9 && colIndex <= 19 ){
-                // colIndex+=(imgCol-30)/2
+            let colIndex = startColumn + col ;
+            if(colIndex > 19){ // first panel
+                colIndex += (imgCol-30)
+            }
+            else if(colIndex > 9 && colIndex <= 19){ // middle panel
+                colIndex+=(imgCol-30)/2
             }
             else if(colIndex <=9 ){
-                // colIndex+= (imgCol-30)
             }
             // Get the brightness value from the brightnessValues array of arrays
             const brightness = brightnessValues[rowIndex][colIndex];

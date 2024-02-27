@@ -6,8 +6,8 @@ let exposureCompensation = 0; // Initial exposure compensation value
 export let auto = true;
 // Get the grayscale values display element
 const enhValues = document.getElementById('brightnessRange');
-let minValue = 88;
-let maxValue = 168;
+let minValue = 120;
+let maxValue = 125;
 const minExposureTime = 0; // Minimum exposure time in microseconds
 const maxExposureTime = 1250; // Maximum exposure time in microseconds
 const minExposureComp = 0;
@@ -29,7 +29,7 @@ export async function toggleAutoEV() {
 }
 
 let count = 5;
-const countThreshold = 5; // Define a threshold for the count
+const countThreshold = 10; // Define a threshold for the count
 
 export async function monitorBrightness(video, track) {
     const canvas = document.getElementById('gray-canvas');
@@ -50,15 +50,53 @@ export async function monitorBrightness(video, track) {
     await track.applyConstraints({ exposureMode: 'manual' });
 
     // Function to adjust exposure compensation based on brightness
+    let exposureCompensationLimitHitCounter = 0;
+    const exposureCompensationLimitHitThreshold = 3; // Set this to the desired threshold
+
     async function adjustExposureCompensation(brightness) {
-        if (brightness < minValue && (exposureCompensation + step) < maxExposureComp) {
-            exposureCompensation += step;
-            await track.applyConstraints({ exposureCompensation, exposureTime });
-            // console.log('Exposure compensation adjusted to', exposureCompensation);
-        } else if (brightness > maxValue && (exposureCompensation - step) > minExposureComp) {
-            exposureCompensation -= step;
-            await track.applyConstraints({ exposureCompensation, exposureTime });
-            // console.log('Exposure compensation adjusted to', exposureCompensation);
+        let adjustmentNeeded = false;
+
+        // Assuming these variables are defined in your scope
+        let exposureCompensation = track.getSettings().exposureCompensation || 0; // Current exposure compensation
+        const minExposureComp = 0; // Minimum exposure compensation value
+        const maxExposureComp = 255; // Maximum exposure compensation value
+
+        if (brightness < minValue || brightness > maxValue) {
+            let adjustmentFactor = brightness < minValue ? Math.abs(minValue - brightness)/5 : Math.abs(brightness - maxValue)/5;
+            console.log('adjustment ' + adjustmentFactor);
+
+            let actualStep = adjustmentFactor; // Adjusted step based on the distance from target brightness
+
+            if (brightness < minValue) {
+                if ((exposureCompensation + actualStep) <= maxExposureComp) {
+                    exposureCompensation += actualStep;
+                    adjustmentNeeded = true;
+                }
+            } else if (brightness > maxValue) {
+                if ((exposureCompensation - actualStep) >= minExposureComp) {
+                    exposureCompensation -= actualStep;
+                    adjustmentNeeded = true;
+                }
+            }
+
+            if (adjustmentNeeded) {
+                exposureCompensation = Math.max(minExposureComp, Math.min(exposureCompensation, maxExposureComp));
+                await track.applyConstraints({ exposureCompensation });
+                console.log('Exposure compensation adjusted to', exposureCompensation);
+
+                // Check if exposure compensation is at its limits
+                if (exposureCompensation === minExposureComp || exposureCompensation === maxExposureComp) {
+                    exposureCompensationLimitHitCounter++;
+                    // If the limit has been hit consecutively, adjust exposure time
+                    if (exposureCompensationLimitHitCounter >= exposureCompensationLimitHitThreshold) {
+                        await adjustExposureTime(brightness); // Adjust this call to match your actual function's parameters
+                        exposureCompensationLimitHitCounter = 0; // Reset counter after adjusting exposure time
+                    }
+                } else {
+                    // Reset counter if the current adjustment does not hit the limits
+                    exposureCompensationLimitHitCounter = 0;
+                }
+            }
         }
     }
 

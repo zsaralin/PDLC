@@ -14,7 +14,10 @@ import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {initOuterRoi, processVideoFrame} from "./outerRoi.js";
 import {drawDMXTest} from "./dmxTests.js";
-
+import {
+    FaceDetector,
+    FilesetResolver,
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 // configuration options
 const modelPath = './model/'; // path to model folder that will be loaded using http
 // const modelPath = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'; // path to model folder that will be loaded using http
@@ -58,8 +61,17 @@ function detectVideo() {
         lastFrameTime = currentTime;
     }
     frameCount++;
+    let startTimeMs = performance.now();
 
+    // await faceDetection.send({image: video})
+    const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
+    currentFaces = processDetection(detections);
     processVideoFrame(processingCtx, video, canvas)
+    // let startTimeMs = performance.now();
+    //
+    // // await faceDetection.send({image: video})
+    // const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
+    // currentFaces = processDetection(detections);
     if (currentFaces) {
         // console.log('saw a face')
         drawFaces(canvas, currentFaces, currVideo);
@@ -70,17 +82,24 @@ function detectVideo() {
 }
 
 function startPeriodicFaceDetection() {
+
     setInterval(async () => {
         try {
-            await faceapi.detectAllFaces(processingCanvas, optionsTinyFaceDetector).withFaceLandmarks(true)
-                .then((result) => processDetection(result))
-                .then((face) => {
-                    currentFaces = face; // Update the global variable with the latest detection result
-                })
+            let startTimeMs = performance.now();
+
+            // await faceDetection.send({image: video})
+            const detections =  faceDetector.detectForVideo(video, startTimeMs).detections
+            const face = processDetection(detections)
+            currentFaces = face;
+            // await faceapi.detectAllFaces(processingCanvas, optionsTinyFaceDetector).withFaceLandmarks(true)
+            //     .then((result) => processDetection(result))
+            //     .then((face) => {
+            //         currentFaces = face; // Update the global variable with the latest detection result
+            //     })
         } catch (err) {
             console.error(`Detect Error: ${err}`);
         }
-    }, 20); // Update face detection results every second
+    }, 50); // Update face detection results every second
 }
 
 let webcamCanvas;
@@ -208,13 +227,13 @@ async function setupCamera() {
             processingCanvas.height = video.videoHeight;
             initOuterRoi(video);
 
-            // setInterval(drawDMXTest, 200); // 5000 milliseconds = 5 seconds
+            // setInterval(drawDMXTest, 1000); // 5000 milliseconds = 5 seconds
             monitorBrightness(video, track);
 
             video.play();
 
             await detectVideo();
-            startPeriodicFaceDetection()
+            // startPeriodicFaceDetection()
 
             updatePlayPauseButtonState();
             changeOrientation(0);
@@ -224,7 +243,7 @@ async function setupCamera() {
 const processingCanvas = document.createElement('canvas');
 const processingCtx = processingCanvas.getContext('2d');
 
-
+let faceDetector; let runningMode;
 async function setupFaceAPI() {
     // load face-api models
     // log('Models loading');
@@ -236,7 +255,25 @@ async function setupFaceAPI() {
     // await faceapi.nets.faceExpressionNet.load(modelPath);
     // optionsSSDMobileNet = new faceapi.SsdMobilenetv1Options({minConfidence: minScore, maxResults});
     await faceapi.loadFaceLandmarkTinyModel(modelPath)
-    optionsTinyFaceDetector = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: .4 });
+    optionsTinyFaceDetector = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: .1 });
+
+    // faceDetection = new FaceDetection({locateFile: (file) => {
+    //         return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+    //     }});
+    // faceDetection.setOptions({
+    //     model: 0,//'./model/blaze_face_short_range.tflite',
+    //     minDetectionConfidence: 0.5
+    // });
+    const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+    );
+    faceDetector = await FaceDetector.createFromOptions(vision, {
+        baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
+            delegate: "GPU"
+        },
+        runningMode: 'VIDEO'
+    });
 
     // check tf engine state
     log(`Models loaded`);

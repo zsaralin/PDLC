@@ -47,7 +47,8 @@ export function filteredCanvas(video, canvas, person) {
     ctx = canvas.getContext('2d', {willReadFrequently: true});
     ctx.beginPath();
     if (!filterCtx) return;
-    const {x, y, width, height} = person.detection.box;
+    const {originX: x, originY: y, width, height} = person.boundingBox;
+
     const centerX = x + width / 2;
     const centerY = y + height / 2;
 
