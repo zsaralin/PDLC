@@ -74,10 +74,9 @@ export function processVideoFrame(processingCtx, video, canvas) {
     rects.forEach(rect => {
         processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
     });
-    drawOuterRoi(canvas)
 }
 
-function drawOuterRoi(canvas){
+export function drawOuterRoi(canvas){
     // let ctx = canvas.getContext('2d')
     // ctx.fillStyle = 'black';
     // ctx.fillRect(0, 0, canvas.width, canvas.height);

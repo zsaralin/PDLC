@@ -12,7 +12,7 @@ import {bgSeg, segmentPersons, startSegmentation, stopSegmentation} from "./filt
 import {changeOrientation} from "./videoOrientation.js";
 import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
-import {initOuterRoi, processVideoFrame} from "./outerRoi.js";
+import {drawOuterRoi, initOuterRoi, processVideoFrame} from "./outerRoi.js";
 import {drawDMXTest} from "./dmxTests.js";
 import {FaceDetector, FilesetResolver,} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
 import {predictWebcam, startImageSegmenter} from "./filters/bgSeg2.js";
@@ -57,6 +57,9 @@ function detectVideo() {
     // await faceDetection.send({image: video})
     const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
     currentFaces = processDetection(detections);
+
+    const ctx = canvas.getContext('2d', {willReadFrequently: true});
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     processVideoFrame(processingCtx, video, canvas)
 
     // let startTimeMs = performance.now();
@@ -66,9 +69,9 @@ function detectVideo() {
     // currentFaces = processDetection(detections);
     if (currentFaces) {
         // console.log('saw a face')
-        const ctx = canvas.getContext('2d', {willReadFrequently: true});
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         if(bgSeg) predictWebcam(video)
+        drawOuterRoi(canvas)
         drawFaces(canvas, currentFaces, video);
 
     } else {
