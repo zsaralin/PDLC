@@ -71,15 +71,21 @@ export function processVideoFrame(processingCtx, video, canvas) {
 
     // Draw the black rectangles
     processingCtx.fillStyle = 'rgba(0, 0, 0, 1)'; // Fully opaque black
-    // rects.forEach(rect => {
-    //     processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    // });
+    rects.forEach(rect => {
+        processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
+    });
     drawOuterRoi(canvas)
 }
 
 function drawOuterRoi(canvas){
+    // let ctx = canvas.getContext('2d')
+    // ctx.fillStyle = 'black';
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d', {willReadFrequently: true});
+
+    // ctx.globalAlpha = 1;
     if(showOuterRoi) {
-        let ctx = canvas.getContext('2d')
+        // let ctx = canvas.getContext('2d')
         ctx.fillStyle = 'black';
         ctx.globalAlpha = 1;
 

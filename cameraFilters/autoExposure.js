@@ -63,7 +63,7 @@ export async function monitorBrightness(video, track) {
 
         if (brightness < minValue || brightness > maxValue) {
             let adjustmentFactor = brightness < minValue ? Math.abs(minValue - brightness)/5 : Math.abs(brightness - maxValue)/5;
-            console.log('adjustment ' + adjustmentFactor);
+            // console.log('adjustment ' + adjustmentFactor);
 
             let actualStep = adjustmentFactor; // Adjusted step based on the distance from target brightness
 
@@ -82,7 +82,7 @@ export async function monitorBrightness(video, track) {
             if (adjustmentNeeded) {
                 exposureCompensation = Math.max(minExposureComp, Math.min(exposureCompensation, maxExposureComp));
                 await track.applyConstraints({ exposureCompensation });
-                console.log('Exposure compensation adjusted to', exposureCompensation);
+                // console.log('Exposure compensation adjusted to', exposureCompensation);
 
                 // Check if exposure compensation is at its limits
                 if (exposureCompensation === minExposureComp || exposureCompensation === maxExposureComp) {

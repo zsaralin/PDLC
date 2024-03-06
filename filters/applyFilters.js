@@ -115,7 +115,7 @@ export function applyFilters(filterCanvas, filterCtx, person) {
         }
     }
 
-    // const croppedImageData = filterCanvas.toDataURL('image/png');
-    // updateCanvas('cropped-canvas', croppedImageData);
+    const croppedImageData = filterCanvas.toDataURL('image/png');
+    updateCanvas('cropped-canvas', croppedImageData);
     pixelCanvas(filterCanvas, filterCtx);
 }

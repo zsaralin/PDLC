@@ -14,10 +14,9 @@ import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {initOuterRoi, processVideoFrame} from "./outerRoi.js";
 import {drawDMXTest} from "./dmxTests.js";
-import {
-    FaceDetector,
-    FilesetResolver,
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+import {FaceDetector, FilesetResolver,} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+import {predictWebcam, startImageSegmenter} from "./filters/bgSeg2.js";
+
 // configuration options
 const modelPath = './model/'; // path to model folder that will be loaded using http
 // const modelPath = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'; // path to model folder that will be loaded using http
@@ -25,30 +24,22 @@ const minScore = 0.2; // minimum score
 const maxResults = 5; // maximum number of results to return
 let optionsTinyFaceDetector ;
 
-// helper function to pretty-print json object to string
-function str(json) {
-    let text = '<font color="white">';
-    text += json ? JSON.stringify(json).replace(/{|}|"|\[|\]/g, '').replace(/,/g, ', ') : '';
-    text += '</font>';
-    return text;
-}
-
 let prevBgSeg = false;
 let currentFaces = null; // Global variable to hold the latest face detection results
 
 function detectVideo() {
-    const currVideo = bgSeg ? webcamCanvas : video
-    if (bgSeg !== prevBgSeg) {
-        prevBgSeg = bgSeg;
-        if (bgSeg) {
-            startSegmentation()
-            segmentPersons(model, video, webcamCanvas, webcamCanvasCtx, tempCanvas, tempCanvasCtx)
-        } else {
-            stopSegmentation()
-            webcamCanvasCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height)
-
-        }
-    }
+    // const currVideo = bgSeg ? webcamCanvas : video
+    // if (bgSeg !== prevBgSeg) {
+    //     prevBgSeg = bgSeg;
+    //     if (bgSeg) {
+    //         startSegmentation()
+    //         segmentPersons(model, video, webcamCanvas, webcamCanvasCtx, tempCanvas, tempCanvasCtx)
+    //     } else {
+    //         stopSegmentation()
+    //         webcamCanvasCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height)
+    //
+    //     }
+    // }
     if (!video || video.paused) return Promise.resolve(false);
 
     // Calculate FPS
@@ -67,6 +58,7 @@ function detectVideo() {
     const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
     currentFaces = processDetection(detections);
     processVideoFrame(processingCtx, video, canvas)
+
     // let startTimeMs = performance.now();
     //
     // // await faceDetection.send({image: video})
@@ -74,34 +66,16 @@ function detectVideo() {
     // currentFaces = processDetection(detections);
     if (currentFaces) {
         // console.log('saw a face')
-        drawFaces(canvas, currentFaces, currVideo);
+        const ctx = canvas.getContext('2d', {willReadFrequently: true});
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if(bgSeg) predictWebcam(video)
+        drawFaces(canvas, currentFaces, video);
+
     } else {
         // clearCanvas(canvas)
     }
     requestAnimationFrame(() => detectVideo());
 }
-
-function startPeriodicFaceDetection() {
-
-    setInterval(async () => {
-        try {
-            let startTimeMs = performance.now();
-
-            // await faceDetection.send({image: video})
-            const detections =  faceDetector.detectForVideo(video, startTimeMs).detections
-            const face = processDetection(detections)
-            currentFaces = face;
-            // await faceapi.detectAllFaces(processingCanvas, optionsTinyFaceDetector).withFaceLandmarks(true)
-            //     .then((result) => processDetection(result))
-            //     .then((face) => {
-            //         currentFaces = face; // Update the global variable with the latest detection result
-            //     })
-        } catch (err) {
-            console.error(`Detect Error: ${err}`);
-        }
-    }, 50); // Update face detection results every second
-}
-
 let webcamCanvas;
 let webcamCanvasCtx;
 let tempCanvas;
@@ -190,7 +164,7 @@ async function setupCamera() {
         }
         log(`Camera state: ${video.paused ? 'paused' : 'playing'}`);
     }
-
+let imageSegmenter;
     function updatePlayPauseButtonState() {
         const playIcon = document.getElementById('play-icon');
         const pauseIcon = document.getElementById('pause-icon');
@@ -227,13 +201,12 @@ async function setupCamera() {
             processingCanvas.height = video.videoHeight;
             initOuterRoi(video);
 
-            // setInterval(drawDMXTest, 1000); // 5000 milliseconds = 5 seconds
+            // setInterval(drawDMXTest, 500); // 5000 milliseconds = 5 seconds
             monitorBrightness(video, track);
 
             video.play();
-
+            await startImageSegmenter(video, canvas);
             await detectVideo();
-            // startPeriodicFaceDetection()
 
             updatePlayPauseButtonState();
             changeOrientation(0);
@@ -245,8 +218,6 @@ const processingCtx = processingCanvas.getContext('2d');
 
 let faceDetector; let runningMode;
 async function setupFaceAPI() {
-    // load face-api models
-    // log('Models loading');
     await faceapi.nets.tinyFaceDetector.load(modelPath); // using ssdMobilenetv1
     // await faceapi.nets.ssdMobilenetv1.load(modelPath);
     // await faceapi.nets.ageGenderNet.load(modelPath);
@@ -274,30 +245,15 @@ async function setupFaceAPI() {
         },
         runningMode: 'VIDEO'
     });
+    console.log(faceDetector)
 
-    // check tf engine state
     log(`Models loaded`);
 }
 
 async function main() {
-    // initialize tfjs
-
     log('Level of Confidence');
-    // default is webgl backend
     await faceapi.tf.setBackend('webgl');
     await faceapi.tf.ready();
-    bodyPix.load({
-        architecture: 'MobileNetV1',
-        outputStride: 16,
-        multiplier: .75,
-        quantBytes: 2
-    })
-        .catch(error => {
-            console.log(error);
-        })
-        .then(objNet => {
-            model = objNet
-        })
     // tfjs optimizations
     if (faceapi.tf?.env().flagRegistry.CANVAS2D_WILL_READ_FREQUENTLY) faceapi.tf.env().set('CANVAS2D_WILL_READ_FREQUENTLY', true);
     if (faceapi.tf?.env().flagRegistry.WEBGL_EXP_CONV) faceapi.tf.env().set('WEBGL_EXP_CONV', true);

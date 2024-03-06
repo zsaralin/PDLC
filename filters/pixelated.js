@@ -59,6 +59,6 @@ export function pixelCanvas(filterCanvas, filterCtx) {
     // updateCanvas('pixel-canvas', croppedImageData);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
 
-    // setDMXFromPixelCanvas(imageData)
+    setDMXFromPixelCanvas(imageData)
 
 }

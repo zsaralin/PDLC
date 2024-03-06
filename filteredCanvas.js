@@ -3,6 +3,7 @@ import OneEuroFilter from "./euroFilter.js";
 const lag = document.getElementById('lag');
 import {applyFilters} from "./filters/applyFilters.js";
 import {imgRatio} from "./imageRatio.js";
+import {bgSeg} from "./filters/bgSeg.js";
 
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
@@ -100,7 +101,7 @@ export function filteredCanvas(video, canvas, person) {
             filterCanvas.height
         );
 
-        drawAndRect(topLeftX, topLeftY, video);
+        drawAndRect(topLeftX, topLeftY, bgSeg ? canvas : video);
 
         ctx.stroke(); // Apply the stroke with the current style (blue)
 

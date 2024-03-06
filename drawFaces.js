@@ -18,7 +18,6 @@ export function drawFaces(canvas, person, video) {
         clearPixelCanvas()
         return
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'white';
