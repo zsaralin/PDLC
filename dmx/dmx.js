@@ -1,30 +1,6 @@
-// const interval = 100; // Interval in milliseconds (1 second)
-// // Create an array to hold the DMX values for all channels
-// const dmxValues = Array(512).fill(0); // Initialize all channels to 0
-// const fadeDuration = 50; // Duration for each fade (0 to 255 and 255 to 0) in milliseconds
-// src/index.js
-// var artnet = require('artnet');
-
-
 import {updateDMXGrid} from "./dmxGrid.js";
-import {imgCol, imgRow} from "./imageRatio.js";
-
-var options = {
-    host: '10.0.7.190',
-    port: '1' // Default Art-Net port
-};
-
-// var dmx = artnet(options);
-
-// Example usage (adjust according to your needs)
-// dmx.set(1, [255, 255, 255], function(err, res) {
-//     if (err) console.log(err);
-//     else console.log('DMX data sent:', res);
-// });
-//
-// // Don't forget to close the connection when done
-// dmx.close();
-let count = 0;
+import {imgCol, imgRow} from "../imageRatio.js";
+import {SERVER_URL} from '../config.js'
 
 export async function setDMXFromPixelCanvas(imageData) {
     let brightnessValues = [];
@@ -47,7 +23,7 @@ export async function setDMXFromPixelCanvas(imageData) {
         brightnessValues.push(rowBrightness); // Push the array of brightness values for this row
     }
     updateDMXGrid(brightnessValues);
-        fetch('http://localhost:3000/set-dmx', {
+        fetch(`${SERVER_URL}/set-dmx`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,8 +37,3 @@ export async function setDMXFromPixelCanvas(imageData) {
 
 }
 
-// let currentChannel = 0;
-
-// Start sending
-// DMX frames repeatedly
-// setInterval(fadeInOut, interval);

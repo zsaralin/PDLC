@@ -4,16 +4,17 @@
  */
 
 import * as faceapi from './faceapi/face-api.esm.js'; // use when in dev mode
-import {clearCanvas, drawFaces} from './drawFaces.js'
+import {clearCanvas, drawFaces} from './drawing/drawFaces.js'
 import {processDetection} from "./newFaces.js";
 import {log} from "./overlay.js";
 import {setupSidePanel} from "./sidePanel.js";
-import {bgSeg, segmentPersons, startSegmentation, stopSegmentation} from "./filters/bgSeg.js";
 import {changeOrientation} from "./videoOrientation.js";
 import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
-import {initOuterRoi, processVideoFrame} from "./outerRoi.js";
-import {drawDMXTest} from "./dmxTests.js";
+import {drawOuterRoi, initOuterRoi, processVideoFrame} from "./drawing/outerRoi.js";
+import {predictWebcam, startImageSegmenter, bgSeg} from "./drawing/bgSeg.js";
+import {drawDMXTest} from "./dmx/dmxTests.js";
+
 import {
     FaceDetector,
     FilesetResolver,
@@ -37,18 +38,18 @@ let prevBgSeg = false;
 let currentFaces = null; // Global variable to hold the latest face detection results
 
 function detectVideo() {
-    const currVideo = bgSeg ? webcamCanvas : video
-    if (bgSeg !== prevBgSeg) {
-        prevBgSeg = bgSeg;
-        if (bgSeg) {
-            startSegmentation()
-            segmentPersons(model, video, webcamCanvas, webcamCanvasCtx, tempCanvas, tempCanvasCtx)
-        } else {
-            stopSegmentation()
-            webcamCanvasCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height)
+    // const currVideo = bgSeg ? webcamCanvas : video
+    // if (bgSeg !== prevBgSeg) {
+    //     prevBgSeg = bgSeg;
+    //     if (bgSeg) {
+    //         startSegmentation()
+    //         segmentPersons(model, video, webcamCanvas, webcamCanvasCtx, tempCanvas, tempCanvasCtx)
+    //     } else {
+    //         stopSegmentation()
+    //         webcamCanvasCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height)
 
-        }
-    }
+    //     }
+    // }
     if (!video || video.paused) return Promise.resolve(false);
 
     // Calculate FPS
@@ -73,8 +74,13 @@ function detectVideo() {
     // const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
     // currentFaces = processDetection(detections);
     if (currentFaces) {
+        const ctx = canvas.getContext('2d', {willReadFrequently: true});
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         // console.log('saw a face')
-        drawFaces(canvas, currentFaces, currVideo);
+        if(bgSeg) predictWebcam(video)
+        drawOuterRoi(canvas)
+
+        drawFaces(canvas, currentFaces, video);
     } else {
         // clearCanvas(canvas)
     }
@@ -253,6 +259,7 @@ async function setupCamera() {
             monitorBrightness(video, track);
 
             video.play();
+            await startImageSegmenter(video, canvas);
 
             await detectVideo();
             // startPeriodicFaceDetection()

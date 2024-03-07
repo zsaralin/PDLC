@@ -1,20 +1,16 @@
 import OneEuroFilter from "./euroFilter.js";
-
 const lag = document.getElementById('lag');
-import {applyFilters} from "./filters/applyFilters.js";
-import {imgRatio} from "./imageRatio.js";
-
+import {applyFilters} from "../filters/applyFilters.js";
+import {imgRatio} from "../imageRatio.js";
+import { bgSeg } from "./bgSeg.js";
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
 const roiYOffset = document.getElementById("roiYOffset");
 
 let currentCenterX = roi.value / 2; // Initialize with the center of the canvas
 let currentCenterY = roi.value / 2;
-let currentCenterX0 = roi.value / 2; // Initialize with the center of the canvas
-let currentCenterY0 = roi.value / 2;
 let previousCenterX = roi.value / 2; // Initialize with the initial center X
 let previousCenterY = roi.value / 2; // Initialize with the initial center Y
-
 let easingFactorX = 1; // Adjust this value for the desired smoothness on the X axis
 let easingFactorY = 1; // Adjust this value for the desired smoothness on the Y axis
 
@@ -25,8 +21,6 @@ export function toggleCenter() {
 }
 
 let ctx;
-// let filterCanvas;
-// let filterCtx;
 const filterFreq = 60; // Frequency of incoming data, in Hz
 const minCutoff = 1.0; // Minimum cutoff frequency
 const beta = 0.01; // Beta parameter
@@ -43,7 +37,8 @@ const filterCanvas = document.createElement('canvas');
 const filterCtx = filterCanvas.getContext('2d', {willReadFrequently: true});
 filterCanvas.width = 50;
 filterCanvas.height = 50;
-export function filteredCanvas(video, canvas, person) {
+
+export function computeROI(video, canvas, person) {
     ctx = canvas.getContext('2d', {willReadFrequently: true});
     ctx.beginPath();
     if (!filterCtx) return;
@@ -100,8 +95,7 @@ export function filteredCanvas(video, canvas, person) {
             filterCanvas.height
         );
 
-        drawAndRect(topLeftX, topLeftY, video);
-
+        drawROI(topLeftX, topLeftY, bgSeg? canvas : video);
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -120,7 +114,7 @@ export function filteredCanvas(video, canvas, person) {
         const adjustedDrawY = Math.min(maxY, Math.max(0, drawY));
 
         // Copy the contents inside the square to the temporary canvas
-        drawAndRect(adjustedDrawX, adjustedDrawY, video);
+        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? canvas : video);
         ctx.stroke()
 
         easingFactorX = 0.1;
@@ -128,7 +122,6 @@ export function filteredCanvas(video, canvas, person) {
     }
     applyFilters(filterCanvas, filterCtx, person)
     ctx.strokeStyle = "white"
-
 }
 
 function adjustPosition(previousPosition, newPosition, threshold, easingFactor) {
@@ -138,7 +131,7 @@ function adjustPosition(previousPosition, newPosition, threshold, easingFactor) 
     return previousPosition;
 }
 
-function drawAndRect(x, y, video) {
+function drawROI(x, y, video) {
     filterCtx.drawImage(
         video,
         x,
@@ -163,6 +156,7 @@ const dict = {
     'gray-canvas': document.getElementById('gray-canvas')?.getContext('2d'),
     'cropped-canvas': document.getElementById('cropped-canvas')?.getContext('2d')
 }
+
 export function updateCanvas(canvasId, croppedImageData) {
     const ctx = dict[canvasId];
     if (ctx) {

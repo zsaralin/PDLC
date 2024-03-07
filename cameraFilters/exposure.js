@@ -1,4 +1,6 @@
 import {auto} from "./autoExposure.js";
+import { SERVER_URL } from '../config.js';
+
 export let track;
 let exposureCompValue = 8; // Initialize the variable with a default value
 
@@ -12,7 +14,7 @@ const exposureModeSelect = document.getElementById('exposureModeSelect');
 exposureModeSelect.addEventListener('change', async function () {
     // Check the selected value and set 'manual' accordingly
     let exposureMode = (exposureModeSelect.value === 'manual') ? 1 : 8;
-    await fetch('http://localhost:3000/set-camera-control', {
+    await fetch(`${SERVER_URL}/set-camera-control`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +42,7 @@ const exposureTimeSpan = document.getElementById('exposureTime');
 exposureTimeVal.addEventListener('input', async function () {
     const exposureTimeValue = parseInt(exposureTimeVal.value);
     exposureTimeSpan.textContent = exposureTimeValue + ' ms'; // Update the span with the new value
-    await fetch('http://localhost:3000/set-camera-control', {
+    await fetch(`${SERVER_URL}/set-camera-control`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

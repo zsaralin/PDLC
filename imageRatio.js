@@ -1,15 +1,12 @@
-export let imgRatio = 32/28
+// script.js
+
+import { SERVER_URL } from './config.js';
+
+export let imgRatio = 32 / 28;
 export let imgRow = 28;
 export let imgCol = 32;
-sendPosition(imgCol, imgRow)
 
-export function setNumCol(i){
-    imgCol = i;
-    imgRatio = i/imgRow
-    sendPosition(imgCol, imgRow)
-}
-
-async function sendPosition(imgCol, imgRow) {
+export async function sendPosition(imgCol, imgRow) {
     // Prepare the data to send, including only imgCol and imgRow
     const postData = {
         imgCol: imgCol,
@@ -17,7 +14,7 @@ async function sendPosition(imgCol, imgRow) {
     };
 
     try {
-        const response = await fetch('http://localhost:3000/set-position', {
+        const response = await fetch(`${SERVER_URL}/set-position`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,4 +33,10 @@ async function sendPosition(imgCol, imgRow) {
     } catch (error) {
         console.error('Failed to send position:', error);
     }
+}
+
+export function setNumCol(i) {
+    imgCol = i;
+    imgRatio = i / imgRow;
+    sendPosition(imgCol, imgRow);
 }

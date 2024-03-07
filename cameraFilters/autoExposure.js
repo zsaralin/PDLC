@@ -1,5 +1,6 @@
 import {track} from "./exposure.js";
 import {activeFace} from "../newFaces.js";
+import { SERVER_URL } from '../config.js';
 
 export let auto = true;
 // Get the grayscale values display element
@@ -35,7 +36,7 @@ export async function monitorBrightness(video, track) {
     let step;
 
     // Apply initial manual exposure mode constraint
-    await fetch('http://localhost:3000/set-camera-control', {
+    await fetch(`${SERVER_URL}/set-camera-control`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ export async function monitorBrightness(video, track) {
     }
 
     async function setExposureTime(){
-        await fetch('http://localhost:3000/set-camera-control', {
+        await fetch(`${SERVER_URL}/set-camera-control`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

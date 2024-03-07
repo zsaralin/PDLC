@@ -117,3 +117,4 @@
 //     updateCanvas('cropped-canvas', croppedImageData);
 //     pixelCanvas(filterCanvas, filterCtx);
 // }
+

@@ -1,4 +1,5 @@
 import {track} from "./exposure.js";
+import { SERVER_URL } from '../config.js';
 
 let brightness = 0;
 let contrast = 50;
@@ -10,7 +11,7 @@ let colourTemp = 5500;
 let backlight = 1; 
 async function getControlValues(){
     try {
-        const response = await fetch('http://localhost:3000/get-control-values', {
+        const response = await fetch(`${SERVER_URL}/get-control-values`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ export async function initCamFilters() {
             }
 
             whiteMode = this.value === 'continuous' ? '1' : '0';
-            await fetch('http://localhost:3000/set-camera-control', {
+            await fetch(`${SERVER_URL}/set-camera-control`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -125,7 +126,7 @@ export async function initCamFilters() {
             // await track.applyConstraints({[property]: value});
             slider.addEventListener("input", async function () {
                 sliderVal.textContent = this.value;
-                await fetch('http://localhost:3000/set-camera-control', {
+                await fetch(`${SERVER_URL}/set-camera-control`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

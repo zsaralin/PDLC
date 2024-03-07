@@ -1,26 +1,25 @@
-import {updateCanvas} from "./filteredCanvas.js";
+import {updateCanvas} from "../drawing/drawROI.js";
 import {setDMXFromPixelCanvas} from "./dmx.js";
-import {imgCol, imgRow} from "./imageRatio.js";
+import {imgCol, imgRow} from "../imageRatio.js";
 
 let sweepRow = 0; // This counter will track the current row for the sweep
+
 const pixelatedCanvas = document.createElement('canvas');
 const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true });
-const gridWidth = 30; // Number of cells horizontally
-const gridHeight = 28; // Number of cells vertically
-pixelatedCanvas.width = gridWidth;
-pixelatedCanvas.height = gridHeight;
+pixelatedCanvas.width = 30;
+pixelatedCanvas.height = 28;
+
 function sweepDown() {
     // Clear the canvas or fill it with black
     pixelatedCtx.fillStyle = 'black';
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
-        pixelatedCtx.fillStyle = 'white';
+    pixelatedCtx.fillStyle = 'white';
 
-    pixelatedCtx.fillRect(0, sweepRow, imgCol, 1)
     // Sweep effect: Draw a single white column based on sweepRow counter for vertical movement
-    // for (let col = 0; col < 30; col++) {
-    //     pixelatedCtx.fillStyle = 'white';
-    //     pixelatedCtx.fillRect(col, sweepRow, 1, 1);
-    // }
+    for (let col = 0; col < 30; col++) {
+        pixelatedCtx.fillStyle = 'white';
+        pixelatedCtx.fillRect(col, sweepRow, 1, 1);
+    }
     sweepRow++;
     if(sweepRow >= imgRow) sweepRow = 0; // Reset for vertical movement
 }

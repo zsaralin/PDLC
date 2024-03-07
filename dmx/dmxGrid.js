@@ -1,4 +1,4 @@
-import {imgCol} from "./imageRatio.js";
+import {imgCol} from '../imageRatio.js'
 
 function generateDmxGrid(gridId, startCol, endCol) {
     let dmxGrid = document.getElementById(gridId);

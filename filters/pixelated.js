@@ -1,5 +1,5 @@
-import { updateCanvas } from "../filteredCanvas.js";
-import {setDMXFromPixelCanvas} from "../dmx.js";
+import { updateCanvas } from "../drawing/drawROI.js";
+import {setDMXFromPixelCanvas} from "../dmx/dmx.js";
 import {imgCol, imgRow} from "../imageRatio.js";
 
 const roi = document.getElementById("roi");

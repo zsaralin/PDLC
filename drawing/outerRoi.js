@@ -58,10 +58,8 @@ export function initOuterRoi(video) {
     updateRoi();
 }
 export function processVideoFrame(processingCtx, video, canvas) {
-    // Draw the video frame to the canvas
     processingCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
-    // Calculate the areas for the black rectangles
     const rects = [
         { x: 0, y: 0, width: video.videoWidth, height: roi.y }, // Top rectangle
         { x: 0, y: roi.y, width: roi.x, height: roi.height }, // Left rectangle
@@ -69,26 +67,20 @@ export function processVideoFrame(processingCtx, video, canvas) {
         { x: 0, y: roi.y + roi.height, width: video.videoWidth, height: video.videoHeight - roi.y - roi.height } // Bottom rectangle
     ];
 
-    // Draw the black rectangles
     processingCtx.fillStyle = 'rgba(0, 0, 0, 1)'; // Fully opaque black
-    // rects.forEach(rect => {
-    //     processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
-    // });
-    drawOuterRoi(canvas)
+    rects.forEach(rect => {
+        processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
+    });
 }
 
-function drawOuterRoi(canvas){
+export function drawOuterRoi(canvas){
+    const ctx = canvas.getContext('2d', {willReadFrequently: true});
     if(showOuterRoi) {
-        let ctx = canvas.getContext('2d')
         ctx.fillStyle = 'black';
         ctx.globalAlpha = 1;
-
         ctx.fillRect(0, 0, canvas.width, roi.y);
-        // Black out the bottom area
         ctx.fillRect(0, roi.y + roi.height, canvas.width, canvas.height - roi.y - roi.height);
-        // Black out the left area within ROI vertical bounds
         ctx.fillRect(0, roi.y, roi.x, roi.height);
-        // Black out the right area within ROI vertical bounds
         ctx.fillRect(roi.x + roi.width, roi.y, canvas.width - roi.x - roi.width, roi.height);
         ctx.globalAlpha = 0.9;
     }

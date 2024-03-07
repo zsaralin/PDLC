@@ -1,11 +1,11 @@
 import {toggleHisto} from "./filters/histogramEq.js";
 import {changeOrientation, toggleMirror} from "./videoOrientation.js";
-import {toggleCenter} from "./filteredCanvas.js";
+import {toggleCenter} from "./drawing/drawROI.js";
 import {initClahe} from "./filters/clahe.js";
 import {initEdge, toggleEdgeDetection} from './filters/edgeDetection.js'
-import {toggleBgSeg} from "./filters/bgSeg.js";
+import {toggleBgSeg} from "./drawing/bgSeg.js";
 import {toggleAutoEV} from "./cameraFilters/autoExposure.js";
-import {initMinDistSlider} from "./minEyeDist.js";
+import {initMinDistSlider} from "./drawing/minEyeDist.js";
 import {initCamFilters} from "./cameraFilters/camFilters.js";
 import {setNumCol} from "./imageRatio.js";
 export function setupSidePanel() {

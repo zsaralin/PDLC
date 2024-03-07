@@ -1,7 +1,7 @@
 // helper function to draw d
 // detected faces
 
-import {center, filteredCanvas} from "./filteredCanvas.js";
+import {computeROI} from "./drawROI.js";
 import {isEyeDistanceAboveThreshold} from "./minEyeDist.js";
 
 const padding = 40;
@@ -18,27 +18,15 @@ export function drawFaces(canvas, person, video) {
         clearPixelCanvas()
         return
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'white';
     ctx.fillStyle = 'white';
     ctx.globalAlpha = 0.9;
 
-    filteredCanvas(video, canvas, person)
-
+    computeROI(video, canvas, person)
     drawBB(person)
-    // drawROI()
-    // ctx.rect(person.detection.box.x - padding, person.detection.box.y - padding, person.detection.box.width + (padding * 2), person.detection.box.height + (padding*2));
-    // ctx.stroke();
-    // drawNose(person);
-    // drawCurvedEyebrow(person.landmarks.positions.slice(17, 22)); // Left eyebrow
-    // drawCurvedEyebrow(person.landmarks.positions.slice(22, 27)); // Right eyebrow
-    // drawMouth(person.landmarks.positions.slice(48, 67)); // Mouth
-    // drawNoseCurve(person.landmarks.positions);
-    // drawEyesWithCurves(person.landmarks.positions.slice(36, 42)); // Left eye
-    // drawEyesWithCurves(person.landmarks.positions.slice(42, 48)); // Right eye
-
+    
     function drawBB(person){
         ctx.beginPath();
         // ctx.rect(person.detection.box.x, person.detection.box.y, person.detection.box.width, person.detection.box.height);

@@ -8,7 +8,7 @@ import { claheFn, useClahe } from "./clahe.js";
 import { histo, histogramEqualization } from "./histogramEq.js";
 import { edge, edgeDetection } from "./edgeDetection.js";
 import { pixelCanvas } from "./pixelated.js";
-import { updateCanvas } from "../filteredCanvas.js";
+import { updateCanvas } from "../drawing/drawROI.js";
 
 const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
