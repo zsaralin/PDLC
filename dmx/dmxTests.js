@@ -49,13 +49,13 @@ function drawSmileyFaceFade() {
     const centerY = canvasHeight / 2;
     const radius = Math.min(canvasWidth, canvasHeight) / 2; // Adjust the size of the face
     const minColorValue = 50;
-    const maxColorValue = 200;
+    const maxColorValue = 180;
     const colorRange = maxColorValue - minColorValue;
     const colorValue = minColorValue + (Math.sin(fadeCounter) * colorRange / 2) + (colorRange / 2);
     const rgbValue = Math.floor(colorValue);
     const colorString = `rgb(${rgbValue},${rgbValue},${rgbValue})`;
     // Increment the fadeCounter
-    fadeCounter += .2; // Adjust this value to control the speed of the fading
+    fadeCounter += .1; // Adjust this value to control the speed of the fading
     // Clear the canvas or fill it with the calculated background color
     pixelatedCtx.fillStyle = colorString; // Use the dynamic color for the face background
     pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -161,7 +161,7 @@ function handleKeyPress(event) {
 }
 
 export function drawDMXTest() {
-    fillCanvasWithGrey()
+    drawSmileyFaceFade()
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);

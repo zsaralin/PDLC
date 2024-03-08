@@ -39,7 +39,6 @@ app.post('/set-dmx', async (req, res) => {
                 // once = true;
                 let {dmxValues} = req.body; // Received all 30 columns brightness values
                 dmxValues = dmxValues.map(row => row.map(value => 255 - value));
-
                 // console.log(dmxValues)
                 let universeData = {};
                 // console.log(dmxValues)
@@ -79,21 +78,16 @@ app.post('/set-dmx', async (req, res) => {
                 }
                 // Send DMX values for each universe
                 const setPromises = [];
-
                 for (const [universe, channels] of Object.entries(universeData)) {
                     let values = new Array(512).fill(0); // Initialize with zeros for all channels
                     channels.forEach(({channel, value}) => {
-                        if (channel <= 300) { // Considering only channels up to 300
+                        // console.log('uni ' + universe + ' and ' + channel)
+                        if (channel <= 300) { // Considering only channels up to 280
                             values[channel - 1] = value; // Subtracting 1 to adjust for zero-based indexing
                         }
                     });
-
-                    // Instead of awaiting here, push the promise into an array
-                    setPromises.push(artnet.set(parseInt(universe), 1, values));
+                    await artnet.set(parseInt(universe), 1, values);
                 }
-
-                // Wait for all set operations to complete
-                await Promise.all(setPromises);
         
             res.json({message: 'DMX set successfully'});
         } catch (err) {

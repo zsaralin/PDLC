@@ -98,11 +98,12 @@ async function initializeVideo() {
     video.play();
     changeOrientation(0);
     initOuterRoi(video);
-    monitorBrightness(video);
+    // monitorBrightness(video);
     setupPause(video);
     setupSidePanel();
     await startImageSegmenter(video, canvas);
-    await detectVideo();
+    // await detectVideo();
+    setInterval(drawDMXTest, 200)
     // drawDMXTest; // 5000 milliseconds = 5 seconds
 
 }
