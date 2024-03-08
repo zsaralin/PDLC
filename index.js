@@ -1,15 +1,15 @@
 import {clearCanvas, drawFaces} from './drawing/drawFaces.js'
 import {processDetection} from "./newFaces.js";
 import {log} from "./overlay.js";
-import {setupSidePanel} from "./UIElements/sidePanel.js";
+import {setupSidePanel} from "./uiElements/sidePanel.js";
 import {changeOrientation} from "./videoOrientation.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {drawOuterRoi, initOuterRoi, processVideoFrame} from "./drawing/outerRoi.js";
 import {predictWebcam, startImageSegmenter, bgSeg} from "./drawing/bgSeg.js";
 import {drawDMXTest} from "./dmx/dmxTests.js";
 import { setupFaceAPI } from './faceapi.js';
-import { calculateFPS } from './UIElements/fps.js';
-import { setupPause } from './UIElements/pauseButton.js';
+import { calculateFPS } from './uiElements/fps.js';
+import { setupPause } from './uiElements/pauseButton.js';
 
 let currentFaces = null; // Global variable to hold the latest face detection results
 let canvas;
