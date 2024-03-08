@@ -1,5 +1,14 @@
-# \<PDLC\>
-
+```
+.-------.  ______       .---.        _______    
+\  _(`)_ \|    _ `''.   | ,_|       /   __  \   
+| (_ o._)|| _ | ) _  \,-./  )      | ,_/  \__)  
+|  (_,_) /|( ''_'  ) |\  '_ '`)  ,-./  )        
+|   '-.-' | . (_) `. | > (_)  )  \  '_ '`)      
+|   |     |(_    ._) '(  .  .-'   > (_)  )  __  
+|   |     |  (_.\.' /  `-'`-'|___(  .  .-'_/  ) 
+/   )     |       .'    |        \`-'`-'     /  
+`---'     '-----'`      `--------`  `._____.'   
+```
 ### Description
 
 Detects face via MediaPipe, applies filters, background segmentation, and adjusts camera exposure, converts to pixelated version (30x28), sends brightness values as DMX channels\
