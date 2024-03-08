@@ -1,352 +1,126 @@
-/**
- * FaceAPI Demo for Browsers
- * Loaded via `webcam.html`
- */
-
-import * as faceapi from './faceapi/face-api.esm.js'; // use when in dev mode
 import {clearCanvas, drawFaces} from './drawing/drawFaces.js'
 import {processDetection} from "./newFaces.js";
 import {log} from "./overlay.js";
-import {setupSidePanel} from "./sidePanel.js";
+import {setupSidePanel} from "./UIElements/sidePanel.js";
 import {changeOrientation} from "./videoOrientation.js";
-import {sendTrack} from "./cameraFilters/exposure.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {drawOuterRoi, initOuterRoi, processVideoFrame} from "./drawing/outerRoi.js";
 import {predictWebcam, startImageSegmenter, bgSeg} from "./drawing/bgSeg.js";
 import {drawDMXTest} from "./dmx/dmxTests.js";
+import { setupFaceAPI } from './faceapi.js';
+import { calculateFPS } from './UIElements/fps.js';
+import { setupPause } from './UIElements/pauseButton.js';
 
-import {
-    FaceDetector,
-    FilesetResolver,
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
-// configuration options
-const modelPath = './model/'; // path to model folder that will be loaded using http
-// const modelPath = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'; // path to model folder that will be loaded using http
-const minScore = 0.2; // minimum score
-const maxResults = 5; // maximum number of results to return
-let optionsTinyFaceDetector ;
-
-// helper function to pretty-print json object to string
-function str(json) {
-    let text = '<font color="white">';
-    text += json ? JSON.stringify(json).replace(/{|}|"|\[|\]/g, '').replace(/,/g, ', ') : '';
-    text += '</font>';
-    return text;
-}
-
-let prevBgSeg = false;
 let currentFaces = null; // Global variable to hold the latest face detection results
+let canvas;
+let ctx;
+const processingCanvas = document.createElement('canvas');
+const processingCtx = processingCanvas.getContext('2d');
 
-function detectVideo() {
-    // const currVideo = bgSeg ? webcamCanvas : video
-    // if (bgSeg !== prevBgSeg) {
-    //     prevBgSeg = bgSeg;
-    //     if (bgSeg) {
-    //         startSegmentation()
-    //         segmentPersons(model, video, webcamCanvas, webcamCanvasCtx, tempCanvas, tempCanvasCtx)
-    //     } else {
-    //         stopSegmentation()
-    //         webcamCanvasCtx.clearRect(0, 0, webcamCanvas.width, webcamCanvas.height)
+let faceDetector; 
+let video;
 
-    //     }
-    // }
+export function detectVideo() {
     if (!video || video.paused) return Promise.resolve(false);
-
-    // Calculate FPS
-    const currentTime = performance.now();
-    const elapsedTime = currentTime - lastFrameTime;
-    if (elapsedTime >= 1000) {
-        const fps = Math.round((frameCount * 1000) / elapsedTime);
-        fpsDisplay.textContent = `Processing FPS: ${fps}`;
-        frameCount = 0;
-        lastFrameTime = currentTime;
-    }
-    frameCount++;
+    calculateFPS()
     let startTimeMs = performance.now();
-
-    // await faceDetection.send({image: video})
     const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
     currentFaces = processDetection(detections);
     processVideoFrame(processingCtx, video, canvas)
-    // let startTimeMs = performance.now();
-    //
-    // // await faceDetection.send({image: video})
-    // const detections =  faceDetector.detectForVideo(processingCanvas, startTimeMs).detections
-    // currentFaces = processDetection(detections);
     if (currentFaces) {
-        const ctx = canvas.getContext('2d', {willReadFrequently: true});
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // console.log('saw a face')
         if(bgSeg) predictWebcam(video)
         drawOuterRoi(canvas)
-
-        drawFaces(canvas, currentFaces, video);
+        drawFaces(ctx, currentFaces, video);
     } else {
         // clearCanvas(canvas)
     }
     requestAnimationFrame(() => detectVideo());
 }
-
-function startPeriodicFaceDetection() {
-
-    setInterval(async () => {
-        try {
-            let startTimeMs = performance.now();
-
-            // await faceDetection.send({image: video})
-            const detections =  faceDetector.detectForVideo(video, startTimeMs).detections
-            const face = processDetection(detections)
-            currentFaces = face;
-            // await faceapi.detectAllFaces(processingCanvas, optionsTinyFaceDetector).withFaceLandmarks(true)
-            //     .then((result) => processDetection(result))
-            //     .then((face) => {
-            //         currentFaces = face; // Update the global variable with the latest detection result
-            //     })
-        } catch (err) {
-            console.error(`Detect Error: ${err}`);
-        }
-    }, 50); // Update face detection results every second
-}
-
-let webcamCanvas;
-let webcamCanvasCtx;
-let tempCanvas;
-let tempCanvasCtx;
-let canvas;
-let track;
-
-
-let lastFrameTime = performance.now();
-let frameCount = 0;
-let fpsDisplay = document.getElementById('fps-display');
-
-// just initialize everything and call main function
 async function setupCamera() {
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    webcamCanvas = document.getElementById("blackCanvas");
-    webcamCanvasCtx = webcamCanvas.getContext('2d');
-
-//In Memory Canvas used for model prediction
-    tempCanvas = document.createElement('canvas');
-    tempCanvasCtx = tempCanvas.getContext('2d');
-    const playPauseButton = document.getElementById('playPauseButton');
-    if (!video || !canvas || !playPauseButton) return null;
-
     log('Setting up camera');
-    // setup webcam. note that navigator.mediaDevices requires that page is accessed via https
+    
     if (!navigator.mediaDevices) {
         log('Camera Error: access not supported');
         return null;
     }
-    let stream;
-    // let track;
-    const constraints = {audio: false, video: {facingMode: 'user', width: 320}};
-    // if (window.innerWidth > window.innerHeight) constraints.video.width = {ideal: window.innerWidth};
-    // else constraints.video.height = {ideal: window.innerHeight};
-    // if (window.innerWidth > window.innerHeight) constraints.video.width = {ideal: window.innerWidth};
-    // else constraints.video.height = {ideal: window.innerHeight};
-
+    
     try {
-
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(device => device.kind === 'videoinput');
-        const targetCamera = videoInputs.find(device => device.label.includes('Usb'));
+        const targetCamera = findTargetCamera(videoInputs);
+        
         if (targetCamera) {
-            // Constraints object with the specific camera deviceId
-            const constraints = {
-                video: {
-                    audio: false,
-                    deviceId: { exact: targetCamera.deviceId },
-                    width: 640,
+            await initializeVideoStream(targetCamera.deviceId);
+            return new Promise((resolve) => {
+                if (video.readyState >= 2) {
+                    initializeVideo();
+                    resolve(true);
+                } else {
+                    video.onloadeddata = async () => {
+                        await initializeVideo();
+                        resolve(true);
+                    };
                 }
-            };
-
-            // Requesting the stream
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
-              
-
-    // videoTrack.enabled = true; 
-    // console.log('Brightness adjusted to:', brightnessValue);
-    
-            }
-
-        // track = stream.getVideoTracks()[0];
-
-
+            });
+        }
     } catch (err) {
-        if (err.name === 'PermissionDeniedError' || err.name === 'NotAllowedError') log(`Camera Error: camera permission denied: ${err.message || err}`);
-        if (err.name === 'SourceUnavailableError') log(`Camera Error: camera not available: ${err.message || err}`);
+        handleCameraError(err);
         return null;
     }
-    if (stream) {
-        video.srcObject = stream;
-        track = stream.getVideoTracks()[0];
-        sendTrack(track)
-        await track.applyConstraints({ exposureMode: 'continuous' })
-
-        // video.style.width = '100%';  // Ensure the video takes up the full width of the container
-        // video.style.height = '150%';
-        // video.style.objectFit = 'cover';
-
-    } else {
-        log('Camera Error: stream empty');
-        return null;
-    }
-
-    // const settings = track.getSettings();
-    // if (settings.deviceId) delete settings.deviceId;
-    // if (settings.groupId) delete settings.groupId;
-    // if (settings.aspectRatio) settings.aspectRatio = Math.trunc(100 * settings.aspectRatio) / 100;
-    log(`Camera active: ${track.label}`);
-    // log(`Camera settings: ${str(settings)}`);
-
-    playPauseButton.addEventListener('click', togglePlayPause);
-
-    // Append the button to the body or any other container you prefer
-    document.getElementById('video-container').appendChild(playPauseButton);
-
-    function togglePlayPause() {
-        if (video && video.readyState >= 2) {
-            if (video.paused) {
-                video.play();
-                detectVideo(video, canvas);
-            } else {
-                video.pause();
-            }
-            updatePlayPauseButtonState();
-        }
-        log(`Camera state: ${video.paused ? 'paused' : 'playing'}`);
-    }
-
-    function updatePlayPauseButtonState() {
-        const playIcon = document.getElementById('play-icon');
-        const pauseIcon = document.getElementById('pause-icon');
-
-        if (video.paused) {
-            playIcon.style.display = 'flex';
-            pauseIcon.style.display = 'none';
-        } else {
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'flex';
-        }
-    }
-    return new Promise((resolve) => {
-        // Check if the video is already in a state where it has data
-        if (video.readyState >= 2) {
-            initializeVideo();
-            resolve(true);
-        } else {
-            video.onloadeddata = async () => {
-                await initializeVideo();
-                resolve(true);
-            };
-        }
-
-        async function initializeVideo() {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            webcamCanvas.width = video.videoWidth;
-            webcamCanvas.height = video.videoHeight;
-            tempCanvas.width = video.videoWidth;
-            tempCanvas.height = video.videoHeight;
-
-            processingCanvas.width = video.videoWidth; // Ensure these match the video's dimensions
-            processingCanvas.height = video.videoHeight;
-            initOuterRoi(video);
-
-            // setInterval(drawDMXTest, 1000); // 5000 milliseconds = 5 seconds
-            monitorBrightness(video, track);
-
-            video.play();
-            await startImageSegmenter(video, canvas);
-
-            await detectVideo();
-            // startPeriodicFaceDetection()
-
-            updatePlayPauseButtonState();
-            changeOrientation(0);
-        }
-    });
 }
-const processingCanvas = document.createElement('canvas');
-const processingCtx = processingCanvas.getContext('2d');
 
-let faceDetector; let runningMode;
-async function setupFaceAPI() {
-    // load face-api models
-    // log('Models loading');
-    await faceapi.nets.tinyFaceDetector.load(modelPath); // using ssdMobilenetv1
-    // await faceapi.nets.ssdMobilenetv1.load(modelPath);
-    // await faceapi.nets.ageGenderNet.load(modelPath);
-    // await faceapi.nets.faceLandmark68Net.load(modelPath);
-    // await faceapi.nets.faceRecognitionNet.load(modelPath);
-    // await faceapi.nets.faceExpressionNet.load(modelPath);
-    // optionsSSDMobileNet = new faceapi.SsdMobilenetv1Options({minConfidence: minScore, maxResults});
-    await faceapi.loadFaceLandmarkTinyModel(modelPath)
-    optionsTinyFaceDetector = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: .1 });
+function findTargetCamera(videoInputs) {
+    return videoInputs.find(device => device.label.includes('Usb'));
+}
 
-    // faceDetection = new FaceDetection({locateFile: (file) => {
-    //         return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
-    //     }});
-    // faceDetection.setOptions({
-    //     model: 0,//'./model/blaze_face_short_range.tflite',
-    //     minDetectionConfidence: 0.5
-    // });
-    const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-    );
-    faceDetector = await FaceDetector.createFromOptions(vision, {
-        baseOptions: {
-            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
-            delegate: "GPU"
-        },
-        runningMode: 'VIDEO'
-    });
+async function initializeVideoStream(deviceId) {
+    const constraints = {
+        video: { audio: false, deviceId: { exact: deviceId }, width: 640 }
+    };
+    video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
+}
 
-    // check tf engine state
-    log(`Models loaded`);
+function handleCameraError(err) {
+    if (err.name === 'PermissionDeniedError' || err.name === 'NotAllowedError') {
+        log(`Camera Error: camera permission denied: ${err.message || err}`);
+    }
+    if (err.name === 'SourceUnavailableError') {
+        log(`Camera Error: camera not available: ${err.message || err}`);
+    }
+}
+
+async function initializeVideo() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    processingCanvas.width = video.videoWidth;
+    processingCanvas.height = video.videoHeight;
+    video.play();
+    changeOrientation(0);
+    initOuterRoi(video);
+    monitorBrightness(video);
+    setupPause(video);
+    setupSidePanel();
+    await startImageSegmenter(video, canvas);
+    await detectVideo();
+    // drawDMXTest; // 5000 milliseconds = 5 seconds
+
 }
 
 async function main() {
-    // initialize tfjs
+    log('PDLC');
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d', {willReadFrequently: true});
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'white';
+    ctx.fillStyle = 'white';
+    ctx.globalAlpha = 0.9;
 
-    log('Level of Confidence');
-    // default is webgl backend
-    await faceapi.tf.setBackend('webgl');
-    await faceapi.tf.ready();
-    bodyPix.load({
-        architecture: 'MobileNetV1',
-        outputStride: 16,
-        multiplier: .75,
-        quantBytes: 2
-    })
-        .catch(error => {
-            console.log(error);
-        })
-        .then(objNet => {
-            model = objNet
-        })
-    // tfjs optimizations
-    if (faceapi.tf?.env().flagRegistry.CANVAS2D_WILL_READ_FREQUENTLY) faceapi.tf.env().set('CANVAS2D_WILL_READ_FREQUENTLY', true);
-    if (faceapi.tf?.env().flagRegistry.WEBGL_EXP_CONV) faceapi.tf.env().set('WEBGL_EXP_CONV', true);
-    if (faceapi.tf?.env().flagRegistry.WEBGL_EXP_CONV) faceapi.tf.env().set('WEBGL_EXP_CONV', true);
-
-
-    await setupFaceAPI();
+    faceDetector = await setupFaceAPI();
     await setupCamera();
     document.getElementById('overlay').style.display = 'none'
-    setupSidePanel()
-    // initSliderValues()
-
-    // setTimeout(() => console.log("Delay finished"), 7000);
-
-    // track.applyConstraints({  brightness: 128 });
-
-
 }
 
-let model;
-let video;
 // start processing as soon as page is loaded
 window.onload = main;

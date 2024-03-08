@@ -6,7 +6,8 @@ import { gammaCorrection } from "./gamma.js";
 import { applyContrast } from "./contrast.js";
 import { claheFn, useClahe } from "./clahe.js";
 import { histo, histogramEqualization } from "./histogramEq.js";
-import { edge, edgeDetection } from "./edgeDetection.js";
+import { edge, sharpeningFilter } from "./sharpenFilter.js";
+import {sobel, sobelED} from './sobelEdge.js'
 import { pixelCanvas } from "./pixelated.js";
 import { updateCanvas } from "../drawing/drawROI.js";
 
@@ -107,15 +108,18 @@ export function applyFilters(filterCanvas, filterCtx, person) {
             case 'histoEq':
                 if (histo) histogramEqualization(filterCanvas);
                 break;
-            case 'edgeDetect':
-                if (edge) edgeDetection(filterCanvas);
+            case 'sharpen':
+                if (edge) sharpeningFilter(filterCanvas);
+                break;
+            case 'sobel':
+                if (sobel) sobelED(filterCanvas);
                 break;
             default:
                 break;
         }
     }
 
-    // const croppedImageData = filterCanvas.toDataURL('image/png');
-    // updateCanvas('cropped-canvas', croppedImageData);
+    const croppedImageData = filterCanvas.toDataURL('image/png');
+    updateCanvas('cropped-canvas', croppedImageData);
     pixelCanvas(filterCanvas, filterCtx);
 }

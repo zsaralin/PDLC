@@ -138,12 +138,32 @@ function sweepRight() {
     sweepRow++;
     if(sweepRow > 29) sweepRow = 0; // Reset for horizontal movement, moving left
 }
+let greyValue = 0; // Initial grey value
+document.addEventListener('keydown', handleKeyPress);
+
+function fillCanvasWithGrey() {
+    console.log(greyValue)
+    // Clear the canvas or fill it with grey
+    pixelatedCtx.fillStyle = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
+    pixelatedCtx.fillRect(0, 0, 30, 28);
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'ArrowUp') {
+        // Increase grey value (make lighter)
+        greyValue = Math.min(greyValue+10, 255);
+        drawDMXTest();
+    } else if (event.key === 'ArrowDown') {
+        // Decrease grey value (make darker)
+        greyValue = Math.max(greyValue-10, 0);
+        drawDMXTest();
+    }
+}
 
 export function drawDMXTest() {
-    drawSmileyFace()
+    fillCanvasWithGrey()
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-
     setDMXFromPixelCanvas(imageData)
 }

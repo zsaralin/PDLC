@@ -4,7 +4,7 @@ function createWindow() {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
     const mainWindow = new BrowserWindow({
-        width: width,
+        width: width/1.5,
         height: height,
         webPreferences: {
             nodeIntegration: true

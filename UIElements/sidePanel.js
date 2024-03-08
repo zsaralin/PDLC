@@ -1,13 +1,13 @@
-import {toggleHisto} from "./filters/histogramEq.js";
-import {changeOrientation, toggleMirror} from "./videoOrientation.js";
-import {toggleCenter} from "./drawing/drawROI.js";
-import {initClahe} from "./filters/clahe.js";
-import {initEdge, toggleEdgeDetection} from './filters/edgeDetection.js'
-import {toggleBgSeg} from "./drawing/bgSeg.js";
-import {toggleAutoEV} from "./cameraFilters/autoExposure.js";
-import {initMinDistSlider} from "./drawing/minEyeDist.js";
-import {initCamFilters} from "./cameraFilters/camFilters.js";
-import {setNumCol} from "./imageRatio.js";
+import {toggleHisto} from "../filters/histogramEq.js";
+import {changeOrientation, toggleMirror} from "../videoOrientation.js";
+import {toggleCenter} from "../drawing/drawROI.js";
+import {initClahe} from "../filters/clahe.js";
+import {initEdge, toggleSharpFilter} from '../filters/sharpenFilter.js'
+import {toggleBgSeg} from "../drawing/bgSeg.js";
+import {toggleAutoEV} from "../cameraFilters/autoExposure.js";
+import {initMinDistSlider} from "../drawing/minEyeDist.js";
+import {initCamFilters} from "../cameraFilters/camFilters.js";
+import {setNumCol} from "../imageRatio.js";
 export function setupSidePanel() {
     const openPanelButton = document.getElementById("openPanelButton");
     const closePanelButton = document.getElementById("closePanelButton");
@@ -70,6 +70,12 @@ export function setupSidePanel() {
         contrastVal.textContent = this.value;
     });
 
+    const edgeStrength = document.getElementById("sobEdgeStrength");
+    const edgeStrengthVal = document.getElementById("sobEdgeStrengthVal");
+    edgeStrength.addEventListener("input", function() {
+        edgeStrengthVal.textContent = this.value;
+    });
+
     var dmxGridElements = document.querySelectorAll('.dmxGrid');
 
     const gap = document.getElementById("gap");
@@ -97,7 +103,7 @@ export function setupSidePanel() {
     });
 
     edge.addEventListener("change", function () {
-        toggleEdgeDetection()
+        toggleSharpFilter()
     });
     const bgColContainer = document.getElementById('bgColContainer');
 

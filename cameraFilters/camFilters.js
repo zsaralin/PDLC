@@ -1,4 +1,3 @@
-import {track} from "./exposure.js";
 import { SERVER_URL } from '../config.js';
 
 let brightness = 0;

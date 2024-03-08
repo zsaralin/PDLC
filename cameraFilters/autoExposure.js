@@ -1,10 +1,13 @@
-import {track} from "./exposure.js";
 import {activeFace} from "../newFaces.js";
 import { SERVER_URL } from '../config.js';
 
 export let auto = true;
 // Get the grayscale values display element
 const enhValues = document.getElementById('brightnessRange');
+const exposureMode = document.getElementById('exposureModeWrapper')
+const exposureModeSelect = document.getElementById('exposureModeSelect')
+const brightnessRange = document.getElementById('brightnessRangeWrapper')
+
 let minValue = 100;
 let maxValue = 110;
 const minExposureTime = 50; // Minimum exposure time in microseconds
@@ -12,28 +15,17 @@ const maxExposureTime = 1250; // Maximum exposure time in microseconds
 
 export async function toggleAutoEV() {
     auto = !auto
-    const exposureMode = document.getElementById('exposureModeWrapper')
     exposureMode.style.display = auto ? 'none' : 'block'
     const expoComp = document.getElementById('exposureCompWrapper')
-    const exposureModeSelect = document.getElementById('exposureModeSelect')
-    let manual = (exposureModeSelect.value === 'manual');
-    expoComp.style.display = manual ? 'block' : 'none'
+    expoComp.style.display = (exposureModeSelect.value === 'manual') ? 'block' : 'none'
     exposureModeSelect.dispatchEvent(new Event('change'));
-
-    const brightnessRange = document.getElementById('brightnessRangeWrapper')
     brightnessRange.style.display = auto ? 'block' : 'none'
-
 }
 
-let count = 5;
-const countThreshold = 10; // Define a threshold for the count
-
-export async function monitorBrightness(video, track) {
-    const canvas = document.getElementById('gray-canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+export async function monitorBrightness(video) {
     const frameInterval = 1000; // Interval between brightness checks in milliseconds
     let exposureTime = 400; // Starting point for exposure time in microseconds
-    let step;
+    let step; let count; 
 
     // Apply initial manual exposure mode constraint
     await fetch(`${SERVER_URL}/set-camera-control`, {
@@ -52,8 +44,7 @@ export async function monitorBrightness(video, track) {
         if(!auto || video.paused) return
         if (activeFace) {
         count = 0; // Reset the counter after adjustments are made
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let currentBrightness = calculateBrightness(imageData.data);
+        let currentBrightness = calculateBrightness(video);
 
         // Dynamically calculate step based on distance from optimal brightness range
         let distanceFromOptimal;
@@ -73,7 +64,7 @@ export async function monitorBrightness(video, track) {
     }
         else{
             step = 200;
-            await adjustExposureTime2(step);
+            await adjustExposureTimeNoFace(step);
         }
     }, frameInterval);
 
@@ -89,8 +80,7 @@ export async function monitorBrightness(video, track) {
         }
     }
 
-    async function adjustExposureTime2(step) {
-        console.log(exposureTime + step)
+    async function adjustExposureTimeNoFace(step) {
         if (exposureTime < maxExposureTime) {
             exposureTime = Math.min(exposureTime + step, maxExposureTime);
             setExposureTime()
@@ -113,8 +103,17 @@ export async function monitorBrightness(video, track) {
             })      
     }
 }
+const videoCanvas = document.createElement('canvas');
+const ctx = videoCanvas.getContext('2d');
+function calculateBrightness(video, sampleRate = 10) {
+    // Set the canvas dimensions to match the video's dimensions
+    videoCanvas.width = video.videoWidth;
+    videoCanvas.height = video.videoHeight;
 
-function calculateBrightness(imageData, sampleRate = 10) {
+    // Draw the video frame onto the canvas
+    ctx.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
+    const imageData = ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
+
     // Calculate luminance (brightness) of an RGB pixel based on a sample
     let sum = 0;
     let count = 0; // Keep track of the number of pixels sampled

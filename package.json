@@ -1,7 +1,7 @@
 {
   "name": "pixelgrid",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "electronApp.js",
   "scripts": {
     "start": "electron ."
   },

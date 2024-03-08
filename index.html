@@ -69,12 +69,19 @@
         </label>
     </div>
     <label>
-        <input type="checkbox" id="edge" checked> Edge Detection
+        <input type="checkbox" id="edge"> Sharpening Filter
     </label>
-    <div id="edge-slider-container">
+    <div id="edge-slider-container" style = "display : none">
         <span>Edge Strength <span id="edge-strength-value">2.0</span></span>
         <input type="range" id="edge-strength-slider" min="0" max="5" step="0.1" value="2.0">
     </div>
+    <label>
+        <input type="checkbox" id="sobel" checked> Sobel Edge Detection
+    </label>
+    <label id = "sobelWrapper">
+        <span>Sobel Edge Strength: <span id="sobEdgeStrengthVal">.3</span></span>
+        <input type="range" id="sobEdgeStrength" min="0" max="1" value=".3" step = ".1">
+    </label>
     <label>
         <span style="background-color: yellow;">ROI: <span id="roiValue">1.1</span></span>
         <input type="range" id="roi" min=".1" max="2" value="1.1" step=".05">
@@ -84,12 +91,12 @@
         <input type="range" id="roiXOffset" min="-100" max="100" value="0" step="1">
     </label>
     <label>
-        <span>ROI Y offset: <span id="roiYOffsetVal">0</span></span>
-        <input type="range" id="roiYOffset" min="-100" max="100" value="0" step="1">
+        <span>ROI Y offset: <span id="roiYOffsetVal">-15</span></span>
+        <input type="range" id="roiYOffset" min="-100" max="100" value="-15" step="1">
     </label>
     <label>
-        <span>Contrast: <span id="contrastValue">0</span></span>
-        <input type="range" id="contrast" min="-100" max="100" value="0">
+        <span>Contrast: <span id="contrastValue">100</span></span>
+        <input type="range" id="contrast" min="-100" max="100" value="100">
     </label>
     <label>
         <span>Gamma: <span id="gammValue">1</span></span>
@@ -157,7 +164,8 @@
             <li data-function="contrast">Contrast</li>
             <li data-function="histoEq">Histogram Eq</li>
             <li data-function="clahe">CLAHE</li>
-            <li data-function="edgeDetect">Edge</li>
+            <li data-function="sharpen">Sharpen</li>
+            <li data-function="sobel">Sobel</li>
         </ul>
 
         <script>
@@ -194,8 +202,8 @@
             <input type="range" id="camBrightness" min="-64" max="64" value="0" step="1">
         </label>
         <label>
-            <span>Cam Contrast: <span id="camContrastValue">50</span></span>
-            <input type="range" id="camContrast" min="0" max="100" value="50" step="1">
+            <span>Cam Contrast: <span id="camContrastValue">100</span></span>
+            <input type="range" id="camContrast" min="0" max="100" value="100" step="1">
         </label>
         <label>
             <span>Cam Saturation: <span id="camSaturationValue">50</span></span>
@@ -242,7 +250,7 @@
         <!--            }-->
         <!--        </style>-->
         <button id="playPauseButton" class="play-pause-button">
-            <span id="play-icon">&#9654;</span>
+            <span id="play-icon" style="display: none;">&#9654;</span>
             <span id="pause-icon">&#10074;&#10074;</span>
         </button>
         <div id="fps-display"></div>

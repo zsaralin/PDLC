@@ -1,12 +1,7 @@
 import {auto} from "./autoExposure.js";
 import { SERVER_URL } from '../config.js';
 
-export let track;
 let exposureCompValue = 8; // Initialize the variable with a default value
-
-export function sendTrack(i){
-    track = i;
-}
 
 const exposureModeSelect = document.getElementById('exposureModeSelect');
 

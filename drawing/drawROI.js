@@ -20,7 +20,6 @@ export function toggleCenter() {
     center = !center;
 }
 
-let ctx;
 const filterFreq = 60; // Frequency of incoming data, in Hz
 const minCutoff = 1.0; // Minimum cutoff frequency
 const beta = 0.01; // Beta parameter
@@ -38,8 +37,7 @@ const filterCtx = filterCanvas.getContext('2d', {willReadFrequently: true});
 filterCanvas.width = 50;
 filterCanvas.height = 50;
 
-export function computeROI(video, canvas, person) {
-    ctx = canvas.getContext('2d', {willReadFrequently: true});
+export function computeROI(video, ctx, person) {
     ctx.beginPath();
     if (!filterCtx) return;
     const {originX: x, originY: y, width, height} = person.boundingBox;
@@ -95,7 +93,7 @@ export function computeROI(video, canvas, person) {
             filterCanvas.height
         );
 
-        drawROI(topLeftX, topLeftY, bgSeg? canvas : video);
+        drawROI(topLeftX, topLeftY, bgSeg? ctx : video, ctx);
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -114,7 +112,7 @@ export function computeROI(video, canvas, person) {
         const adjustedDrawY = Math.min(maxY, Math.max(0, drawY));
 
         // Copy the contents inside the square to the temporary canvas
-        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? canvas : video);
+        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? ctx : video, ctx);
         ctx.stroke()
 
         easingFactorX = 0.1;
@@ -131,7 +129,7 @@ function adjustPosition(previousPosition, newPosition, threshold, easingFactor) 
     return previousPosition;
 }
 
-function drawROI(x, y, video) {
+function drawROI(x, y, video, ctx) {
     filterCtx.drawImage(
         video,
         x,
