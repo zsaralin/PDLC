@@ -11,12 +11,14 @@ let backlight = 1;
 async function getControlValues(){
     try {
         const response = await fetch(`${SERVER_URL}/get-control-values`, {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+                camIndex: 0,
+            })
         });
-
         // Check if the request was successful
         if (response.ok) {
             const data = await response.json(); // Parse the JSON response body
@@ -100,7 +102,8 @@ export async function initCamFilters() {
             },
             body: JSON.stringify({
                 controlName: 'autoWhiteBalance',
-                value: whiteMode
+                value: whiteMode,
+                camIndex: 0
             })
 
         });
@@ -132,7 +135,8 @@ export async function initCamFilters() {
             },
             body: JSON.stringify({
                 controlName: property,
-                value: this.value
+                value: this.value,
+                camIndex: 0 ,
             })
 
         });

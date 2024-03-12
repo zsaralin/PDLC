@@ -1,40 +1,42 @@
 let angle = 0;
 export let mirror = true;
+
 export function changeOrientation(value = angle) {
     const selectedAngle = parseInt(value);
-    const video = document.getElementById('video-container');
-    const croppedCanvas = document.getElementById('cropped-canvas');
-    const pixelCanvas = document.getElementById('pixel-canvas');
-    const grayCanvas = document.getElementById('gray-canvas');
-    const button = document.getElementById('playPauseButton');
+    const videos = document.querySelectorAll('.video-container'); // Assuming .video-container is the class you want
+    const croppedCanvases = document.querySelectorAll('.cropped-canvas');
+    const pixelCanvases = document.querySelectorAll('.pixel-canvas');
+    const grayCanvases = document.querySelectorAll('.gray-canvas');
 
-    if (video) {
-        let transformation = `rotate(${selectedAngle}deg)`;
+    let transformation = `rotate(${selectedAngle}deg)`;
 
-        if (mirror) {
-            transformation += ' scaleX(-1)';
-        }
+    if (mirror) {
+        transformation += ' scaleX(-1)';
+    }
 
+    // Apply transformation to all video containers
+    videos.forEach(video => {
         video.style.transform = transformation;
+    });
 
-    }
+    // Apply transformation to all cropped canvases
+    croppedCanvases.forEach(croppedCanvas => {
+        croppedCanvas.style.transform = transformation;
+    });
 
-    if (croppedCanvas) {
-        croppedCanvas.style.transform = video.style.transform;
-    }
-    if (pixelCanvas) {
-        pixelCanvas.style.transform = video.style.transform;
-    }
-    if(grayCanvas){
-        grayCanvas.style.transform = video.style.transform;
-    }
+    // Apply transformation to all pixel canvases
+    pixelCanvases.forEach(pixelCanvas => {
+        pixelCanvas.style.transform = transformation;
+    });
 
-    // if(button){
-    //     button.style.transform = video.style.transform;
-    // }
+    // Apply transformation to all gray canvases
+    grayCanvases.forEach(grayCanvas => {
+        grayCanvas.style.transform = transformation;
+    });
 
     angle = selectedAngle;
 }
+
 export function toggleMirror(){
     mirror = !mirror;
     changeOrientation()

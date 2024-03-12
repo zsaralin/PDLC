@@ -12,21 +12,24 @@ body {
 }
 
 #top {
+    position: relative;
     display: flex;
     align-items: flex-start;
     width: 100%;
-    height: 100%;
+    height: 50%;
     /*top: 0;*/
 }
 
-#video-container {
+.video-container {
     position: relative;
-    width: 100%;
+    width: 100%; /* or whatever width you prefer */
+    height: 0;
+    padding-top: 31.25%; /* Example for 16:9 aspect ratio (9 / 16 = 0.5625) */
     /*height: 100%;*/
-    /*overflow: hidden;*/
+    /* overflow: hidden; */
 }
 
-#fps-display {
+.fps-display {
     position: absolute;
     top: 10px;
     left: 10px;
@@ -37,41 +40,17 @@ body {
     border-radius: 5px;
     transform: scaleX(-1); /* Initially mirror along with video container */
 }
-#video-container::before {
-    /*content: "";*/
-    /*display: block;*/
-    /*padding-top: 100%; !* This sets the aspect ratio to 1:1 (square) *!*/
-}
-#video1,
-#video2 {
-    flex: 1; /* Distribute available space equally for both videos */
-    height: 100%; /* Ensure the videos take up the full height of the container */
-    object-fit: cover;
-}
-#video {
-    width: 100%;
-    height: 100%; /* Ensure video fills its container */
-    object-fit: cover; /* Adjust as needed to maintain aspect ratio */
-}
 
-#canvas {
+.video,
+.canvas, .blackCanvas {
     position: absolute;
+    width: 100%;
+    height: auto; 
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Ensures the video's aspect ratio is maintained */
 }
 
-#blackCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /*background-color: rgba(1,1,1,.2);*/
-}
 #top-image-container {
     position: relative;
     width: 66.66%;
@@ -95,8 +74,6 @@ body {
     display: block;
     width: 100%;
     height: 100%;
-    /*transition: opacity 1s linear; !* Adjust the duration as needed *!*/
-
 }
 
 .current-image {
@@ -246,7 +223,7 @@ body {
 
 .play-pause-button {
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     right: 10px;
     background-color: rgba(255, 255, 255, 0.3); /* Transparent background */
     border: none;
@@ -364,21 +341,21 @@ label[for="zoom-slider"] {
     position: relative; /* Important for maintaining aspect ratio */
 
 }
-#cropped-canvas {
+.cropped-canvas {
     /*position: absolute; !* Important for maintaining aspect ratio *!*/
     width: 100%;
     height: auto;
     /*top: 0;*/
     /*left: 0;*/
 }
-#pixel-canvas {
+.pixel-canvas {
     /*position: absolute; !* Important for maintaining aspect ratio *!*/
     width: 100%;
     height: auto;
     /*top: 0;*/
     /*left: 0;*/
 }
-#gray-canvas {
+.gray-canvas {
     /*position: absolute; !* Important for maintaining aspect ratio *!*/
     width: 100%;
     height: auto;

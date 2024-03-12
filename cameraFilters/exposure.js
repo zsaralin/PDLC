@@ -16,7 +16,8 @@ exposureModeSelect.addEventListener('change', async function () {
             },
             body: JSON.stringify({
                 controlName: 'autoExposureMode',
-                value: exposureMode
+                value: exposureMode,
+                camIndex :0,
             })
         })
 });
@@ -44,6 +45,7 @@ exposureTimeVal.addEventListener('input', async function () {
         },
         body: JSON.stringify({
             controlName: 'absoluteExposureTime',
-            value: exposureTimeVal.value
+            value: exposureTimeVal.value,
+            camIndex: 0,
         })
     })});

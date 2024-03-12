@@ -22,7 +22,7 @@ export async function toggleAutoEV() {
     brightnessRange.style.display = auto ? 'block' : 'none'
 }
 
-export async function monitorBrightness(video) {
+export async function monitorBrightness(video, camIndex) {
     const frameInterval = 1000; // Interval between brightness checks in milliseconds
     let exposureTime = 400; // Starting point for exposure time in microseconds
     let step; let count; 
@@ -35,7 +35,8 @@ export async function monitorBrightness(video) {
         },
         body: JSON.stringify({
             controlName: 'autoExposureMode',
-            value: '1'
+            value: '1',
+            camIndex: camIndex
         })
     })       
 
@@ -98,7 +99,8 @@ export async function monitorBrightness(video) {
                 },
                 body: JSON.stringify({
                     controlName: 'absoluteExposureTime',
-                    value: exposureTime
+                    value: exposureTime,
+                    camIndex: camIndex,
                 })
             })      
     }

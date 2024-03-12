@@ -6,13 +6,13 @@ export function clearCanvas(canvas){
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }
 
-export function drawFaces(ctx, person, video) {
+export function drawFaces(canvas, ctx, person, video, i) {
     if(!isEyeDistanceAboveThreshold(person)){
         console.log('clearing pixel canvas')
         clearPixelCanvas()
         return
     }
-    computeROI(video, ctx, person)
+    computeROI(video, canvas, ctx, person, i)
     drawBB(person)
     
     function drawBB(person){

@@ -41,6 +41,7 @@ function drawStripes() {
     }
 }
 let fadeCounter = 0; // Initialize outside the function
+let increasing = true; // Flag to track whether we're increasing or decreasing the color value
 
 function drawSmileyFaceFade() {
     const canvasWidth = imgCol; // Adjust as needed
@@ -48,25 +49,38 @@ function drawSmileyFaceFade() {
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
     const radius = Math.min(canvasWidth, canvasHeight) / 2; // Adjust the size of the face
-    const minColorValue = 50;
-    const maxColorValue = 180;
-    const colorRange = maxColorValue - minColorValue;
-    const colorValue = minColorValue + (Math.sin(fadeCounter) * colorRange / 2) + (colorRange / 2);
-    const rgbValue = Math.floor(colorValue);
+
+    // Adjust the fadeCounter based on the increasing flag
+    if (increasing) {
+        fadeCounter += 1;
+        if (fadeCounter >= 180) {
+            increasing = false;
+        }
+    } else {
+        fadeCounter -= 1;
+        if (fadeCounter <= 50) {
+            increasing = true;
+        }
+    }
+
+    // Ensure the color value stays within the specified range
+    const rgbValue = Math.max(50, Math.min(fadeCounter, 180));
     const colorString = `rgb(${rgbValue},${rgbValue},${rgbValue})`;
-    // Increment the fadeCounter
-    fadeCounter += .1; // Adjust this value to control the speed of the fading
+
     // Clear the canvas or fill it with the calculated background color
     pixelatedCtx.fillStyle = colorString; // Use the dynamic color for the face background
     pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+
     // Draw the face
     pixelatedCtx.fillStyle = colorString; // Use the dynamic color for the face
     pixelatedCtx.beginPath();
     pixelatedCtx.arc(centerX, centerY, radius, 0, Math.PI * 2, true); // Face
     pixelatedCtx.fill();
+
     // Calculate the inverse color for eyes and mouth
     const inverseColorValue = 255 - rgbValue;
     const inverseColorString = `rgb(${inverseColorValue},${inverseColorValue},${inverseColorValue})`;
+
     // Draw the eyes
     pixelatedCtx.fillStyle = inverseColorString; // Use the inverse dynamic color for eyes
     pixelatedCtx.beginPath();

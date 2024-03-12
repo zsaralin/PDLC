@@ -1,11 +1,18 @@
 const UVCControl = require('uvc-control');
-var camera = new UVCControl(0x0BDA, 0x3035, {
-    processingUnitId: 0x02
-});
+let cameras = [
+    new UVCControl(0x0BDA, 0x3035, {
+    processingUnitId: 0x02,
+    camNum : 0,}),
+    new UVCControl(0x0BDA, 0x3035, {
+    processingUnitId: 0x02,
+    camNum : 1,
+})]
+
+
 // UVCControl.controls.forEach(name => console.log(name))
 
-function setCameraControl(controlName, value, callback) {
-    camera.set(controlName, value, function(err) {
+function setCameraControl(controlName, value, camIndex, callback) {
+    cameras[camIndex].set(controlName, value, function(err) {
         if (err) {
             console.error(`Error setting ${controlName}:`, err);
         } else {
@@ -13,8 +20,8 @@ function setCameraControl(controlName, value, callback) {
         if(callback) callback(err);
     });
 }
-function logControlRange(controlName) {
-    camera.range(controlName, (err, range) => {
+function logControlRange(controlName, camIndex) {
+    cameras[camIndex].range(controlName, (err, range) => {
         if (err) {
             console.error(`Error getting range for ${controlName}:`, err);
         } else {
@@ -22,9 +29,9 @@ function logControlRange(controlName) {
         }
     });
 }
-function getControlValue(controlName) {
+function getControlValue(controlName, camIndex) {
     return new Promise((resolve, reject) => {
-        camera.get(controlName, (err, value) => {
+        cameras[camIndex].get(controlName, (err, value) => {
             if (err) {
                 reject(`Error getting value for ${controlName}: ${err}`);
             } else {
@@ -34,7 +41,7 @@ function getControlValue(controlName) {
     });
 }
 
-async function getAllControlValues() {
+async function getAllControlValues(camIndex) {
     const controls = [
         'autoExposureMode', 
         'autoExposurePriority', 
@@ -50,7 +57,7 @@ async function getAllControlValues() {
     ];
 
     try {
-        const controlValuesPromises = controls.map(controlName => getControlValue(controlName));
+        const controlValuesPromises = controls.map(controlName => getControlValue(controlName, camIndex));
         const controlValues = await Promise.all(controlValuesPromises);
         const controlValuesDict = controlValues.reduce((acc, curr) => ({...acc, ...curr}), {});
         return controlValuesDict;

@@ -32,14 +32,23 @@ const filterZ = new OneEuroFilter(filterFreq, 0.1, 0, dCutoff);
 const THRESHOLD = 50; // Define the threshold for width change
 let previousWidth = 50;
 let previousHeight = 50;
-const filterCanvas = document.createElement('canvas');
-const filterCtx = filterCanvas.getContext('2d', {willReadFrequently: true});
-filterCanvas.width = 50;
-filterCanvas.height = 50;
 
-export function computeROI(video, ctx, person) {
+const filterCanvases = [];
+const filterCtxs = [];
+
+// Create the canvases and their contexts, then store them in the arrays
+for (let i = 0; i < 2; i++) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d', {willReadFrequently: true});
+    canvas.width = 50;
+    canvas.height = 50;
+    filterCanvases.push(canvas);
+    filterCtxs.push(ctx);
+}
+
+export function computeROI(video, canvas, ctx, person, i) {
     ctx.beginPath();
-    if (!filterCtx) return;
+    if (!filterCtxs[i]) return;
     const {originX: x, originY: y, width, height} = person.boundingBox;
 
     const centerX = x + width / 2;
@@ -47,15 +56,14 @@ export function computeROI(video, ctx, person) {
 
     let timestamp2 = Date.now();
     let smoothedWidth = filterZ.filter(width, timestamp2);
-    filterCanvas.width = smoothedWidth * roi.value* imgRatio;
-    filterCanvas.height = smoothedWidth * roi.value
+    filterCanvases[i].width = smoothedWidth * roi.value* imgRatio;
+    filterCanvases[i].height = smoothedWidth * roi.value
     previousWidth = width;
 
     const leewayFactor = 1 - lag.value;
     const movementThreshold = 15; // Adjust this value based on your requirements
 
     if (center) {
-        ctx.beginPath();
         let timestamp = Date.now(); // You should get a more accurate timestamp for your application
 
         let deltaX = centerX - currentCenterX;
@@ -72,14 +80,14 @@ export function computeROI(video, ctx, person) {
             currentCenterY += smoothedDeltaY * (1 - lag.value);
         }
         // Ensure centerX and centerY are within the canvas bounds
-        let maxCenterX = canvas.width - filterCanvas.width / 2;
-        let maxCenterY = canvas.height - filterCanvas.height / 2;
+        let maxCenterX = canvas.width - filterCanvases[i].width / 2;
+        let maxCenterY = canvas.height - filterCanvases[i].height / 2;
 
-        let adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvas.width / 2, currentCenterX)) + parseInt(roiXOffset.value);
-        let adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvas.height / 2, currentCenterY)) + parseInt(roiYOffset.value);
+        let adjustedCenterX = Math.min(maxCenterX, Math.max(filterCanvases[i].width / 2, currentCenterX)) + parseInt(roiXOffset.value);
+        let adjustedCenterY = Math.min(maxCenterY, Math.max(filterCanvases[i].height / 2, currentCenterY)) + parseInt(roiYOffset.value);
 
-        let topLeftX = adjustedCenterX - filterCanvas.width / 2;
-        let topLeftY = adjustedCenterY - filterCanvas.height / 2;
+        let topLeftX = adjustedCenterX - filterCanvases[i].width / 2;
+        let topLeftY = adjustedCenterY - filterCanvases[i].height / 2;
 
         ctx.beginPath();
 
@@ -88,12 +96,12 @@ export function computeROI(video, ctx, person) {
         ctx.lineWidth = 3
 
         ctx.rect(
-            adjustedCenterX - filterCanvas.width / 2, adjustedCenterY - filterCanvas.height / 2,
-            filterCanvas.width,
-            filterCanvas.height
+            adjustedCenterX - filterCanvases[i].width / 2, adjustedCenterY - filterCanvases[i].height / 2,
+            filterCanvases[i].width,
+            filterCanvases[i].height
         );
 
-        drawROI(topLeftX, topLeftY, bgSeg? ctx : video, ctx);
+        drawROI(topLeftX, topLeftY, bgSeg? ctx : video, ctx, i);
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -102,23 +110,23 @@ export function computeROI(video, ctx, person) {
         previousCenterY = adjustPosition(previousCenterY, centerY, leewayFactor * roi.value / 3, easingFactorY);
 
         // Calculate the position for drawing so that the face stays centered
-        const drawX = previousCenterX - filterCanvas.width / 2;
-        const drawY = previousCenterY - filterCanvas.height / 2;
+        const drawX = previousCenterX - filterCanvases[i].width / 2;
+        const drawY = previousCenterY - filterCanvases[i].height / 2;
 
         // Ensure drawX and drawY are within the canvas bounds
-        const maxX = canvas.width - filterCanvas.width;
-        const maxY = canvas.height - filterCanvas.height;
+        const maxX = canvas.width - filterCanvases[i].width;
+        const maxY = canvas.height - filterCanvases[i].height;
         const adjustedDrawX = Math.min(maxX, Math.max(0, drawX));
         const adjustedDrawY = Math.min(maxY, Math.max(0, drawY));
 
         // Copy the contents inside the square to the temporary canvas
-        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? ctx : video, ctx);
+        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? ctx : video, ctx, i);
         ctx.stroke()
 
         easingFactorX = 0.1;
         easingFactorY = 0.1;
     }
-    applyFilters(filterCanvas, filterCtx, person)
+    applyFilters(filterCanvases[i], filterCtxs[i], person)
     ctx.strokeStyle = "white"
 }
 
@@ -129,24 +137,24 @@ function adjustPosition(previousPosition, newPosition, threshold, easingFactor) 
     return previousPosition;
 }
 
-function drawROI(x, y, video, ctx) {
-    filterCtx.drawImage(
-        video,
-        x,
-        y,
-        filterCanvas.width,
-        filterCanvas.height,
-        0,
-        0,
-        filterCanvas.width,
-        filterCanvas.height
-    );
+function drawROI(x, y, video, ctx,i ) {
+    // filterCtxs[i].drawImage(
+    //     c,
+    //     x,
+    //     y,
+    //     filterCanvases[i].width,
+    //     filterCanvases[i].height,
+    //     0,
+    //     0,
+    //     filterCanvases[i].width,
+    //     filterCanvases[i].height
+    // );
 
     ctx.rect(
         x,
         y,
-        filterCanvas.width,
-        filterCanvas.height
+        filterCanvases[i].width,
+        filterCanvases[i].height
     );
 }
 const dict = {

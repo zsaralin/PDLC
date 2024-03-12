@@ -105,9 +105,10 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-app.get('/get-control-values', async (req, res) => {
+app.post('/get-control-values', async (req, res) => {
     try {
-        const controlValues = await getAllControlValues();
+        const {camIndex } = req.body;
+        const controlValues = await getAllControlValues(camIndex);
         res.json({ controlValues });
     } catch (error) {
         console.error('Error fetching control values:', error);
@@ -116,12 +117,12 @@ app.get('/get-control-values', async (req, res) => {
 });
 
 app.post('/set-camera-control', (req, res) => {
-    const { controlName, value } = req.body;
+    const {controlName, value, camIndex } = req.body;
     if (!controlName || value === undefined) {
         return res.status(400).send('Missing control name or value');
     }
 
-    setCameraControl(controlName, value, (err) => {
+    setCameraControl(controlName, value, camIndex, (err) => {
         if (err) {
             console.error(`Error setting ${controlName}:`, err);
             return res.status(500).send(`Error setting ${controlName}`);
