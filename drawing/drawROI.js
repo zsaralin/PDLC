@@ -93,7 +93,7 @@ export function computeROI(video, ctx, person) {
             filterCanvas.height
         );
 
-        drawROI(topLeftX, topLeftY, bgSeg? ctx : video, ctx);
+        drawROI(topLeftX, topLeftY, bgSeg? canvas : video, ctx);
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -112,7 +112,7 @@ export function computeROI(video, ctx, person) {
         const adjustedDrawY = Math.min(maxY, Math.max(0, drawY));
 
         // Copy the contents inside the square to the temporary canvas
-        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? ctx : video, ctx);
+        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? canvas : video, ctx);
         ctx.stroke()
 
         easingFactorX = 0.1;
