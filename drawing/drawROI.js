@@ -101,7 +101,7 @@ export function computeROI(video, canvas, ctx, person, i) {
             filterCanvases[i].height
         );
 
-        drawROI(topLeftX, topLeftY, bgSeg? ctx : video, ctx, i);
+        drawROI(topLeftX, topLeftY, bgSeg? canvas : video, ctx, i);
         ctx.stroke(); // Apply the stroke with the current style (blue)
 
     } else {
@@ -120,13 +120,13 @@ export function computeROI(video, canvas, ctx, person, i) {
         const adjustedDrawY = Math.min(maxY, Math.max(0, drawY));
 
         // Copy the contents inside the square to the temporary canvas
-        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? ctx : video, ctx, i);
+        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? canvas : video, ctx, i);
         ctx.stroke()
 
         easingFactorX = 0.1;
         easingFactorY = 0.1;
     }
-    applyFilters(filterCanvases[i], filterCtxs[i], person)
+    applyFilters(filterCanvases[i], filterCtxs[i], person, i)
     ctx.strokeStyle = "white"
 }
 
@@ -138,17 +138,17 @@ function adjustPosition(previousPosition, newPosition, threshold, easingFactor) 
 }
 
 function drawROI(x, y, video, ctx,i ) {
-    // filterCtxs[i].drawImage(
-    //     c,
-    //     x,
-    //     y,
-    //     filterCanvases[i].width,
-    //     filterCanvases[i].height,
-    //     0,
-    //     0,
-    //     filterCanvases[i].width,
-    //     filterCanvases[i].height
-    // );
+    filterCtxs[i].drawImage(
+        video,
+        x,
+        y,
+        filterCanvases[i].width,
+        filterCanvases[i].height,
+        0,
+        0,
+        filterCanvases[i].width,
+        filterCanvases[i].height
+    );
 
     ctx.rect(
         x,
@@ -157,14 +157,18 @@ function drawROI(x, y, video, ctx,i ) {
         filterCanvases[i].height
     );
 }
-const dict = {
-    'pixel-canvas': document.getElementById('pixel-canvas')?.getContext('2d'),
-    'gray-canvas': document.getElementById('gray-canvas')?.getContext('2d'),
-    'cropped-canvas': document.getElementById('cropped-canvas')?.getContext('2d')
-}
+const classNames = ['pixel-canvas', 'gray-canvas', 'cropped-canvas'];
+const dict = {};
 
-export function updateCanvas(canvasId, croppedImageData) {
-    const ctx = dict[canvasId];
+classNames.forEach(className => {
+    const elements = document.querySelectorAll(`.${className}`);
+    if (elements.length) {
+        dict[className] = Array.from(elements).map(el => el.getContext('2d'));
+    }
+});
+
+export function updateCanvas(canvasId, croppedImageData, i) {
+    const ctx = dict[canvasId][i];
     if (ctx) {
         const img = new Image();
         img.src = croppedImageData;

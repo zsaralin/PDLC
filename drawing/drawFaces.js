@@ -9,7 +9,7 @@ export function clearCanvas(canvas){
 export function drawFaces(canvas, ctx, person, video, i) {
     if(!isEyeDistanceAboveThreshold(person)){
         console.log('clearing pixel canvas')
-        clearPixelCanvas()
+        clearPixelCanvas(canvas, i)
         return
     }
     computeROI(video, canvas, ctx, person, i)
@@ -22,11 +22,8 @@ export function drawFaces(canvas, ctx, person, video, i) {
     }
 }
 
-function clearPixelCanvas() {
-    let canvas = document.getElementById('canvas');
-    let pixelCanvas = document.getElementById("pixel-canvas");
-
-    // Check if each canvas element is defined before attempting to clear it
+function clearPixelCanvas(canvas, i) {
+    let pixelCanvas = document.getElementsByClassName("pixel-canvas")[i];
     if (canvas) {
         let canvasCtx = canvas.getContext('2d');
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);

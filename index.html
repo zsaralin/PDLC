@@ -235,9 +235,8 @@
             </label>
         </div>
 </div>
-
 <div id="top">
-    <div class="video-container" >
+    <div class="video-container" style = "background-color: white;">
         <video playsinline class="video"></video>
         <canvas class="black-canvas"></canvas>
         <canvas class="canvas"></canvas>
@@ -246,16 +245,18 @@
             <span class="pause-icon">&#10074;&#10074;</span>
         </button>
         <div class="fps-display"></div>
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas class="gray-canvas" width="150" height="150"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas class="cropped-canvas" width="150" height="150"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas class="pixel-canvas" width="150" height="150"></canvas>
+            </div>
+        </div>
     </div>
-    <!-- <div class="canvas-wrapper">
-        <canvas class="gray-canvas" width="150" height="150"></canvas>
-    </div>
-    <div class="canvas-wrapper">
-        <canvas class="cropped-canvas" width="150" height="150"></canvas>
-    </div>
-    <div class="canvas-wrapper">
-        <canvas class="pixel-canvas" width="150" height="150"></canvas>
-    </div> -->
 
     <div class="video-container">
         <video playsinline class="video"></video>
@@ -266,23 +267,24 @@
             <span class="pause-icon">&#10074;&#10074;</span>
         </button>
         <div class="fps-display"></div>
+        <div class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas class="gray-canvas" width="150" height="150"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas class="cropped-canvas" width="150" height="150"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas class="pixel-canvas" width="150" height="150"></canvas>
+            </div>
+        </div>
     </div>
-    <!-- Repeat the structure for the second video container as needed -->
-    <!-- <div class="canvas-wrapper">
-        <canvas class="gray-canvas" width="150" height="150"></canvas>
-    </div>
-    <div class="canvas-wrapper">
-        <canvas class="cropped-canvas" width="150" height="150"></canvas>
-    </div>
-    <div class="canvas-wrapper">
-        <canvas class="pixel-canvas" width="150" height="150"></canvas>
-    </div> -->
-    
+</div>
+
 <div style="display: flex; align-items: center;">
 <div class="dmxGrid" id = "dmx1"></div>
 <div class="dmxGrid"  id = "dmx2"></div>
-    <div class="dmxGrid"  id = "dmx3"></div>
-
+<div class="dmxGrid"  id = "dmx3"></div>
 </div>
 <script src="./dmx/dmxGrid.js" type = "module"></script> <!-- Link to your JavaScript file -->
 

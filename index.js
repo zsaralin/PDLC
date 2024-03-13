@@ -99,7 +99,9 @@ async function setupCamera() {
 }
 
 function findTargetCameras(videoInputs) {
-    const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
+    // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
+    const usbCameras = videoInputs.slice(0, 2);
+    console.log(usbCameras)
     if (usbCameras.length === 2) {
         return usbCameras; // Return the two USB cameras
     } else {
@@ -140,8 +142,8 @@ async function initializeVideo(video) {
     initOuterRoi(video0);
     initOuterRoi(video1);
 
-    monitorBrightness(video0, 0);
-    monitorBrightness(video1, 1);
+    // monitorBrightness(video0, 0);
+    // monitorBrightness(video1, 1);
 
     setupPause(video0, video1);
 

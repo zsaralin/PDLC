@@ -55,7 +55,7 @@ sliders.forEach(slider => {
 
 handleSliderChange()
 
-export function applyFilters(filterCanvas, filterCtx, person) {
+export function applyFilters(filterCanvas, filterCtx, person, i) {
     for (const [id, values] of Object.entries(sliderValues)) {
         if (id === 'gamma' || id === 'contrast') {
             if (values !== 1) {
@@ -95,7 +95,7 @@ export function applyFilters(filterCanvas, filterCtx, person) {
     }
 
     const croppedGrayscale = filterCanvas.toDataURL('image/png');
-    updateCanvas('gray-canvas', croppedGrayscale);
+    updateCanvas('gray-canvas', croppedGrayscale, i);
 
     const listItems = functionOrderList.children;
 
@@ -120,6 +120,6 @@ export function applyFilters(filterCanvas, filterCtx, person) {
     }
 
     const croppedImageData = filterCanvas.toDataURL('image/png');
-    updateCanvas('cropped-canvas', croppedImageData);
-    pixelCanvas(filterCanvas, filterCtx);
+    updateCanvas('cropped-canvas', croppedImageData, i);
+    pixelCanvas(filterCanvas, filterCtx, i);
 }
