@@ -1,5 +1,5 @@
 import {toggleHisto} from "../filters/histogramEq.js";
-import {changeOrientation, toggleMirror} from "../videoOrientation.js";
+import {changeOrientation, toggleMirror} from "./videoOrientation.js";
 import {toggleCenter} from "../drawing/drawROI.js";
 import {initClahe} from "../filters/clahe.js";
 import {initEdge, toggleSharpFilter} from '../filters/sharpenFilter.js'

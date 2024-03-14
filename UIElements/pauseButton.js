@@ -8,8 +8,8 @@ const playIcon1 = playPauseButton1.querySelector('.play-icon');
 const pauseIcon1 = playPauseButton1.querySelector('.pause-icon');
 
 export function setupPause(video0, video1) {
-    playPauseButton0.addEventListener('click', () => togglePlayPause(video0, playIcon0, pauseIcon0));
-    playPauseButton1.addEventListener('click', () => togglePlayPause(video1, playIcon1, pauseIcon1));
+    if(video0) playPauseButton0.addEventListener('click', () => togglePlayPause(video0, playIcon0, pauseIcon0));
+    if(video1) playPauseButton1.addEventListener('click', () => togglePlayPause(video1, playIcon1, pauseIcon1));
 }
 
 function togglePlayPause(video, playIcon, pauseIcon) {

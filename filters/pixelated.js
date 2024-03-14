@@ -1,7 +1,8 @@
 import { updateCanvas } from "../drawing/drawROI.js";
 import {setDMXFromPixelCanvas} from "../dmx/dmx.js";
 import {imgCol, imgRow} from "../imageRatio.js";
-
+import { getTransformedImageData } from "../UIElements/videoOrientation.js";
+import { sendPixelCanvas } from "../twoCam.js";
 const roi = document.getElementById("roi");
 let lastUpdateTime = performance.now();
 let frameCount = 0;
@@ -17,6 +18,7 @@ function createPixelCanv() {
     const pixelatedCtx1 = pixelatedCanvas1.getContext('2d', { willReadFrequently: true });
     pixelatedCanvas1.width = imgCol;
     pixelatedCanvas1.height = imgRow;
+    pixelatedCanvas1.className = 'pixel-off-canvas'; // Assign class name
 
     pixelatedCanvases.push(pixelatedCanvas1);
     pixelatedCtxs.push(pixelatedCtx1);
@@ -25,8 +27,11 @@ function createPixelCanv() {
     const pixelatedCtx2 = pixelatedCanvas2.getContext('2d', { willReadFrequently: true });
     pixelatedCanvas2.width = imgCol;
     pixelatedCanvas2.height = imgRow;
+    pixelatedCanvas2.className = 'pixel-off-canvas'; // Assign class name
+
     pixelatedCanvases.push(pixelatedCanvas2);
     pixelatedCtxs.push(pixelatedCtx2);
+    sendPixelCanvas(pixelatedCanvases)
 }
 
 export function pixelCanvas(filterCanvas, filterCtx, i) {
@@ -69,7 +74,11 @@ export function pixelCanvas(filterCanvas, filterCtx, i) {
 
     const croppedImageData = pixelatedCanvases[i].toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, i);
-    const imageData = pixelatedCtxs[i].getImageData(0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
+    // const imageData = pixelatedCtxs[i].getImageData(0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
 
-    setDMXFromPixelCanvas(imageData)
+    // setDMXFromPixelCanvas(imageData)
+}
+
+export function getPixelImageData(i){
+    return getTransformedImageData(pixelatedCanvases[i], pixelatedCtxs[i])
 }

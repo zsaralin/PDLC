@@ -234,10 +234,24 @@
                 <input type="range" id="colourTemp" min="2800" max="6500" value="5500" step="50">
             </label>
         </div>
+        <label class="checkbox-label"> Fade Colour
+            <select id="fadeColour">
+                <option value="black">black</option>
+                <option value="white">white</option>
+            </select>
+        </label>
+        <label>
+            <span>Fade Duration: <span id="fadeDurVal">1000 ms</span></span>
+            <input type="range" id="fadeDur" min="200" max="2000" value="1000">
+        </label>
+        <label>
+            <span>Switch Duration: <span id="switchDurVal">15 s</span></span>
+            <input type="range" id="switchDur" min="2" max="30" value="15">
+        </label>
 </div>
 <div id="top">
     <div class="video-container" style = "background-color: white;">
-        <video playsinline class="video"></video>
+        <video class="video" ></video>
         <canvas class="black-canvas"></canvas>
         <canvas class="canvas"></canvas>
         <button class="play-pause-button">
@@ -259,7 +273,7 @@
     </div>
 
     <div class="video-container">
-        <video playsinline class="video"></video>
+        <video class="video" ></video>
         <canvas class="black-canvas"></canvas>
         <canvas class="canvas"></canvas>
         <button class="play-pause-button">

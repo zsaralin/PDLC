@@ -2,7 +2,7 @@ import {clearCanvas, drawFaces} from './drawing/drawFaces.js'
 import {processDetection} from "./newFaces.js";
 import {log} from "./overlay.js";
 import {setupSidePanel} from "./UIElements/sidePanel.js";
-import {changeOrientation} from "./videoOrientation.js";
+import {changeOrientation} from "./UIElements/videoOrientation.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {drawOuterRoi, initOuterRoi, processVideoFrame} from "./drawing/outerRoi.js";
 import {predictWebcam, startImageSegmenter, bgSeg} from "./drawing/bgSeg.js";
@@ -10,7 +10,7 @@ import {drawDMXTest} from "./dmx/dmxTests.js";
 import { setupFaceAPI } from './faceapi.js';
 import { calculateFPS } from './UIElements/fps.js';
 import { setupPause } from './UIElements/pauseButton.js';
-
+import {setCam0, setCam1, preDMX} from './twoCam.js'
 let currentFaces0 = null; // Global variable to hold the latest face detection results
 let currentFaces1 = null; // Global variable to hold the latest face detection results
 let ctx0; let ctx1;
@@ -41,12 +41,19 @@ export function detectVideo() {
         if(bgSeg) predictWebcam(video0, 0)
         drawOuterRoi(canvas0)
         drawFaces(canvas0, ctx0, currentFaces0, video0,0);
+        setCam0(true);
+    } else{
+        setCam0(false);
     } if (currentFaces1) {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
         if(bgSeg) predictWebcam(video1, 1)
         drawOuterRoi(canvas1)
         drawFaces(canvas1, ctx1, currentFaces1, video1,1);
+        setCam1(true);
+    } else{
+        setCam1(false);
     }
+    preDMX()
     requestAnimationFrame(() => detectVideo());
 }
 async function setupCamera() {

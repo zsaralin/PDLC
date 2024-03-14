@@ -4,13 +4,12 @@ import {SERVER_URL} from '../config.js'
 
 let prevBrightnessValues = Array.from({length: imgRow}, () => Array(imgCol).fill(0));
 
-export async function setDMXFromPixelCanvas(imageData) {
+export async function setDMXFromPixelCanvas(imageData, smoothingFactor = .2) {
     let brightnessValues = [];
     const data = imageData.data;
     const imageWidth = imageData.width; // Actual width of the imageData
     const cols = imgCol; // First 10 columns
     const rows = imgRow; // First 28 rows
-    const smoothingFactor = 0.2; // Determines the blend ratio; adjust as needed
 
     for (let row = 0; row < rows; row++) {
         let rowBrightness = [];

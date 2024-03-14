@@ -40,7 +40,6 @@ body {
     left: 0;
     display: flex;
     flex-direction: row;
-    transform: scaleX(-1); /* Initially mirror along with video container */
     /* margin-left: auto;  */
     /* flex: 1 */
 }
@@ -55,7 +54,6 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     z-index: 2;
-    transform: scaleX(-1); /* Initially mirror along with video container */
 }
 
 .video,
@@ -66,9 +64,11 @@ body {
     height: auto; 
     top: 0;
     /* right: 0; */
+    
     flex: 1;
     object-fit: contain; /* Ensures the video's aspect ratio is maintained */
 }
+
 
 #top-image-container {
     position: relative;
@@ -276,6 +276,7 @@ label[for="zoom-slider"] {
 .canvas-wrapper {
     width: 100px;
     height: 100px;
+    transform : scaleX(-1);
     top: 0;
     right: 0;
     position: relative; /* Important for maintaining aspect ratio */
