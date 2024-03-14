@@ -22,19 +22,23 @@ const processingCtx1 = processingCanvas1.getContext('2d');
 let faceDetector0; let faceDetector1 
 let video0; let video1;
 let canvas0; let canvas1;
-
+let numCameras;
 export function detectVideo() {
-    if (!video0 || video0.paused || !video1 || video1.paused) return Promise.resolve(false);
+    if ((numCameras === 1 && (!video0 || video0.paused))
+    || (numCameras === 2 && (!video0 || video0.paused || !video1 || video1.paused))) return Promise.resolve(false);
     calculateFPS(0)
-    calculateFPS(1)
 
     let startTimeMs = performance.now();
     const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
-    const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
     currentFaces0 = processDetection(detections0);
-    currentFaces1 = processDetection(detections1);
     processVideoFrame(processingCtx0, video0, canvas0)
+
+    if(numCameras === 2){
+    calculateFPS(1)
+    const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
+    currentFaces1 = processDetection(detections1);
     processVideoFrame(processingCtx1, video1, canvas1)
+    }
 
     if (currentFaces0) {
         ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
@@ -68,9 +72,10 @@ async function setupCamera() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(device => device.kind === 'videoinput');
         const targetCameras = findTargetCameras(videoInputs); // Assuming findTargetCameras returns an array or false
+        numCameras = targetCameras.length
 
-        if (targetCameras && targetCameras.length) {
-            const videoElements = [video0, video1]; // Ensure video0 and video1 are defined and accessible here
+        if (targetCameras) {
+            const videoElements = numCameras === 1 ? [video0] : [video0, video1]; // Ensure video0 and video1 are defined and accessible here
             const streamPromises = targetCameras.map(async (camera, index) => {
                 const video = videoElements[index]; // Select the corresponding video element
                 await initializeVideoStream(camera.deviceId, video);
@@ -107,13 +112,14 @@ async function setupCamera() {
 
 function findTargetCameras(videoInputs) {
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
-    const usbCameras = videoInputs.slice(0, 2);
+    const usbCameras = videoInputs.slice(0, 1);
     console.log(usbCameras)
-    if (usbCameras.length === 2) {
-        return usbCameras; // Return the two USB cameras
-    } else {
-        return false; // Return false if there aren't exactly two
-    }
+    return usbCameras;
+    // if (usbCameras.length === 2) {
+    //     return usbCameras; // Return the two USB cameras
+    // } else {
+    //     return false; // Return false if there aren't exactly two
+    // }
 }
 
 async function initializeVideoStream(deviceId, video) {
@@ -135,33 +141,30 @@ function handleCameraError(err) {
 async function initializeVideo(video) {
     canvas0.width = video0.videoWidth;
     canvas0.height = video0.videoHeight;
-    canvas1.width = video1.videoWidth;
-    canvas1.height = video1.videoHeight;
-
     processingCanvas0.width = video0.videoWidth;
     processingCanvas0.height = video0.videoHeight;
-    processingCanvas1.width = video1.videoWidth;
-    processingCanvas1.height = video1.videoHeight;
     video0.play();
-    video1.play();
-
-    changeOrientation(0);
     initOuterRoi(video0);
-    initOuterRoi(video1);
-
     // monitorBrightness(video0, 0);
-    // monitorBrightness(video1, 1);
+    await startImageSegmenter(video0, canvas0, 0);
+
+    if(numCameras > 1){
+        canvas1.width = video1.videoWidth;
+        canvas1.height = video1.videoHeight;
+        processingCanvas1.width = video1.videoWidth;
+        processingCanvas1.height = video1.videoHeight;
+        video1.play();
+        initOuterRoi(video1);
+        // monitorBrightness(video1, 1);
+        await startImageSegmenter(video1, canvas1, 1);
+    }
 
     setupPause(video0, video1);
-
-    setupSidePanel();
-    await startImageSegmenter(video0, canvas0, 0);
-    await startImageSegmenter(video1, canvas1, 1);
-
+    changeOrientation(0);
+    setupSidePanel()
     await detectVideo();
     // setInterval(drawDMXTest, 25)
     // drawDMXTest; // 5000 milliseconds = 5 seconds
-
 }
 
 async function main() {
