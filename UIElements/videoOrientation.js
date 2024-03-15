@@ -3,8 +3,9 @@ export let mirror = true;
 
 export function changeOrientation(value = angle) {
     const selectedAngle = parseInt(value);
-    const videos = document.querySelectorAll('.canvas'); // Assuming .video-container is the class you want
-    const canvases = document.querySelectorAll('.canvas-wrapper');
+    const videos = document.querySelectorAll('video'); // Assuming .video-container is the class you want
+    const canvases = document.querySelectorAll('.canvas'); // Assuming .video-container is the class you want
+    const canvasWrappers = document.querySelectorAll('.canvas-wrapper');
     let transformation = `rotate(${selectedAngle}deg)`;
     if (mirror) {
         transformation += ' scaleX(-1)';
@@ -12,7 +13,10 @@ export function changeOrientation(value = angle) {
     videos.forEach(v => {
         v.style.transform = transformation;
     });
-    canvases.forEach(c => {
+    canvases.forEach(v => {
+        v.style.transform = transformation;
+    });
+    canvasWrappers.forEach(c => {
         c.style.transform = transformation;
     });
     angle = selectedAngle;

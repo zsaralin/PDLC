@@ -11,40 +11,52 @@ import { setupFaceAPI } from './faceapi.js';
 import { calculateFPS } from './UIElements/fps.js';
 import { setupPause } from './UIElements/pauseButton.js';
 import {setCam0, setCam1, preDMX} from './twoCam.js'
+import { createPoseDetector } from './poseDetection.js';
+import { startBodySegmenter, predictWebcamB } from './drawing/selfieSegmenter.js';
+
 let currentFaces0 = null; // Global variable to hold the latest face detection results
-let currentFaces1 = null; // Global variable to hold the latest face detection results
+let currentFaces1 = null; 
+let poseFace0 = null;
+let poseFace1 = null;
+
 let ctx0; let ctx1;
 const processingCanvas0 = document.createElement('canvas');
 const processingCtx0 = processingCanvas0.getContext('2d');
 const processingCanvas1 = document.createElement('canvas');
 const processingCtx1 = processingCanvas1.getContext('2d');
 
-let faceDetector0; let faceDetector1 
+let faceDetector0; let faceDetector1 ;
+let poseDetector0; let poseDetector1;
 let video0; let video1;
 let canvas0; let canvas1;
 let numCameras;
-export function detectVideo() {
+
+let segmenter; 
+export async function detectVideo() {
     if ((numCameras === 1 && (!video0 || video0.paused))
     || (numCameras === 2 && (!video0 || video0.paused || !video1 || video1.paused))) return Promise.resolve(false);
     calculateFPS(0)
 
     let startTimeMs = performance.now();
-    const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
-    currentFaces0 = processDetection(detections0);
+    // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
+    const poseDetections0 = await poseDetector0.estimatePoses(processingCanvas0)
+    currentFaces0 = processDetection(poseDetections0);
     processVideoFrame(processingCtx0, video0, canvas0)
 
     if(numCameras === 2){
-    calculateFPS(1)
-    const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
-    currentFaces1 = processDetection(detections1);
-    processVideoFrame(processingCtx1, video1, canvas1)
+        calculateFPS(1)
+        // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
+        const poseDetections1 = await poseDetector1.estimatePoses(processingCanvas0)
+        currentFaces1 = processDetection(poseDetections1);
+        processVideoFrame(processingCtx1, video1, canvas1);
     }
-
     if (currentFaces0) {
         ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-        if(bgSeg) predictWebcam(video0, 0)
-        drawOuterRoi(canvas0)
-        drawFaces(canvas0, ctx0, currentFaces0, video0,0);
+        predictWebcamB(video0,0, canvas0, ctx0, currentFaces0)
+        // if(bgSeg) predictWebcam(video0, 0)
+        // drawOuterRoi(canvas0)
+        // drawFaces(canvas0, ctx0, currentFaces0, video0, 0);
+        
         setCam0(true);
     } else{
         setCam0(false);
@@ -147,6 +159,7 @@ async function initializeVideo(video) {
     initOuterRoi(video0);
     // monitorBrightness(video0, 0);
     await startImageSegmenter(video0, canvas0, 0);
+    await startBodySegmenter(video0, canvas0, 0);
 
     if(numCameras > 1){
         canvas1.width = video1.videoWidth;
@@ -189,7 +202,8 @@ async function main() {
     ctx1.fillStyle = 'white';
     ctx1.globalAlpha = 0.9;
 
-    [faceDetector0, faceDetector1] = await setupFaceAPI();
+    // [faceDetector0, faceDetector1] = await setupFaceAPI();
+    [poseDetector0, poseDetector1] = await createPoseDetector()
     await setupCamera();
     document.getElementById('overlay').style.display = 'none'
 }

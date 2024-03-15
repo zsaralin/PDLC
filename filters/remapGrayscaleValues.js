@@ -42,7 +42,8 @@ export function remapGrayscaleValues(canvas ) {
 const grayscaleSlider = document.getElementById("grayscaleMapSlider");
 // Initialize the range slider with two thumbs
 const slider = noUiSlider.create(grayscaleSlider, {
-    start: [100, 165], // Initial values for the two thumbs (min and max)
+    // start: [100, 165], // Initial values for the two thumbs (min and max)
+    start: [50, 225], // Initial values for the two thumbs (min and max)
     connect: true, // Display a connecting bar between the two thumbs
     step: 1, // Step size for the slider
     range: {

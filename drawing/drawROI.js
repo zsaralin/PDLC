@@ -49,7 +49,17 @@ for (let i = 0; i < 2; i++) {
 export function computeROI(video, canvas, ctx, person, i) {
     ctx.beginPath();
     if (!filterCtxs[i]) return;
-    const {originX: x, originY: y, width, height} = person.boundingBox;
+    const width = Math.abs(person.keypoints[3].x - person.keypoints[4].x);
+    const height = width;
+    const x = person.keypoints[4].x;
+    const y = person.keypoints[0].y - width/2
+
+    const dimensions = {
+        originX: x,
+        originY: y,
+        width: width,
+        height: height // Assuming you want a square; adjust if needed
+    };
 
     const centerX = x + width / 2;
     const centerY = y + height / 2;
@@ -73,12 +83,12 @@ export function computeROI(video, canvas, ctx, person, i) {
         let smoothedDeltaX = filterX.filter(deltaX, timestamp);
         let smoothedDeltaY = filterY.filter(deltaY, timestamp);
 
-        if (Math.abs(smoothedDeltaX) > movementThreshold) {
+        // if (Math.abs(smoothedDeltaX) > movementThreshold) {
             currentCenterX += smoothedDeltaX * (1 - lag.value);
-        }
-        if (Math.abs(smoothedDeltaY) > movementThreshold) {
+        // }
+        // if (Math.abs(smoothedDeltaY) > movementThreshold) {
             currentCenterY += smoothedDeltaY * (1 - lag.value);
-        }
+        // }
         // Ensure centerX and centerY are within the canvas bounds
         let maxCenterX = canvas.width - filterCanvases[i].width / 2;
         let maxCenterY = canvas.height - filterCanvases[i].height / 2;

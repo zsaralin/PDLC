@@ -1,5 +1,5 @@
 import {computeROI} from "./drawROI.js";
-import {isEyeDistanceAboveThreshold} from "./minEyeDist.js";
+import {isEyeDistanceAboveThresholdFace, isEyeDistanceAboveThresholdBody} from "./minEyeDist.js";
 
 
 export function clearCanvas(canvas){
@@ -7,7 +7,7 @@ export function clearCanvas(canvas){
 }
 
 export function drawFaces(canvas, ctx, person, video, i) {
-    if(!isEyeDistanceAboveThreshold(person)){
+    if(!isEyeDistanceAboveThresholdBody(person)){
         console.log('clearing pixel canvas')
         clearPixelCanvas(canvas, i)
         return
@@ -16,9 +16,25 @@ export function drawFaces(canvas, ctx, person, video, i) {
     drawBB(person)
     
     function drawBB(person){
-        ctx.beginPath();
-        ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
-        ctx.stroke();
+        // ctx.globalCompositeOperation = 'source-over';
+
+        const leftEar = person.keypoints[3]
+        const rightEar = person.keypoints[4]
+
+        if (!leftEar || !rightEar) {
+            console.log("Could not find both ears in keypoints.");
+            return;
+        }
+
+        const faceWidth = Math.abs(leftEar.x - rightEar.x);
+        const midPointY = (leftEar.y + rightEar.y) / 2;
+        const topLeftX = rightEar.x;
+        const topLeftY = midPointY - faceWidth / 2;
+        ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
+
+        // ctx.beginPath();
+        // ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
+        // ctx.stroke();
     }
 }
 

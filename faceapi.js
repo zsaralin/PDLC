@@ -24,3 +24,4 @@ export async function setupFaceAPI() {
     log(`Models loaded`);
     return [faceDetector0, faceDetector1]
 }
+
