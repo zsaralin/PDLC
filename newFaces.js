@@ -1,28 +1,28 @@
 
-export let activeFace = null;
-export function processDetection(data) {
-    if (!activeFace && data.length > 0) {
-        activeFace = data[0];
+export let activeFaces = [null,null];
+export function processDetection(data,i) {
+    if (!activeFaces[i] && data.length > 0) {
+        activeFaces[i] = data[0];
     }else if(data.length === 0){
-        activeFace = null
+        activeFaces[i] = null
     } else {
         // Find the person in data with landmarks closest to activeFace landmarks
         let closestDistance = Number.POSITIVE_INFINITY;
-        let closestPerson = activeFace;
+        let closestPerson = activeFaces[i];
 
         for (const person of data) {
             // const distance = calculateLandmarkDistance(activeFace.boundingBox, person.boundingBox);
-            const distance = calculateKeyPointsDistance(activeFace.keypoints, person.keypoints);
+            const distance = calculateKeyPointsDistance(activeFaces[i].keypoints, person.keypoints);
             if (distance < closestDistance) {
                 closestDistance = distance;
                 closestPerson = person;
             }
         }
 
-        activeFace = closestPerson;
+        activeFaces[i] = closestPerson;
     }
 
-    return activeFace;
+    return activeFaces[i];
 }
 function calculateLandmarkDistance(landmarks1, landmarks2) {
     // Assuming landmarks1 and landmarks2 are objects with originX, originY properties

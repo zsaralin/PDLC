@@ -37,42 +37,10 @@ function createPixelCanv() {
 export function pixelCanvas(filterCanvas, filterCtx, i) {
     pixelatedCanvases[i].width = imgCol;
     pixelatedCanvases[i].height = imgRow;
-
     const cellWidth = filterCanvas.width / imgCol;
     const cellHeight = filterCanvas.height / imgRow;
     if(!filterCtx || cellWidth <1||  cellHeight < 1 ) return
-    // // Loop through each cell in the original canvas
-    // for (let y = 0; y < imgRow; y++) {
-    //     for (let x = 0; x < imgCol; x++) {
-    //         const cellX = Math.floor(x * cellWidth);
-    //         const cellY = Math.floor(y * cellHeight);
-
-    //         // Extract pixel data for the current cell
-
-    //         const cellImageData = filterCtx.getImageData(cellX, cellY, cellWidth, cellHeight);
-    //         const cellData = cellImageData.data;
-
-    //         // Calculate the average color of the cell
-    //         let totalR = 0, totalG = 0, totalB = 0;
-    //         for (let i = 0; i < cellData.length; i += 4) {
-    //             totalR += cellData[i];
-    //             totalG += cellData[i + 1];
-    //             totalB += cellData[i + 2];
-    //         }
-    //         const numPixels = cellData.length / 4;
-    //         const averageR = totalR / numPixels;
-    //         const averageG = totalG / numPixels;
-    //         const averageB = totalB / numPixels;
-
-    //         // Set the fill style to the average color
-    //         pixelatedCtxs[i].fillStyle = `rgb(${Math.round(averageR)}, ${Math.round(averageG)}, ${Math.round(averageB)})`;
-
-    //         // Draw a single pixel for the cell on the pixelated canvas
-    //         pixelatedCtxs[i].fillRect(x, y, 1, 1);
-    //     }
-    // }
     pixelatedCtxs[i].drawImage(filterCanvas, 0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
-
     const croppedImageData = pixelatedCanvases[i].toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, i);
     // const imageData = pixelatedCtxs[i].getImageData(0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);

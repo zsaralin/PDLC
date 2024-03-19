@@ -20,22 +20,22 @@ export async function createBodySegmenter(){
     return await bodySegmentation.createSegmenter(model, segmenterConfig);
 }
 
-export async function predictWebcamB(video, i, canvas, ctx, person) {
+export async function predictWebcamB(video, i, canvas, ctx, person, bgSeg) {
     if (!video || video.paused) return;
-
-    // ctxs[i].drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-
-    // Check if the segmenter is defined
+    if(bgSeg){
     if (imageSegmenters[i] === undefined) {
         return;
     }
-
-    // Segment the people in the current frame
     imageSegmenters[i].segmentPeople(video).then((result) => {
         callbackForVideo(result, video, i, canvas, ctx, person);
     }).catch((error) => {
         console.error('Error during segmentation:', error);
-    });}
+    });} else{
+        ctx.drawImage(video, 0,0, canvas.width, canvas.height)
+        drawOuterRoi(canvas)
+        drawFaces(canvas, ctx, person, video, i)
+    }
+}
 
 const bg = document.getElementById('bg');
 

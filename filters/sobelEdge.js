@@ -1,7 +1,8 @@
-export let sobel = true;
+export let sobel = false;
 const sobelEdgeStrength = document.getElementById('sobEdgeStrength')
 const sobelSlider = document.getElementById('sobelWrapper')
 const sobelEl = document.getElementById('sobel')
+sobelSlider.style.display = sobelEl.checked ? 'block' : 'none';
 
 sobelEl.addEventListener('change', () => {
     sobel = !sobel
@@ -12,34 +13,36 @@ sobelEl.addEventListener('change', () => {
     }
 })
 
+const sobelEdgeStrengthVal = document.getElementById("sobEdgeStrengthVal");
+sobelEdgeStrength.addEventListener("input", function() {
+    sobelEdgeStrengthVal.textContent = this.value;
+});
+// Apply edge enhancement filter with Sobel operator
+const sobelHorizontalKernel = [
+    [-1, 0, 1],
+    [-2, 0, 2],
+    [-1, 0, 1]
+];
+
+const sobelVerticalKernel = [
+    [-1, -2, -1],
+    [ 0,  0,  0],
+    [ 1,  2,  1]
+];
+
 export function sobelED(canvas) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
     // Get the image data
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
-
     // Create a copy of the image data to work on
     const copyData = new Uint8ClampedArray(data);
-
-    // Apply edge enhancement filter with Sobel operator
-    const sobelHorizontalKernel = [
-        [-1, 0, 1],
-        [-2, 0, 2],
-        [-1, 0, 1]
-    ];
-
-    const sobelVerticalKernel = [
-        [-1, -2, -1],
-        [ 0,  0,  0],
-        [ 1,  2,  1]
-    ];
 
     const width = canvas.width;
     const height = canvas.height;
 
-    for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
+    for (let y = 1; y < height - 1; y+=1) {
+        for (let x = 1; x < width - 1; x+=1) {
             for (let c = 0; c < 3; c++) {
                 let sumX = 0;
                 let sumY = 0;

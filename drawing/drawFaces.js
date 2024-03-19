@@ -13,29 +13,8 @@ export function drawFaces(canvas, ctx, person, video, i) {
         return
     }
     computeROI(video, canvas, ctx, person, i)
-    drawBB(person)
-    
-    function drawBB(person){
-        // ctx.globalCompositeOperation = 'source-over';
+    drawBB(ctx, person)
 
-        const leftEar = person.keypoints[3]
-        const rightEar = person.keypoints[4]
-
-        if (!leftEar || !rightEar) {
-            console.log("Could not find both ears in keypoints.");
-            return;
-        }
-
-        const faceWidth = Math.abs(leftEar.x - rightEar.x);
-        const midPointY = (leftEar.y + rightEar.y) / 2;
-        const topLeftX = rightEar.x;
-        const topLeftY = midPointY - faceWidth / 2;
-        ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
-
-        // ctx.beginPath();
-        // ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
-        // ctx.stroke();
-    }
 }
 
 function clearPixelCanvas(canvas, i) {
@@ -48,4 +27,28 @@ function clearPixelCanvas(canvas, i) {
         let pixelCanvasCtx = pixelCanvas.getContext('2d');
         pixelCanvasCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
     }
+}
+
+function drawBB(ctx, person){
+    // ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+
+    const leftEar = person.keypoints[3]
+    const rightEar = person.keypoints[4]
+
+    if (!leftEar || !rightEar) {
+        console.log("Could not find both ears in keypoints.");
+        return;
+    }
+
+    const faceWidth = Math.abs(leftEar.x - rightEar.x);
+    const midPointY = (leftEar.y + rightEar.y) / 2;
+    const topLeftX = rightEar.x;
+    const topLeftY = midPointY - faceWidth / 2;
+    ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
+    ctx.closePath();
+
+    // ctx.beginPath();
+    // ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
+    // ctx.stroke();
 }

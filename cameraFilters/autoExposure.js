@@ -1,4 +1,4 @@
-import {activeFace} from "../newFaces.js";
+import {activeFaces} from "../newFaces.js";
 import { SERVER_URL } from '../config.js';
 
 export let auto = true;
@@ -43,7 +43,7 @@ export async function monitorBrightness(video, camIndex) {
     // Periodically check video brightness and adjust camera settings
     setInterval(async () => {
         if(!auto || video.paused) return
-        if (activeFace) {
+        if (activeFaces) {
         count = 0; // Reset the counter after adjustments are made
         let currentBrightness = calculateBrightness(video);
 

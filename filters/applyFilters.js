@@ -8,9 +8,9 @@ import { claheFn, useClahe } from "./clahe.js";
 import { histo, histogramEqualization } from "./histogramEq.js";
 import { edge, sharpeningFilter } from "./sharpenFilter.js";
 import {sobel, sobelED} from './sobelEdge.js'
+import {robert, robertED} from './robertsEdge.js'
 import { pixelCanvas } from "./pixelated.js";
 import { updateCanvas } from "../drawing/drawROI.js";
-
 const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
 const grayscaleMapSlider = document.getElementById('grayscaleMapSlider');
@@ -94,8 +94,8 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
         }
     }
 
-    const croppedGrayscale = filterCanvas.toDataURL('image/png');
-    updateCanvas('gray-canvas', croppedGrayscale, i);
+    // const croppedGrayscale = filterCanvas.toDataURL('image/png');
+    // updateCanvas('gray-canvas', croppedGrayscale, i);
 
     const listItems = functionOrderList.children;
 
@@ -114,12 +114,15 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
             case 'sobel':
                 if (sobel) sobelED(filterCanvas);
                 break;
+            case 'robert':
+                if (robert) robertED(filterCanvas);
+                break;
             default:
                 break;
         }
     }
 
-    const croppedImageData = filterCanvas.toDataURL('image/png');
-    updateCanvas('cropped-canvas', croppedImageData, i);
+    // const croppedImageData = filterCanvas.toDataURL('image/png');
+    // updateCanvas('cropped-canvas', croppedImageData, i);
     pixelCanvas(filterCanvas, filterCtx, i);
 }

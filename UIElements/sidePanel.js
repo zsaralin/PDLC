@@ -70,11 +70,7 @@ export function setupSidePanel() {
         contrastVal.textContent = this.value;
     });
 
-    const edgeStrength = document.getElementById("sobEdgeStrength");
-    const edgeStrengthVal = document.getElementById("sobEdgeStrengthVal");
-    edgeStrength.addEventListener("input", function() {
-        edgeStrengthVal.textContent = this.value;
-    });
+    
 
     var dmxGridElements = document.querySelectorAll('.dmxGrid');
 

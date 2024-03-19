@@ -1,5 +1,4 @@
 import { setDMXFromPixelCanvas } from "./dmx/dmx.js";
-import { imgCol, imgRow } from "../imageRatio.js";
 import { updateCanvas } from "./drawing/drawROI.js";
 import { getPixelImageData } from "./filters/pixelated.js";
 
@@ -92,7 +91,6 @@ export function preDMX() {
 }
 
 function switchCameras() {
-    currentCamIndex = (currentCamIndex === 0 ? 1 : 0);
     fadeCanvasToBlackAndBack(currentCamIndex)
     setTimeout(() => {
         fadingBlack = false;
@@ -124,6 +122,8 @@ function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) {
             // Fade in (increase opacity)
             opacity = frame / halfWay;
         } else {
+            currentCamIndex = (currentCamIndex === 0 ? 1 : 0);
+
             // Fade out (decrease opacity)
             opacity = 1 - ((frame - halfWay) / halfWay);
         }

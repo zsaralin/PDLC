@@ -40,33 +40,29 @@ export async function detectVideo() {
     let startTimeMs = performance.now();
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
     const poseDetections0 = await poseDetector0.estimatePoses(processingCanvas0)
-    currentFaces0 = processDetection(poseDetections0);
+    currentFaces0 = processDetection(poseDetections0, 0);
     processVideoFrame(processingCtx0, video0, canvas0)
 
     if(numCameras === 2){
         calculateFPS(1)
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
-        const poseDetections1 = await poseDetector1.estimatePoses(processingCanvas0)
-        currentFaces1 = processDetection(poseDetections1);
+        const poseDetections1 = await poseDetector1.estimatePoses(processingCanvas1)
+        currentFaces1 = processDetection(poseDetections1, 1);
         processVideoFrame(processingCtx1, video1, canvas1);
     }
-    if (currentFaces0) {
+    if (currentFaces0 && currentFaces0.score > .3) {
         ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-        predictWebcamB(video0,0, canvas0, ctx0, currentFaces0)
-        // if(bgSeg) predictWebcam(video0, 0)
-        // drawOuterRoi(canvas0)
-        // drawFaces(canvas0, ctx0, currentFaces0, video0, 0);
-        
+        predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0, bgSeg)
         setCam0(true);
     } else{
+        ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
         setCam0(false);
-    } if (currentFaces1) {
+    } if (currentFaces1 && currentFaces1.score > .3) {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        if(bgSeg) predictWebcam(video1, 1)
-        drawOuterRoi(canvas1)
-        drawFaces(canvas1, ctx1, currentFaces1, video1,1);
+        predictWebcamB(video1,1, canvas1, ctx1, currentFaces1, bgSeg)
         setCam1(true);
     } else{
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
         setCam1(false);
     }
     preDMX()
@@ -124,7 +120,7 @@ async function setupCamera() {
 
 function findTargetCameras(videoInputs) {
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
-    const usbCameras = videoInputs.slice(0, 1);
+    const usbCameras = videoInputs.slice(0,1);
     console.log(usbCameras)
     return usbCameras;
     // if (usbCameras.length === 2) {
@@ -170,13 +166,15 @@ async function initializeVideo(video) {
         initOuterRoi(video1);
         // monitorBrightness(video1, 1);
         await startImageSegmenter(video1, canvas1, 1);
+        await startBodySegmenter(video1, canvas1, 1);
+
     }
 
     setupPause(video0, video1);
     changeOrientation(0);
     setupSidePanel()
     await detectVideo();
-    // setInterval(drawDMXTest, 25)
+    // setInterval(drawDMXTest, 100)
     // drawDMXTest; // 5000 milliseconds = 5 seconds
 }
 
