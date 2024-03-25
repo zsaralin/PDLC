@@ -1,3 +1,4 @@
+import { angle , mirror} from "../UIElements/videoOrientation.js";
 let roi;
 let showOuterRoi = false;
 const outerRoiCheckbox = document.getElementById('outerRoi');
@@ -57,20 +58,46 @@ export function initOuterRoi(video) {
     // Initial call to set up the ROI based on initial input values
     updateRoi();
 }
-export function processVideoFrame(processingCtx, video, canvas) {
-    processingCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+export function copyVideoToCanvas(ctx, video, canvas) {
+    const radians = angle * Math.PI / 180; // Convert to radians
 
+    // Assuming you're rotating an image or something previously drawn:
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+
+    // Move to the center of the canvas
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+
+    // Apply mirroring if needed
+    // if (mirror) {
+        // ctx.scale(-1, 1); // This flips the context horizontally
+    // }
+
+    // Rotate the context
+    ctx.rotate(radians);
+
+    // Move back to the top-left of the canvas
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+    // Draw the video frame
+    ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+    // Apply drawing operations, such as drawing rectangles
     const rects = [
-        { x: 0, y: 0, width: video.videoWidth, height: roi.y }, // Top rectangle
-        { x: 0, y: roi.y, width: roi.x, height: roi.height }, // Left rectangle
-        { x: roi.x + roi.width, y: roi.y, width: video.videoWidth - roi.x - roi.width, height: roi.height }, // Right rectangle
-        { x: 0, y: roi.y + roi.height, width: video.videoWidth, height: video.videoHeight - roi.y - roi.height } // Bottom rectangle
+        { x: 0, y: 0, width: video.videoWidth, height: roi.y },
+        { x: 0, y: roi.y, width: roi.x, height: roi.height },
+        { x: roi.x + roi.width, y: roi.y, width: video.videoWidth - roi.x - roi.width, height: roi.height },
+        { x: 0, y: roi.y + roi.height, width: video.videoWidth, height: video.videoHeight - roi.y - roi.height }
     ];
 
-    processingCtx.fillStyle = 'rgba(0, 0, 0, 1)'; // Fully opaque black
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Fully opaque black
     rects.forEach(rect => {
-        processingCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
+        ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
     });
+
+    // Restore the context to its original state
+    ctx.restore();
 }
 
 export function drawOuterRoi(canvas){

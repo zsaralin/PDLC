@@ -11,31 +11,31 @@ export function toggleBgSeg(){
 }
 
 export async function startImageSegmenter(video, canvasI, i) {
-    canvases[i] = canvasI;
-    ctxs[i] = canvases[i].getContext('2d', {willReadFrequently: true});
-    imageSegmenters[i] = await createImageSegmenter()
+    // canvases[i] = canvasI;
+    // ctxs[i] = canvases[i].getContext('2d', {willReadFrequently: true});
+    // imageSegmenters[i] = await createImageSegmenter()
 }
 
 const createImageSegmenter = async () => {
-    try {
-        const audio = await FilesetResolver.forVisionTasks(
-            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
-        );
+    // try {
+    //     const audio = await FilesetResolver.forVisionTasks(
+    //         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+    //     );
 
-        return await ImageSegmenter.createFromOptions(audio, {
-            baseOptions: {
-                modelAssetPath:
-                    "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite",
-                delegate: "GPU"
-            },
-            runningMode: 'VIDEO',
-            outputCategoryMask: true,
-            outputConfidenceMasks: false
-        });
-    } catch (error) {
-        console.error('Error creating ImageSegmenter:', error);
-        throw error; // Rethrow or handle as needed
-    }
+    //     return await ImageSegmenter.createFromOptions(audio, {
+    //         baseOptions: {
+    //             modelAssetPath:
+    //                 "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite",
+    //             delegate: "GPU"
+    //         },
+    //         runningMode: 'VIDEO',
+    //         outputCategoryMask: true,
+    //         outputConfidenceMasks: false
+    //     });
+    // } catch (error) {
+    //     console.error('Error creating ImageSegmenter:', error);
+    //     throw error; // Rethrow or handle as needed
+    // }
 };
 
 let lastWebcamTimes = [-1,-1];

@@ -94,8 +94,8 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
         }
     }
 
-    // const croppedGrayscale = filterCanvas.toDataURL('image/png');
-    // updateCanvas('gray-canvas', croppedGrayscale, i);
+    const croppedGrayscale = filterCanvas.toDataURL('image/png');
+    updateCanvas('gray-canvas', croppedGrayscale, i);
 
     const listItems = functionOrderList.children;
 

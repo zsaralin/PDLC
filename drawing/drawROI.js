@@ -3,6 +3,7 @@ const lag = document.getElementById('lag');
 import {applyFilters} from "../filters/applyFilters.js";
 import {imgRatio} from "../imageRatio.js";
 import { bgSeg } from "./bgSeg.js";
+import { rotateCanvas, mirror, angle } from "../UIElements/videoOrientation.js";
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
 const roiYOffset = document.getElementById("roiYOffset");
@@ -14,7 +15,7 @@ let previousCenterY = [roi.value / 2,roi.value / 2] // Initialize with the initi
 let easingFactorX = 1; // Adjust this value for the desired smoothness on the X axis
 let easingFactorY = 1; // Adjust this value for the desired smoothness on the Y axis
 
-export let center = false;
+export let center = true;
 
 export function toggleCenter() {
     center = !center;
@@ -47,10 +48,11 @@ for (let i = 0; i < 2; i++) {
 
 export function computeROI(video, canvas, ctx, person, i) {
     ctx.beginPath();
+
     if (!filterCtxs[i]) return;
-    const width = Math.abs(person.keypoints[3].x - person.keypoints[4].x);
+    const width = Math.abs(person.keypoints[8].x - person.keypoints[7].x);
     const height = width;
-    const x = person.keypoints[0].x 
+    let x = person.keypoints[0].x 
     const y = person.keypoints[0].y 
 
     const dimensions = {
@@ -69,6 +71,34 @@ export function computeROI(video, canvas, ctx, person, i) {
     // filterCanvases[i].height = smoothedWidth * roi.value
     let w = smoothedWidth * roi.value * imgRatio;
     let h = smoothedWidth * roi.value
+    let canvasAspectRatio = canvas.width / canvas.height;
+// Calculate the aspect ratio based on the desired ROI dimensions
+let roiAspectRatio = w / h;
+
+if (roiAspectRatio > canvasAspectRatio) {
+    // The ROI's width is the limiting factor (it's "wider" than the canvas's aspect ratio)
+    if (w > canvas.width) {
+        w = canvas.width; // Set w to fit the canvas width
+        h = w / imgRatio; // Adjust h to maintain the ROI aspect ratio
+    }
+} else {
+    // The ROI's height is the limiting factor (it's "taller" than the canvas's aspect ratio)
+    if (h > canvas.height) {
+        h = canvas.height; // Set h to fit the canvas height
+        w = h * imgRatio; // Adjust w to maintain the ROI aspect ratio
+    }
+}
+
+// Optionally, if you need to ensure neither dimension exceeds the canvas dimensions,
+// perform an additional check:
+if (w > canvas.width) {
+    w = canvas.width;
+    h = w / imgRatio;
+}
+if (h > canvas.height) {
+    h = canvas.height;
+    w = h * imgRatio;
+}
     const leewayFactor = 1 - lag.value;
     const movementThreshold = 15; // Adjust this value based on your requirements
 
@@ -90,14 +120,18 @@ export function computeROI(video, canvas, ctx, person, i) {
         // }
         // Ensure centerX and centerY are within the canvas bounds
         let maxCenterX = canvas.width - w/ 2;
+        if(mirror) maxCenterX -= canvas.width - (maxCenterX + canvas.width)
         let maxCenterY = canvas.height - h / 2;
 
         let adjustedCenterX = Math.min(maxCenterX, Math.max(w/ 2, currentCenterX[i] + parseInt(roiXOffset.value)));
+        
         let adjustedCenterY = Math.min(maxCenterY, Math.max(h / 2, currentCenterY[i] + parseInt(roiYOffset.value)));
         let topLeftX = adjustedCenterX - w / 2;
         let topLeftY = adjustedCenterY - h / 2;
-
+        
+        if(mirror) topLeftX = canvas.width - topLeftX - w
         drawROI(topLeftX, topLeftY, bgSeg? canvas : video, ctx, i, w, h);
+
         ctx.closePath()
     } else {
         // Gradually adjust the previous center position using easing factors and conditions
@@ -125,6 +159,7 @@ export function computeROI(video, canvas, ctx, person, i) {
     // ctx.closePath()
     applyFilters(filterCanvases[i], filterCtxs[i], person, i)
     ctx.strokeStyle = "white"
+    
 }
 
 function adjustPosition(previousPosition, newPosition, threshold, easingFactor) {
@@ -135,6 +170,7 @@ function adjustPosition(previousPosition, newPosition, threshold, easingFactor) 
 }
 
 function drawROI(x, y, video, ctx,i , w , h) {
+
     filterCtxs[i].drawImage(
         video,
         x,
@@ -146,6 +182,7 @@ function drawROI(x, y, video, ctx,i , w , h) {
         filterCanvases[i].width,
         filterCanvases[i].height
     );
+
     ctx.strokeStyle = "blue"
     ctx.lineWidth = 3
     ctx.rect(

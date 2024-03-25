@@ -26,7 +26,7 @@ export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 
     const rows = 28; // Total rows
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < gridWidth; col++) {
-            const cellId = `dmxCell-${row}-${29-col}`;
+            const cellId = `dmxCell-${row}-${col}`;
             const cell = document.getElementById(cellId);
             // Considering the startColumn and the row's offset in the full data width
             let rowIndex = row;

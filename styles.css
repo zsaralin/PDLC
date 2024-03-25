@@ -276,7 +276,6 @@ label[for="zoom-slider"] {
 .canvas-wrapper {
     width: 100px;
     height: 100px;
-    transform : scaleX(-1);
     top: 0;
     right: 0;
     position: relative; /* Important for maintaining aspect ratio */
@@ -366,6 +365,7 @@ select{
     grid-gap: 1px;
     width: max-content;
     margin: 4px;
+    top : 0 
 }
 
 .dmxCell {

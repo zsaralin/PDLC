@@ -1,6 +1,6 @@
 import {computeROI} from "./drawROI.js";
 import {isEyeDistanceAboveThresholdFace, isEyeDistanceAboveThresholdBody} from "./minEyeDist.js";
-
+import { angle, rotateCanvas } from "../UIElements/videoOrientation.js";
 
 export function clearCanvas(canvas){
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -12,8 +12,7 @@ export function drawFaces(canvas, ctx, person, video, i) {
         clearPixelCanvas(canvas, i)
         return
     }
-    computeROI(video, canvas, ctx, person, i)
-    drawBB(ctx, person)
+    drawBB(canvas, ctx, person)
 
 }
 
@@ -29,26 +28,18 @@ function clearPixelCanvas(canvas, i) {
     }
 }
 
-function drawBB(ctx, person){
-    // ctx.globalCompositeOperation = 'source-over';
+function drawBB(canvas, ctx, person){
     ctx.beginPath();
 
-    const leftEar = person.keypoints[3]
-    const rightEar = person.keypoints[4]
-
-    if (!leftEar || !rightEar) {
-        console.log("Could not find both ears in keypoints.");
-        return;
-    }
+    const leftEar = person.keypoints[7]
+    const rightEar = person.keypoints[8]
+    const nose = person.keypoints[0]
 
     const faceWidth = Math.abs(leftEar.x - rightEar.x);
-    const midPointY = (leftEar.y + rightEar.y) / 2;
-    const topLeftX = rightEar.x;
+    const midPointY = nose.y
+    const topLeftX = Math.min(rightEar.x, leftEar.x);
     const topLeftY = midPointY - faceWidth / 2;
+
     ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
     ctx.closePath();
-
-    // ctx.beginPath();
-    // ctx.rect(person.boundingBox.originX, person.boundingBox.originY, person.boundingBox.width, person.boundingBox.height);
-    // ctx.stroke();
 }

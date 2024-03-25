@@ -4,6 +4,8 @@ import { getPixelImageData } from "./filters/pixelated.js";
 
 let fade_dur = 1000;
 let switch_dur = 8000;
+let pause_dur = 1000;
+
 let fadeColor = "black"; // Can be "black" or "white"
 
 let cam0 = false;
@@ -40,13 +42,14 @@ export function preDMX() {
                 setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
             }, fade_dur);
         } else {
+            if(!fadingBlack){
             if (intervalId !== null) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
             currentCamIndex = 0;
             setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-        }
+        } }
         isBlack = false;
         
     } else if (!cam0 && cam1) {
@@ -62,6 +65,7 @@ export function preDMX() {
                 setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
             }, fade_dur);
         } else {
+            if(!fadingBlack){
             if (intervalId !== null) {
                 clearInterval(intervalId);
                 intervalId = null;
@@ -69,6 +73,7 @@ export function preDMX() {
             currentCamIndex = 1;
             setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
         }
+    }
         isBlack = false;
         
     } else if (cam0 && cam1) {
@@ -103,50 +108,57 @@ export function sendPixelCanvas(pixelatedCanvases){
     offPixelCanvases = pixelatedCanvases
 }
 
-function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) {
+function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) { // Adding pauseDuration parameter
     if (fadingBlack) return;
     fadingBlack = true;
-    const canvas = offPixelCanvases[canvasIndex];
-    const ctx = canvas.getContext('2d');
+    let canvas = offPixelCanvases[canvasIndex];
+    let ctx = canvas.getContext('2d');
     const fps = 30; // Frames per second for the fade effect
-    const totalFrames = (duration / 1000) * fps / 2; // Split duration for fading in and out
+    const fadeFrames = (duration / 1000) * fps / 2; // Split duration for fading in and out
+    const pauseFrames = (pause_dur / 1000) * fps; // Frames to pause on black or white
+    const totalFrames = fadeFrames * 2 + pauseFrames; // Total frames including pause
     let currentFrame = 0;
     const colorValue = fadeColor === "black" ? "0, 0, 0" : "255, 255, 255";
+    let switched = false; 
 
     // Function to update the fade effect
     const updateFadeEffect = (frame) => {
-        // Calculate current opacity: First half increases to 1, second half decreases to 0
-        const halfWay = totalFrames;
+        // Calculate current opacity: First half increases to 1, stays at 1 during pause, then decreases to 0
         let opacity;
-        if (frame <= halfWay) {
+        if (frame < fadeFrames) {
             // Fade in (increase opacity)
-            opacity = frame / halfWay;
+            opacity = frame / fadeFrames;
+        } else if (frame < fadeFrames + pauseFrames) {
+            if (!switched) {
+                switched = true; 
+                // Switch cameras at the beginning of the pause
+                currentCamIndex = currentCamIndex === 0 ? 1 : 0;
+                canvas = offPixelCanvases[currentCamIndex];
+                ctx = canvas.getContext('2d');
+            }
+            // Stay fully faded during the pause
+            opacity = 1;
         } else {
-            currentCamIndex = (currentCamIndex === 0 ? 1 : 0);
-
-            // Fade out (decrease opacity)
-            opacity = 1 - ((frame - halfWay) / halfWay);
+            
+            // Fade out (decrease opacity) after pause
+            opacity = 1 - ((frame - fadeFrames - pauseFrames) / fadeFrames);
         }
         return `rgba(${colorValue}, ${opacity})`;
     };
 
     const fadeStep = () => {
-        if (currentFrame < totalFrames * 2) { // Multiply by 2 to account for fade in and fade out
+        if (currentFrame < totalFrames) {
             ctx.fillStyle = updateFadeEffect(currentFrame);
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const croppedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            // imageDatas[currentCamIndex] = croppedImageData;
             const dataURL = canvas.toDataURL('image/png');
             updateCanvas('pixel-canvas', dataURL, canvasIndex);
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), 1);
+            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), 1); // Ensure this uses the correct index
             currentFrame++;
             requestAnimationFrame(fadeStep);
         } else {
             fadingBlack = false;
         }
     };
-
     fadeStep();
 }
 
@@ -187,14 +199,12 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const fadeColourSelect = document.getElementById('fadeColour');
-
     const fadeDurInput = document.getElementById('fadeDur');
     const switchDurInput = document.getElementById('switchDur');
+    const pauseDurInput = document.getElementById('pauseDur');
     const fadeDurValSpan = document.getElementById('fadeDurVal');
     const switchDurValSpan = document.getElementById('switchDurVal');
-
-    let fadeDuration = parseInt(fadeDurInput.value, 10); // Default from HTML
-    let switchDuration = parseInt(switchDurInput.value, 10) * 1000; // Convert seconds to milliseconds
+    const pauseDurValSpan = document.getElementById('pauseDurVal');
 
     function updateFadeColorFromSelect() {
         const fadeColourSelect = document.getElementById('fadeColour');
@@ -204,19 +214,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateFadeDuration = () => {
         fadeDurValSpan.textContent = `${fadeDurInput.value} ms`;
-        fadeDuration = parseInt(fadeDurInput.value, 10); // Update variable
+        fade_dur = parseInt(fadeDurInput.value, 10); // Update variable
     };
 
     const updateSwitchDuration = () => {
         switchDurValSpan.textContent = `${switchDurInput.value} s`;
-        switchDuration = parseInt(switchDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
+        switch_dur = parseInt(switchDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
+    };
+    const updatePauseDuration = () => {
+        pauseDurValSpan.textContent = `${pauseDurInput.value} s`;
+        pause_dur = parseInt(pauseDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
     };
 
     updateFadeColorFromSelect();
     updateFadeDuration();
     updateSwitchDuration();
+    updatePauseDuration()
 
     fadeColourSelect.addEventListener('change', updateFadeColorFromSelect);
     fadeDurInput.addEventListener('input', updateFadeDuration);
     switchDurInput.addEventListener('input', updateSwitchDuration);
+    pauseDurInput.addEventListener('input', updatePauseDuration);
+
 });
