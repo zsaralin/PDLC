@@ -11,7 +11,6 @@ let resultMat// = new cv.Mat();
 
 export function claheFn(canvas) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
     // Reuse or create a new OpenCV Mat object from the canvas image data
     srcMat = cv.imread(canvas);
 
@@ -25,6 +24,7 @@ export function claheFn(canvas) {
     const pixelData = new Uint8ClampedArray(resultMat.data);
     const imageData = new ImageData(pixelData, canvas.width, canvas.height);
     ctx.putImageData(imageData, 0, 0);
+    srcMat.delete()
 }
 
 export function initClahe() {

@@ -8,8 +8,8 @@ const exposureMode = document.getElementById('exposureModeWrapper')
 const exposureModeSelect = document.getElementById('exposureModeSelect')
 const brightnessRange = document.getElementById('brightnessRangeWrapper')
 
-let minValue = 100;
-let maxValue = 110;
+let minValue = 140;
+let maxValue = 150;
 const minExposureTime = 50; // Minimum exposure time in microseconds
 const maxExposureTime = 1250; // Maximum exposure time in microseconds
 
@@ -45,8 +45,9 @@ export async function monitorBrightness(video, camIndex) {
         if(!auto || video.paused) return
         if (activeFaces) {
         count = 0; // Reset the counter after adjustments are made
-        let currentBrightness = calculateBrightness(video);
-
+        // console.log(activeFaces[camIndex])
+        let currentBrightness = calculateBrightness(video, activeFaces[camIndex]);
+        // console.log('are u checking? ' + currentBrightness)
         // Dynamically calculate step based on distance from optimal brightness range
         let distanceFromOptimal;
         if (currentBrightness < minValue) {
@@ -107,27 +108,45 @@ export async function monitorBrightness(video, camIndex) {
 }
 const videoCanvas = document.createElement('canvas');
 const ctx = videoCanvas.getContext('2d');
-function calculateBrightness(video, sampleRate = 10) {
-    // Set the canvas dimensions to match the video's dimensions
-    videoCanvas.width = video.videoWidth;
-    videoCanvas.height = video.videoHeight;
 
-    // Draw the video frame onto the canvas
-    ctx.drawImage(video, 0, 0, videoCanvas.width, videoCanvas.height);
-    const imageData = ctx.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
+// Append the canvas to the document body or a specific element
+// document.body.appendChild(videoCanvas);
 
-    // Calculate luminance (brightness) of an RGB pixel based on a sample
+function calculateBrightness(video, person, sampleRate = 1) {
+    if(person){
+        videoCanvas.width = video.videoWidth; // Example width, should match your video's dimensions
+        videoCanvas.height = video.videoHeight; // Example height, should match your video's dimensions
+
+        // ctx.strokeStyle = 'red'
+        ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+        ctx.beginPath();
+
+        const leftEar = person.keypoints[7]
+        const rightEar = person.keypoints[8]
+        const nose = person.keypoints[0]
+        const faceWidth = Math.abs(leftEar.x - rightEar.x);
+        const midPointY = nose.y
+        const topLeftX = Math.min(rightEar.x, leftEar.x);
+        const topLeftY = midPointY - faceWidth / 2;
+    
+        // ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
+        // ctx.closePath();
+    // Get the image data for the bounding box area
+    if(videoCanvas.width === 0) return
+    const imageData = ctx.getImageData(topLeftX, topLeftY, faceWidth, faceWidth).data;
+    // Calculate luminance (brightness) of the pixels within the bounding box
     let sum = 0;
-    let count = 0; // Keep track of the number of pixels sampled
+    let count = 0;
 
-    // Only sample every 'sampleRate'th pixel to reduce computation
     for (let i = 0; i < imageData.length; i += 4 * sampleRate) {
-        sum += 0.299 * imageData[i] + 0.587 * imageData[i + 1] + 0.114 * imageData[i + 2];
+        // Calculate the luminance according to the digital ITU BT.709 formula
+        sum += 0.2126 * imageData[i] + 0.7152 * imageData[i + 1] + 0.0722 * imageData[i + 2];
         count++;
     }
-
+    // Return the average brightness of the sampled pixels
     return sum / count;
-}
+}}
 
 const contrastEnhSlider = document.getElementById("brightnessRangeSlider");
 // Initialize the range slider with two thumbs

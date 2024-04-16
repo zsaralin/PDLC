@@ -74,10 +74,10 @@
         <label>
             <input type="checkbox" id="bgSeg" checked> Background Segmentation
         </label>
-        <div id="bgColContainer" style="display: none;">
+        <div id="bgColContainer" style="">
             <label>
-                <span>Background Colour: <span id="bgValue">-1</span></span>
-                <input type="range" id="bg" min="-1" max="1" value="-1" step=".1">
+                <span>Background Colour: <span id="bgValue">1</span></span>
+                <input type="range" id="bg" min="-1" max="1" value="1" step=".1">
             </label>
         </div>
         <label>
@@ -98,8 +98,8 @@
             <input type="checkbox" id="robert" checked> Robert Edge Detection
         </label>
         <label id="robertWrapper">
-            <span>Robert Edge Strength: <span id="robEdgeStrengthVal">.3</span></span>
-            <input type="range" id="robEdgeStrength" min="0" max="1" value=".3" step=".1">
+            <span>Robert Edge Strength: <span id="robEdgeStrengthVal">.1</span></span>
+            <input type="range" id="robEdgeStrength" min="0" max="1" value=".1" step=".1">
         </label>
         <label>
             <span style="background-color: yellow;">ROI: <span id="roiValue">2.4</span></span>
@@ -115,7 +115,7 @@
         </label>
         <label>
             <span>Contrast: <span id="contrastValue">50</span></span>
-            <input type="range" id="contrast" min="-100" max="50" value="100">
+            <input type="range" id="contrast" min="-100" max="100" value="50">
         </label>
         <label>
             <span>Gamma: <span id="gammValue">1</span></span>
@@ -214,8 +214,8 @@
                 <input type="range" id="outerROIHeight" min="0" max="1000" value="500" step="1">
             </label>
             <label>
-                <span>Min Eye Dist: <span id="minEyeDistValue">0</span></span>
-                <input type="range" id="minEyeDist" min="0" max="200" value="0" step="1">
+                <span>Min Eye Dist: <span id="minEyeDistValue">10</span></span>
+                <input type="range" id="minEyeDist" min="0" max="200" value="10" step="1">
             </label>
             <label>
                 <span>Cam Brightness: <span id="camBrightnessValue">0</span></span>

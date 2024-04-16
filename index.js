@@ -76,7 +76,7 @@ async function setupCamera() {
     if (!navigator.mediaDevices) {
         log('Camera Error: access not supported');
         return null;
-    }
+   }
 
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -155,7 +155,7 @@ async function initializeVideo(video) {
         canvasWithOuterROI1.height = video1.videoHeight;
         video1.play();
         initOuterRoi(video1);
-        // monitorBrightness(video1, 1);
+        monitorBrightness(video1, 1);
         await startImageSegmenter(video1, canvas1, 1);
         await startBodySegmenter(video1, canvas1, 1);
 
@@ -165,7 +165,7 @@ async function initializeVideo(video) {
     changeOrientation(0);
     setupSidePanel()
     await detectVideo();
-    // setInterval(drawDMXTest, 100)
+    // setInterval(drawDMXTest, 50)
     // drawDMXTest; // 5000 milliseconds = 5 seconds
 }
 

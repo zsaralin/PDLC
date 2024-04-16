@@ -34,7 +34,6 @@ function drawBB(canvas, ctx, person){
     const leftEar = person.keypoints[7]
     const rightEar = person.keypoints[8]
     const nose = person.keypoints[0]
-
     const faceWidth = Math.abs(leftEar.x - rightEar.x);
     const midPointY = nose.y
     const topLeftX = Math.min(rightEar.x, leftEar.x);

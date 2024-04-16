@@ -25,7 +25,7 @@ export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 
     const gridWidth = 30; // Number of columns to display
     const rows = 28; // Total rows
     for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < gridWidth; col++) {
+        for (let col = 29; col >=0 ; col--) {
             const cellId = `dmxCell-${row}-${col}`;
             const cell = document.getElementById(cellId);
             // Considering the startColumn and the row's offset in the full data width
@@ -38,6 +38,8 @@ export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 
                 colIndex+=(imgCol-30)/2
             }
             else if(colIndex <=9 ){
+                // colIndex += (imgCol-30)
+
             }
             // Get the brightness value from the brightnessValues array of arrays
             const brightness = brightnessValues[rowIndex][colIndex];

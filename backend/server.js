@@ -45,7 +45,7 @@ app.post('/set-dmx', async (req, res) => {
                 const gridWidth = 10; // Number of columns to display
                 const rows = dmxValues.length; // Total rows
                 for (let row = 0; row < rows; row++) {
-                    const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
+                    const rowData = dmxValues[row]; // Get the brightness values for the current row
                     for (let col = 0; col < 10; col++) {
                         let colIndex = col //- (imgCol - 30); // Considering the gridWidth as totalColumns
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
@@ -61,7 +61,7 @@ app.post('/set-dmx', async (req, res) => {
                     }
                 }
                 for (let row = 0; row < rows; row++) {
-                    const rowData = dmxValues[row]; // Get the brightness values for the current row
+                    const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
                     for (let col = 10; col < 20; col++) {
                         const colIndex = col + (imgCol - 30)/2; // Considering the gridWidth as totalColumns
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values

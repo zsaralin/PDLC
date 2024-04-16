@@ -106,8 +106,8 @@ function animateGradientSweep() {
 
     // Setup the gradient transition from black to white and back to black
     gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Middle to white
-    gradient.addColorStop(.5, 'rgb(0, 0, 0)'); // End with black again
-    gradient.addColorStop(1, 'rgb(255, 255, 255)'); // Middle to white
+    gradient.addColorStop(1, 'rgb(0, 0, 0)'); // End with black again
+    // gradient.addColorStop(1, 'rgb(255, 255, 255)'); // Middle to white
 
     // Use the gradient to fill the canvas
     pixelatedCtx.fillStyle = gradient;

@@ -4,7 +4,7 @@ import {SERVER_URL} from '../config.js'
 
 let prevBrightnessValues = Array.from({length: imgRow}, () => Array(imgCol).fill(0));
 
-export async function setDMXFromPixelCanvas(imageData, smoothingFactor = .2) {
+export async function setDMXFromPixelCanvas(imageData, smoothingFactor = .1) {
     let brightnessValues = [];
     const data = imageData.data;
     const imageWidth = imageData.width; // Actual width of the imageData

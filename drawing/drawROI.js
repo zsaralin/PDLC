@@ -4,6 +4,7 @@ import {applyFilters} from "../filters/applyFilters.js";
 import {imgRatio} from "../imageRatio.js";
 import { bgSeg } from "./bgSeg.js";
 import { rotateCanvas, mirror, angle } from "../UIElements/videoOrientation.js";
+import { appVersion } from "../bodyVersion.js";
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
 const roiYOffset = document.getElementById("roiYOffset");
@@ -69,8 +70,8 @@ export function computeROI(video, canvas, ctx, person, i) {
     let smoothedWidth = filterZ[i].filter(width, timestamp2);
     // filterCanvases[i].width = smoothedWidth * roi.value * imgRatio;
     // filterCanvases[i].height = smoothedWidth * roi.value
-    let w = smoothedWidth * roi.value * imgRatio;
-    let h = smoothedWidth * roi.value
+    let w = appVersion === 'face' ? smoothedWidth * roi.value * imgRatio : Math.min(canvas.width, canvas.height) * imgRatio
+    let h = appVersion === 'face' ? smoothedWidth * roi.value : Math.min(canvas.width, canvas.height) 
     let canvasAspectRatio = canvas.width / canvas.height;
 // Calculate the aspect ratio based on the desired ROI dimensions
 let roiAspectRatio = w / h;
@@ -128,9 +129,11 @@ if (h > canvas.height) {
         let adjustedCenterY = Math.min(maxCenterY, Math.max(h / 2, currentCenterY[i] + parseInt(roiYOffset.value)));
         let topLeftX = adjustedCenterX - w / 2;
         let topLeftY = adjustedCenterY - h / 2;
-        
-        if(mirror) topLeftX = canvas.width - topLeftX - w
-        drawROI(topLeftX, topLeftY, bgSeg? canvas : video, ctx, i, w, h);
+        if(mirror) {
+            topLeftX = canvas.width - topLeftX - w
+            topLeftX = Math.max(0, Math.min(canvas.width - w, topLeftX));
+        }
+        drawROI(topLeftX, topLeftY, canvas , ctx, i, w, h);
 
         ctx.closePath()
     } else {
@@ -146,11 +149,14 @@ if (h > canvas.height) {
         const maxX = canvas.width - w;
         const maxY = canvas.height - h;
   
-        const adjustedDrawX = Math.max(0, Math.min(maxX, drawX+ parseInt(roiXOffset.value)));
+        let adjustedDrawX = Math.max(0, Math.min(maxX, drawX+ parseInt(roiXOffset.value)));
         const adjustedDrawY = Math.max(0, Math.min(maxY, drawY+ parseInt(roiYOffset.value)));
-        
+        if(mirror) {
+            adjustedDrawX = canvas.width - adjustedDrawX - w
+            adjustedDrawX = Math.max(0, Math.min(canvas.width - w, adjustedDrawX));
+        }
         // Copy the contents inside the square to the temporary canvas
-        drawROI(adjustedDrawX, adjustedDrawY, bgSeg? canvas : video, ctx, i, w, h);
+        drawROI(adjustedDrawX, adjustedDrawY,  canvas , ctx, i, w, h);
 
         // set after so it starts centred
         easingFactorX = 0.01;

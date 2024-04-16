@@ -2,6 +2,7 @@ import { drawFaces } from "./drawFaces.js";
 import { drawOuterRoi } from "./outerRoi.js";
 import { rotateCanvas , angle, mirror} from "../UIElements/videoOrientation.js";
 import { computeROI } from "./drawROI.js";
+import { bgSeg } from "./bgSeg.js";
 let imageSegmenters = [];
 let canvases = [];
 let ctxs = [];
@@ -24,7 +25,6 @@ export async function createBodySegmenter() {
 
 export async function predictWebcamB(video, i, canvas, ctx, person, bgSeg) {
     if (!video || video.paused) return;
-    if (bgSeg) {
         if (imageSegmenters[i] === undefined) {
             return;
         }
@@ -34,11 +34,6 @@ export async function predictWebcamB(video, i, canvas, ctx, person, bgSeg) {
         // }).catch((error) => {
         //     console.error('Error during segmentation:', error);
         // });
-    } else {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        drawOuterRoi(canvas)
-        drawFaces(canvas, ctx, person, video, i)
-    }
 }
 
 function callbackForVideo(segmentation, video, i, canvas, ctx, person) {
@@ -51,7 +46,8 @@ function callbackForVideo(segmentation, video, i, canvas, ctx, person) {
    
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
+    if(bgSeg)ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
+    else ctx.fillStyle = 'rgba(0,0,0,0)'
     ctx.fillRect(0, 0, canvas.width, canvas.height);
    
     let offscreenCanvas = document.createElement('canvas');
