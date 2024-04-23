@@ -54,15 +54,11 @@ export function computeROI(video, canvas, ctx, person, i) {
         previousCenterX = [roi.value / 2, roi.value / 2]
         previousCenterY = [roi.value / 2, roi.value / 2]
     }
-
-    ctx.beginPath();
-
     if (!filterCtxs[i]) return;
-    const faceWidth = Math.abs(person.keypoints[8].x - person.keypoints[7].x);
-    const bodyHeight = Math.abs(person.keypoints[0].y - person.keypoints[30].y);
-    const width = appVersion === 'face' ? faceWidth : bodyHeight
+    const width = appVersion === 'face' ? Math.abs(person.keypoints[8].x - person.keypoints[7].x) : Math.abs(person.keypoints[29].y - person.keypoints[0].y);
+    
     let x = person.keypoints[0].x
-    const y = person.keypoints[0].y
+    const y = appVersion === 'face' ? person.keypoints[0].y: person.keypoints[24].y
 
     const centerX = x
     const centerY = y
@@ -70,10 +66,8 @@ export function computeROI(video, canvas, ctx, person, i) {
     let timestamp = Date.now()
     let smoothedWidth = filterZ[i].filter(width, timestamp);
 
-    // let w = smoothedWidth * roi.value * imgRatio
-    // let h = smoothedWidth * roi.value 
-    let w = appVersion === 'face' ? smoothedWidth * roi.value * imgRatio : Math.min(canvas.width, canvas.height) * imgRatio
-    let h = appVersion === 'face' ? smoothedWidth * roi.value : Math.min(canvas.width, canvas.height)
+    let w = smoothedWidth * roi.value * imgRatio; 
+    let h =  smoothedWidth * roi.value;
     let canvasAspectRatio = canvas.width / canvas.height;
 
     let roiAspectRatio = w / h;
@@ -110,7 +104,7 @@ export function computeROI(video, canvas, ctx, person, i) {
             let deltaX = centerX - currentCenterX[i];
             let newValue = currentCenterX[i] + deltaX;
 
-            const numSteps = (51-centeringSpeed.value); // Adjust as needed
+            const numSteps = (centeringSpeed.max+1-centeringSpeed.value); // Adjust as needed
             let step = 0;
 
             const increment = deltaX / numSteps;
@@ -139,16 +133,12 @@ export function computeROI(video, canvas, ctx, person, i) {
         topLeftX = canvas.width - topLeftX - w;
         topLeftX = Math.max(0, Math.min(canvas.width - w, topLeftX));
     }
-
     drawROI(topLeftX, topLeftY, canvas, ctx, i, w, h);
-
-    ctx.closePath();
     applyFilters(filterCanvases[i], filterCtxs[i], person, i)
-    ctx.strokeStyle = "white"
-
 }
 
 function drawROI(x, y, video, ctx, i, w, h) {
+    ctx.beginPath();
     filterCtxs[i].drawImage(
         video,
         x,
@@ -169,7 +159,8 @@ function drawROI(x, y, video, ctx, i, w, h) {
         h
     );
     ctx.stroke()
-
+    ctx.closePath();
+    ctx.strokeStyle = "white"
 }
 
 const classNames = ['pixel-canvas', 'gray-canvas', 'cropped-canvas'];

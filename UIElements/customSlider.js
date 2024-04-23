@@ -9,6 +9,8 @@ export function createSliderComponent(containerId, onValueChange) {
     sliderContainer.className = 'slider-container';
     container.appendChild(sliderContainer);
     container.value = initialValue 
+    container.max = max 
+
     const sliderTrack = document.createElement('div');
     sliderTrack.className = 'slider-track';
     sliderContainer.appendChild(sliderTrack);
