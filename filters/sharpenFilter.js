@@ -1,12 +1,18 @@
 
 export let edge = false;
-let edgeStrength;
+export let useEdge = true;
 
-export function toggleSharpFilter(){
-    edge = !edge
-}
+const edgeStrength  = document.getElementById('edgeStrength')
+const edgeEl = document.getElementById('edge')
+edgeStrength.style.display = edgeEl.checked ? 'block' : 'none';
+
+edgeEl.addEventListener('change', () => {
+    edge = edgeEl.checked;
+    edgeStrength.style.display = edge ? 'block' : 'none';
+})
 
 export function sharpeningFilter(canvas) {
+    console.log()
    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     // Get the image data
@@ -35,7 +41,7 @@ export function sharpeningFilter(canvas) {
                         sum += copyData[index] * kernel[ky + 1][kx + 1];
                     }
                 }
-                data[(y * width + x) * 4 + c] = Math.min(255, Math.max(0, copyData[(y * width + x) * 4 + c] + edgeStrength * sum));
+                data[(y * width + x) * 4 + c] = Math.min(255, Math.max(0, copyData[(y * width + x) * 4 + c] + edgeStrength.value * sum));
             }
         }
     }
@@ -44,33 +50,3 @@ export function sharpeningFilter(canvas) {
     ctx.putImageData(imageData, 0, 0);
 }
 
-export let useEdge = true;
-// const edgeStrength = document.getElementById("edgeStrength");
-
-
-export function initEdge() {
-    const edgeCheckbox = document.getElementById('edge');
-    const edgeSliderContainer = document.getElementById('edge-slider-container');
-    const edgeStrengthSlider = document.getElementById('edge-strength-slider');
-    const edgeStrengthValue = document.getElementById('edge-strength-value');
-    updateEdgeStrength()
-
-    // Function to update the edgeStrength variable and the displayed value
-    function updateEdgeStrength() {
-        edgeStrength = parseFloat(edgeStrengthSlider.value);
-        edgeStrengthValue.textContent = edgeStrength.toFixed(1);
-    }
-
-    // Add event listener to the "Edge Detection" checkbox
-    edgeCheckbox.addEventListener('change', () => {
-        useEdge = edgeCheckbox.checked;
-        if (useEdge) {
-            edgeSliderContainer.style.display = 'block';
-        } else {
-            edgeSliderContainer.style.display = 'none';
-        }
-    });
-
-    // Add event listener to the edgeStrengthSlider to update the edge strength
-    edgeStrengthSlider.addEventListener('input', updateEdgeStrength);
-}

@@ -3,8 +3,9 @@ import {imgCol, imgRow} from "../imageRatio.js";
 import {SERVER_URL} from '../config.js'
 
 let prevBrightnessValues = Array.from({length: imgRow}, () => Array(imgCol).fill(0));
+const smoothingFactor = document.getElementById('pixelSmooth')
 
-export async function setDMXFromPixelCanvas(imageData, smoothingFactor = .1) {
+export async function setDMXFromPixelCanvas(imageData) {
     let brightnessValues = [];
     const data = imageData.data;
     const imageWidth = imageData.width; // Actual width of the imageData
@@ -23,7 +24,7 @@ export async function setDMXFromPixelCanvas(imageData, smoothingFactor = .1) {
             
             // Retrieve previous brightness and calculate smoothed value
             const prevBrightness = prevBrightnessValues[row][col];
-            const smoothedBrightness = prevBrightness + smoothingFactor * (currentBrightness - prevBrightness);
+            const smoothedBrightness = prevBrightness + smoothingFactor.value * (currentBrightness - prevBrightness);
 
             // Update the row's brightness array and the previous values storage
             rowBrightness.push(smoothedBrightness);

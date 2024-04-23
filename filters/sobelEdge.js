@@ -1,22 +1,13 @@
 export let sobel = false;
 const sobelEdgeStrength = document.getElementById('sobEdgeStrength')
-const sobelSlider = document.getElementById('sobelWrapper')
 const sobelEl = document.getElementById('sobel')
-sobelSlider.style.display = sobelEl.checked ? 'block' : 'none';
+sobelEdgeStrength.style.display = sobelEl.checked ? 'block' : 'none';
 
 sobelEl.addEventListener('change', () => {
-    sobel = !sobel
-    if (!sobel) {
-        sobelSlider.style.display = 'none'; 
-    } else {
-        sobelSlider.style.display = 'block'; 
-    }
+    sobel = sobelEl.checked;
+    sobelEdgeStrength.style.display = sobel ? 'block' : 'none';
 })
 
-const sobelEdgeStrengthVal = document.getElementById("sobEdgeStrengthVal");
-sobelEdgeStrength.addEventListener("input", function() {
-    sobelEdgeStrengthVal.textContent = this.value;
-});
 // Apply edge enhancement filter with Sobel operator
 const sobelHorizontalKernel = [
     [-1, 0, 1],
@@ -37,7 +28,7 @@ export function sobelED(canvas) {
     const data = imageData.data;
     // Create a copy of the image data to work on
     const copyData = new Uint8ClampedArray(data);
-
+    console.log(sobelEdgeStrength.value +  ' here!!!!!! ')
     const width = canvas.width;
     const height = canvas.height;
 

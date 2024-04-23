@@ -1,87 +1,73 @@
 body {
-    display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100%;
     font-family: monospace;
     color: white;
+    background-color: #e5fbe5;
     font-size: 10px;
     line-height: 15px;
-    margin:0;
     overflow: hidden;
+    display: flex;
+
 }
 
 #top {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    flex-direction: column;
     width: 100%;
     height: 100%;
-    /*top: 0;*/
+    margin-bottom: 15px; 
+    margin-top: 15px; 
+    display: flex;
+    flex-direction: column;
 }
 
 .video-container {
     position: relative;
     width: 100%; /* or whatever width you prefer */
-    height: 0;
-    padding-top: 40%; 
-    display: flex; /* Set the container to use Flexbox */
-    flex-direction: row; /* Align children in a row */
-    /* align-items: center;  */
-    justify-content: flex-end;  
-    /*height: 100%;*/
-    /* overflow: hidden; */
+    height: 40%; 
+    flex-direction: row;  /* Aligns children horizontally */
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 5px; 
 }
 
 .canvas-container {
     position: absolute;
     top:0;
-    left: 0;
+    right: 50px;
     display: flex;
-    flex-direction: row;
-    /* margin-left: auto;  */
-    /* flex: 1 */
+    flex: 1;  /* Takes less space, adjust the ratio as needed */
+    flex-direction: column;  /* Stack canvas-wrapper elements vertically */
 }
 
 .fps-display {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    right: 150px;
+    bottom: 0;
+    width: 150px; 
     color: white;
     font-size: 12px;
     background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
     border-radius: 5px;
-    z-index: 2;
+    z-index: 1;
 }
 
+.video-inner-container{
+    position: relative;
+    height: 100%; 
+    flex: 2;  /* Takes up more space, adjust the ratio as needed */
+
+}
 .video,
 .canvas, 
 .blackCanvas {
     position: absolute;
-    width: 50%;
-    height: auto; 
     top: 0;
-    /* right: 0; */
-    
-    flex: 1;
-    object-fit: contain; /* Ensures the video's aspect ratio is maintained */
-}
-
-
-#top-image-container {
-    position: relative;
-    width: 66.66%;
+    right: 150px; /* Ensures they start from the left edge */
     height: 100%;
-    /*background-color: red;*/
-    align-items: flex-start;
-    display: flex;
-    margin: 0; /* Reset margin to ensure no default margin */
-    padding: 0; /* Reset padding to ensure no default padding */
-    overflow: hidden;
-
+    object-fit: contain; /* Only necessary for .video */
 }
+
 
 .grid-row {
     display: flex;
@@ -90,61 +76,31 @@ body {
     justify-content: space-between; /* or any other layout style you prefer */
 }
 
-#overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: black;
-    z-index: 1000; /* Ensure it's on top of other elements */
+
+.canvas-wrapper {
+   position: relative;  
 }
 
-
-.grid-image {
-    display: block; /* Make the image a block-level element */
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    /*transition: opacity 2s ease-in-out; !* Opacity transition *!*/
-
+.dmxGridWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: 15px;
 }
 
-.image-item-container {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-    padding:0;
-    /*object-fit: cover;*/
-
-    margin: 0; /* Reset margin to ensure consistent spacing */
+.dmxGrid {
+    position: relative; 
+    display: grid;
+    grid-template-columns: repeat(10, 5px); 
+    grid-gap: 1px;
+    width: max-content;
+    margin: 4px;
 }
 
-.image-item-container img{
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-
-}
-
-
-.text-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    /*width: 100%;*/
-    z-index: 1; /* Ensure it's above the image */
-    box-sizing: border-box;
-    padding-left: 3px; /* Adjust the padding as needed */
-    padding-right : 3px;
-    line-height: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    font-size: 2vw;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.dmxCell {
+    width: 5px; /* Adjust the size as needed */
+    height: 5px; /* Adjust the size as needed */
+    background-color: #000; /* Default color */
 }
 
 @media screen and (min-width: 768px) {
@@ -153,16 +109,11 @@ body {
     }
 }
 
-.placeholder {
-    height: 100%;
-    width: 50%;
-    background-color: red; /* Set the background color to red for the placeholders */
-}
-
 .play-pause-button {
     position: absolute;
-    bottom: 20px;
-    right: 10px;
+    height: 17px;
+    top: 0;
+    right: 150px;
     background-color: rgba(255, 255, 255, 0.3); /* Transparent background */
     border: none;
     cursor: pointer;
@@ -171,7 +122,32 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    transform: scaleX(-1); /* Flip horizontally */
+    transform: scaleX(-1); 
+}
+
+
+
+.group-header {
+    padding: 0;
+    background-color: #666;
+    color: white;
+    user-select: none;
+    margin-bottom: 5px; 
+    cursor: pointer;
+
+}
+
+.group-content {
+    padding: 0;
+    display: none; /* Hide content initially */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+}
+.toggle-button {
+    float: right;
+
+    padding-right: 5px;
+    user-select: none; /* Prevent text selection */
 }
 
 #zoom-slider-container {
@@ -179,8 +155,9 @@ body {
     margin-bottom: 5px;
     display: flex;
     align-items: center;
-    width:10px; /* Adjust the width as needed */
+    width:10px; 
 }
+
 
 #zoom-slider {
     flex: 1;
@@ -192,12 +169,7 @@ label[for="zoom-slider"] {
     margin-right: 10px;
 }
 
-.top-image {
-    /*transition: opacity 2s ease-in-out; !* Opacity transition *!*/
-}
-
 .panel-button {
-    position: absolute;
     top: 0;
     left: 0; /* Move to the left side */
     background-color: transparent;
@@ -211,29 +183,26 @@ label[for="zoom-slider"] {
 
 .close-button {
     font-size: 20px;
-    position: absolute;
     top: 0;
     left: 0;
     cursor: pointer;
     color: #333;
     display: block; /* Make the buttons initially visible */
 }
-.checkbox-label {
-    margin-top: 30px; /* Add margin to the top of this specific label */
-}
-/* Side panel styles */
+
 .side-panel {
     position: fixed;
     top: 0;
-    left: -150px; /* Initially hidden on the left side */
-    width: 150px;
+    left: 0px; /* Initially hidden on the left side */
+    width: 220px;
     height: 100%;
     background-color: #fff;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-    transition: left 0.3s ease-in-out; /* Change from right to left */
     z-index: 2;
     overflow-y: auto;
     color: black;
+    scrollbar-width: thin;  /* For Firefox */
+    scrollbar-gutter: stable;
 }
 #sidePanel label {
     display: block; /* Make labels stack vertically */
@@ -273,73 +242,6 @@ label[for="zoom-slider"] {
     text-decoration: underline;
 }
 
-.canvas-wrapper {
-    width: 100px;
-    height: 100px;
-    top: 0;
-    right: 0;
-    position: relative; /* Important for maintaining aspect ratio */
-}
-.cropped-canvas,.gray-canvas,.pixel-canvas {
-    position: relative; 
-    width: 100%;
-    height: auto;
-}
-
-#grayscaleSlider, #grayscaleMapSlider, #contrastEnhSlider, #grayscaleExpoSlider, #brightnessRangeSlider {
-    width: 80%; /* Adjust the width as needed */
-    margin: 10px auto; /* Center the slider */
-    height: 10px; /* Adjust the height as needed */
-    content: ''; /* Remove any content */
-}
-
-/* Style the slider handles (thumbs) */
-#grayscaleSlider .noUi-handle,
-#grayscaleMapSlider .noUi-handle,
-#contrastEnhSlider .noUi-handle,
-#grayscaleExpoSlider .noUi-handle,
-#brightnessRangeSlider .noUi-handle {
-    width: 16px; /* Adjust the width of the thumbs */
-    height: 16px; /* Adjust the height of the thumbs */
-    border-radius: 50%; /* Make the thumbs circular */
-    /*background-color: #007BFF; !* Change the thumb color as needed *!*/
-    content: ''; /* Remove any content */
-    transform: translateX(-30%);
-}
-
-/* Style the slider connect bar */
-#grayscaleSlider .noUi-connect,
-#grayscaleMapSlider .noUi-connect,
-#contrastEnhSlider .noUi-connect,
-#grayscaleExpoSlider .noUi-connect,
-#brightnessRangeSlider .noUi-connect {
-    height: 10px; /* Adjust the height of the connect bar */
-    background-color: #007BFF; /* Change the bar color as needed */
-}
-
-/* Adjust the appearance of the slider thumbs if needed */
-#grayscaleSlider .noUi-handle:before,
-#grayscaleSlider .noUi-handle:after,
-#grayscaleMapSlider .noUi-handle:before,
-#grayscaleMapSlider .noUi-handle:after,
-#contrastEnhSlider .noUi-handle:before,
-#contrastEnhSlider .noUi-handle:after,
-#grayscaleExpoSlider .noUi-handle:before,
-#grayscaleExpoSlider .noUi-handle:after,
-#brightnessRangeSlider .noUi-handle:before,
-#brightnessRangeSlider .noUi-handle:after {
-    content: ''; /* Remove any content */
-    border: none; /* Remove any borders */
-    background-color: transparent; /* Set background color to transparent */
-}
-
-#exposureModeWrapper{
-    display: none;
-}
-#exposureCompWrapper{
-    display: none;
-}
-
 ul {
     list-style-type: none;
     padding: 0;
@@ -356,20 +258,58 @@ li {
 select{
     font-family: monospace;
     font-size : 10px;
-    margin-bottom: 10px;
+    width: 50px; 
 }
 
-.dmxGrid {
-    display: grid;
-    grid-template-columns: repeat(10, 5px); /* Adjust the size as needed */
-    grid-gap: 1px;
-    width: max-content;
-    margin: 4px;
-    top : 0 
+.slider-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;  /* Center children vertically within the container */
+    width: 100%;
+    height: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px; 
 }
 
-.dmxCell {
-    width: 5px; /* Adjust the size as needed */
-    height: 5px; /* Adjust the size as needed */
-    background-color: #000; /* Default color */
+.slider-track {
+    position: relative;
+    flex: 1 0 50%;   /* Grow to fill available space, but start at 50% of the container's width */
+    height: 100%;
+    background-color: #d0d0d0; /* Background of the slider */
+    cursor: pointer;
+}
+
+.slider-fill {
+    position: absolute;
+    height: 100%;
+    background-color: #007BFF; /* Fill color */
+    width: 0%; /* Initial fill area */
+}
+.slider-range {
+    position: absolute;
+    height: 100%;
+    background-color: #007bff;
+}
+.slider-label {
+    position: absolute;
+    left: 0; /* Align text to the left */
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 5px; /* Space from the left edge */
+    pointer-events: none; /* Allows clicks to pass through the label */
+    right: 0;
+    text-align: center; /* Center the text within the slider */
+    white-space: nowrap; /* Prevent the text from wrapping onto the next line */
+    overflow: hidden; /* Hide any text that overflows the element's bounds */
+    text-overflow: ellipsis; /* Show ellipsis if the text overflows */
+    color: white; /* Label text color */
+    z-index: 3; /* Ensure label is above the fill */
+}
+
+.number-input {
+    width: 20%;  /* Allocate width for the number input */
+    min-width: 40px;  /* Ensure it has a practical clickable area */
+    margin-left: 5px; 
+    font-size: 10px; /* Smaller text size */
+
 }

@@ -1,25 +1,17 @@
 export let robert = true;
 const robertEdgeStrength = document.getElementById('robEdgeStrength')
-const robertSlider = document.getElementById('robertWrapper')
 const robertEl = document.getElementById('robert')
-robertSlider.style.display = robertEl.checked ? 'block' : 'none';
+robertEdgeStrength.style.display = robertEl.checked ? 'block' : 'none';
 
 robertEl.addEventListener('change', () => {
-    robert = !robert
-    if (!robert) {
-        robertSlider.style.display = 'none'; 
-    } else {
-        robertSlider.style.display = 'block'; 
-    }
+    robert = robertEl.checked;
+    robertEdgeStrength.style.display = robert ? 'block' : 'none';
 })
 
-// For Roberts edge strength
 const robertsEdgeStrength = document.getElementById("robEdgeStrength");
-const robertsEdgeStrengthVal = document.getElementById("robEdgeStrengthVal");
 robertsEdgeStrength.addEventListener("input", function() {
     robertsEdgeStrengthVal.textContent = this.value;
 });
-    // Roberts Cross kernels
     const robertsCrossKernelX = [
         [1, 0],
         [0, -1]
@@ -33,7 +25,7 @@ robertsEdgeStrength.addEventListener("input", function() {
 
 export function robertED(canvas) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    // Get the image data
+
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
@@ -44,7 +36,6 @@ export function robertED(canvas) {
         for (let x = 0; x < width - 1; x++) {
             let sumX = 0;
             let sumY = 0;
-            // Compute gradients for each color channel, but accumulate them to determine overall edge strength
             for (let c = 0; c < 3; c++) {
                 const index = (y * width + x) * 4 + c;
 
@@ -66,14 +57,11 @@ export function robertED(canvas) {
 
             const gradientMagnitude = Math.sqrt(sumX * sumX + sumY * sumY);
 
-            // Enhance edge by darkening the pixel based on the gradient magnitude
             for (let c = 0; c < 3; c++) {
                 const index = (y * width + x) * 4 + c;
                 data[index] = Math.max(0, data[index] - robertEdgeStrength.value * gradientMagnitude);
             }
         }
     }
-
-    // Update the canvas with the enhanced image data
     ctx.putImageData(imageData, 0, 0);
 }

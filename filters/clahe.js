@@ -30,21 +30,8 @@ export function claheFn(canvas) {
 export function initClahe() {
     const claheCheckbox = document.getElementById('clahe');
     const claheSliders = document.getElementById('clahe-sliders');
-    const clipLimitSlider = document.getElementById('clip-limit-slider');
-    const clipLimitValue = document.getElementById('clip-limit-value');
-    const tileSizeSlider = document.getElementById('tile-size-slider');
-    const tileSizeValue = document.getElementById('tile-size-value');
-
-    // Add event listeners to the sliders
-    clipLimitSlider.addEventListener('input', () => {
-        clipLimit = parseFloat(clipLimitSlider.value);
-        clipLimitValue.textContent = clipLimit.toFixed(1);
-    });
-
-    tileSizeSlider.addEventListener('input', () => {
-        tileSize = parseFloat(tileSizeSlider.value);
-        tileSizeValue.textContent = `${tileSize}x${tileSize}`;
-    });
+    const clipLimit = document.getElementById('clipLimit');
+    const tileSize = document.getElementById('tileSize');
 
     // Add event listener to the "Clahe" checkbox
     claheCheckbox.addEventListener('change', () => {
@@ -55,8 +42,8 @@ export function initClahe() {
             claheSliders.style.display = 'none';
         }
     });
-
-     clahe = new cv.CLAHE(clipLimit, new cv.Size(tileSize, tileSize));
+    
+     clahe = new cv.CLAHE(clipLimit.value, new cv.Size(tileSize.value, tileSize.value));
      srcMat = null;
      grayMat = new cv.Mat();
      resultMat = new cv.Mat();

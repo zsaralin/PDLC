@@ -9,4 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
     appVersionSelect.addEventListener('change', (e) => {
         appVersion = (e.target.value);
     });
+    document.addEventListener('keypress', (event) => {
+        if (event.key === 'f') {
+            appVersion = 'face';
+            appVersionSelect.value = 'face';
+        } else if (event.key === 's') {
+            appVersion = 'skeleton';
+            appVersionSelect.value = 'skeleton';
+        }
+    });
 });

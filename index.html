@@ -16,32 +16,26 @@
     <script src="./poseDetection.js" type="module"></script>
 
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.7"></script> -->
+
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection" crossorigin="anonymous"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-segmentation"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>
+    <script async src="filters/opencv.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 </head>
 
 <body>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>
-    <script async src="filters/opencv.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-
-    <div id="overlay"></div>
-    <button id="openPanelButton" class="panel-button">&#9776;</button>
-
+   
     <div id="sidePanel" class="side-panel">
         <button id="closePanelButton" class="panel-button close-button">&times;</button>
+
         <label class="checkbox-label"> Camera Orientation
             <select id="videoAngle">
                 <option value="0">0</option>
@@ -50,237 +44,167 @@
                 <option value="270">270°</option>
             </select>
         </label>
-        <label>
+        <label >
             <input type="checkbox" id="mirrorCheckbox" checked> Mirror
+            
         </label>
-        <label>
-            <span>Gap: <span id="gapValue">2</span></span>
-            <input type="range" id="gap" min="0" max="10" value="2" step="2">
+        <label class="checkbox-label"> Face vs Skeleton
+            <select id="appVersion">
+                <option value="face">Face</option>
+                <option value="skeleton">Skeleton</option>
+            </select>
         </label>
-        <label>
-            <input type="checkbox" id="histogramEqCheckbox"> Histogram Eq
-        </label>
-        <label>
-            <input type="checkbox" id="clahe" checked> Clahe
-        </label>
-        <div id="clahe-sliders">
-            <span>Clip Limit <span id="clip-limit-value">3.0</span></span>
-            <input type="range" id="clip-limit-slider" min="1" max="10" step="0.1" value="3.0">
-            <br>
-            <span>Tile Size <span id="tile-size-value">8x8</span></span>
-            <input type="range" id="tile-size-slider" min="4" max="64" step="4" value="8">
-        </div>
+        <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
+        <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".2" label="Pixel Smoothing"></div>
 
         <label>
             <input type="checkbox" id="bgSeg" checked> Background Segmentation
         </label>
-        <div id="bgColContainer" style="">
-            <label>
-                <span>Background Colour: <span id="bgValue">1</span></span>
-                <input type="range" id="bg" min="-1" max="1" value="1" step=".1">
-            </label>
-        </div>
-        <label>
-            <input type="checkbox" id="edge"> Sharpening Filter
-        </label>
-        <div id="edge-slider-container" style="display : none">
-            <span>Edge Strength <span id="edge-strength-value">2.0</span></span>
-            <input type="range" id="edge-strength-slider" min="0" max="5" step="0.1" value="2.0">
-        </div>
-        <label>
-            <input type="checkbox" id="sobel"> Sobel Edge Detection
-        </label>
-        <label id="sobelWrapper">
-            <span>Sobel Edge Strength: <span id="sobEdgeStrengthVal">.3</span></span>
-            <input type="range" id="sobEdgeStrength" min="0" max="1" value=".3" step=".1">
-        </label>
-        <label>
-            <input type="checkbox" id="robert" checked> Robert Edge Detection
-        </label>
-        <label id="robertWrapper">
-            <span>Robert Edge Strength: <span id="robEdgeStrengthVal">.1</span></span>
-            <input type="range" id="robEdgeStrength" min="0" max="1" value=".1" step=".1">
-        </label>
-        <label>
-            <span style="background-color: yellow;">ROI: <span id="roiValue">2.4</span></span>
-            <input type="range" id="roi" min=".1" max="10" value="2.4" step=".05">
-        </label>
-        <label>
-            <span>ROI X offset: <span id="roiXOffsetVal">0</span></span>
-            <input type="range" id="roiXOffset" min="-500" max="500" value="0" step="1">
-        </label>
-        <label>
-            <span>ROI Y offset: <span id="roiYOffsetVal">6</span></span>
-            <input type="range" id="roiYOffset" min="-500" max="500" value="6" step="1">
-        </label>
-        <label>
-            <span>Contrast: <span id="contrastValue">50</span></span>
-            <input type="range" id="contrast" min="-100" max="100" value="50">
-        </label>
-        <label>
-            <span>Gamma: <span id="gammValue">1</span></span>
-            <input type="range" id="gamma" min="0" max="2" value="1" step=".1">
-        </label>
-        <span>Grayscale Range: <span id="grayscaleValues">0 - 255</span></span>
-        <div id="grayscaleSlider"></div>
-        <label>
-        </label>
-        <span>Grayscale Range (with remapping): <span id="grayscaleMapValues">0 - 255</span></span>
-        <div id="grayscaleMapSlider"></div>
-        <label>
-        </label>
-        <span>Grayscale Range (with expo): <span id="grayscaleExpo">0 - 255</span></span>
-        <div id="grayscaleExpoSlider"></div>
-        <label>
-            <label>
-                <span style="margin-left: 25px">Expo: <span id="grayExpoValue">1</span></span>
-                <input type="range" id="grayExpo" min="1" max="3" value="1">
-            </label>
-        </label>
-        <span>Contrast Enhancement: <span id="contrastEnh">0 - 255</span></span>
-        <div id="contrastEnhSlider"></div>
-        <label>
-        </label>
-
-
-        <span>Lag: <span id="lagVal">0.7</span></span>
-        <input type="range" id="lag" min="0" max=".9" value="0.7" step=".1">
-        </label>
+        <div id="bg" min="-1" max="1" step=".1" value="1" label="Background Col"></div>
+        <div id="minEyeDist" min="0" max="500" step="1" value="20" label="Min Eye Dist"></div>
         <label>
             <input type="checkbox" id="faceCentered" checked> Center Face
         </label>
+        <div id="centeringSpeed" min="1" max="45" step="1" value="25" label="Centering Speed"></div>
+        <div id="centeringLeeway" min="0" max="2" step=".1" value=".6" label="Centering Leeway"></div>
+
         <label>
             <input type="checkbox" id="autoEV" checked> Auto-adjust EV
         </label>
         </label>
-
-        <div id="brightnessRangeWrapper">
-            <span>Brightness Range <span id="brightnessRange">115 - 150</span></span>
-            <div id="brightnessRangeSlider"></div>
-        </div>
+        <div id="brightnessRange" min="0" max="255" step="1" lowValue="115" highValue="150" label="Brightness"></div>
         <label>
             <div id="exposureModeWrapper">
-                <label for="exposureModeSelect">Exposure Mode:</label>
+                <label for="exposureModeSelect">Exposure Mode:
                 <select id="exposureModeSelect">
                     <option value="manual">Manual</option>
                     <option value="continuous">Continuous</option>
                 </select>
+            </label>
             </div>
             <div id="exposureCompWrapper">
+                <div id="exposureComp" min="0" max="255" step="1" value="0" label="EV"></div>
+                <div id="exposureTime" min="0" max="1250" step="1" value="150" label="Exposure t (ms)"></div>
+            </div>
+        <div class="group">
+            <div class="group-header">ROI <span class="toggle-button">+</span></div>
+            <div class="group-content">
+                <div id="roi" min="0.1" max="10" step=".1" value="2.4" label="ROI"></div>
+                <div id="roiXOffset" min="-1" max="1" step=".1" value="0" label="ROI X offset"></div>
+                <div id="roiYOffset" min="-1" max="1" step=".1" value="0" label="ROI Y offset"></div>
                 <label>
-                    <span>EV: <span id="exposureComp">0</span></span>
-                    <input type="range" id="exposureCompVal" min="0" max="255" value="0">
+                    <input type="checkbox" id="outerRoi"> Show Outer ROI
+                </label>
+                <div id="outerROIWidth" min="0" max="1000" step="1" value="500" label="Outer ROI Width"></div>
+                <div id="outerROIHeight" min="0" max="1000" step="1" value="500" label="Outer ROI Height"></div>
+            </div>
+        </div>
+        <div class="group">
+            <div class="group-header">Two Camera Fading <span class="toggle-button">+</span></div>
+            <div class="group-content">
+                <label class="checkbox-label"> Fade Colour
+                    <select id="fadeColour">
+                        <option value="black">black</option>
+                        <option value="white">white</option>
+                    </select>
+                </label>
+                <div id="fadeDur" min="200" max="2000" step="1" value="1000" label="Fade Dur (ms)"></div>
+                <div id="switchDur" min="2" max="30" step="1" value="15" label="Switch Dur (s)"></div>
+                <div id="pauseDur" min=".5" max="5" step=".5" value="1" label="Pause dur (s)"></div>
+                </div>
+            </div>
+        <div class="group">
+            <div class="group-header" >Filters <span class="toggle-button">+</span></div>
+            <div class="group-content">
+                <label>
+                    <input type="checkbox" id="histogramEqCheckbox"> Histogram Eq
                 </label>
                 <label>
-                    <span>Exposure Time: <span id="exposureTime">150 ms</span></span>
-                    <input type="range" id="exposureTimeVal" min="0" max="1250" value="150">
+                    <input type="checkbox" id="clahe" checked> Clahe
                 </label>
-            </div>
-
-
-            <label>Filter Order:</label>
-            <ul id="functionOrderList">
-                <li data-function="contrast">Contrast</li>
-                <li data-function="histoEq">Histogram Eq</li>
-                <li data-function="clahe">CLAHE</li>
-                <li data-function="sharpen">Sharpen</li>
-                <li data-function="sobel">Sobel</li>
-                <li data-function="robert">Robert</li>
-            </ul>
-
-            <script>
-                // Get the list element
-                const functionOrderList = document.getElementById('functionOrderList');
-
-                // Initialize Sortable.js on the list element
-                Sortable.create(functionOrderList, {
-                    animation: 150, // Duration of the animation when reordering
-                    onEnd: () => {
-                        // Callback function to execute when the user finishes reordering
-                        // You can update the order or trigger other actions here
-                        console.log('List order updated');
-                    }
-                });
-            </script>
-            <label>
-                <input type="checkbox" id="outerRoi"> Show Outer ROI
-            </label>
-            <label>
-                <span>Outer ROI Width: <span id="outerROIWidthValue">500</span></span>
-                <input type="range" id="outerROIWidth" min="100" max="1000" value="500" step="1">
-            </label>
-            <label>
-                <span>Outer ROI Height: <span id="outerROIHeightValue">500</span></span>
-                <input type="range" id="outerROIHeight" min="0" max="1000" value="500" step="1">
-            </label>
-            <label>
-                <span>Min Eye Dist: <span id="minEyeDistValue">10</span></span>
-                <input type="range" id="minEyeDist" min="0" max="200" value="10" step="1">
-            </label>
-            <label>
-                <span>Cam Brightness: <span id="camBrightnessValue">0</span></span>
-                <input type="range" id="camBrightness" min="-64" max="64" value="0" step="1">
-            </label>
-            <label>
-                <span>Cam Contrast: <span id="camContrastValue">100</span></span>
-                <input type="range" id="camContrast" min="0" max="100" value="100" step="1">
-            </label>
-            <label>
-                <span>Cam Saturation: <span id="camSaturationValue">50</span></span>
-                <input type="range" id="camSaturation" min="0" max="100" value="50" step="1">
-            </label>
-            <label>
-                <span>Cam Sharpness: <span id="camSharpnessValue">71</span></span>
-                <input type="range" id="camSharpness" min="0" max="100" value="71" step="1">
-            </label>
-            <label>
-                <span>Cam Gain: <span id="camGainValue">56</span></span>
-                <input type="range" id="camGain" min="1" max="128" value="56" step="1">
-            </label>
-            <label>
-                <span>Cam Backlight: <span id="camBacklightValue">1</span></span>
-                <input type="range" id="camBacklight" min="0" max="2" value="1" step=".1">
-            </label>
-            <div id="whiteBalanceMode">
-                <label for="WhiteBalanceModeSelect">Cam White Balance Mode:</label>
-                <select id="WhiteBalanceModeSelect">
-                    <option value="manual">Manual</option>
-                    <option value="continuous" selected>Continuous</option>
-                </select>
-            </div>
-            <div id="colourTempContainer" style="display: none;">
+                <div id="clahe-sliders">
+                    <div id="clipLimit" min="1" max="10" step=".1" value="3" label="Clip Limit"></div>
+                    <div id="tileSize" min="1" max="64" step="4" value="8" label="Tile Size"></div>
+                </div>
                 <label>
-                    <span>Cam Colour Temp: <span id="colourTempValue">5500</span></span>
-                    <input type="range" id="colourTemp" min="2800" max="6500" value="5500" step="50">
+                    <input type="checkbox" id="edge"> Sharpening Filter
                 </label>
+                <div id="edgeStrength" min="0" max="1" step=".1" value=".5" label="Edge Strength"></div>
+                <label>
+                    <input type="checkbox" id="sobel"> Sobel Edge Detection
+                </label>
+                <div id="sobEdgeStrength" min="0" max="1" step=".1" value=".3" label="Edge Strength" ></div>
+                <label>
+                    <input type="checkbox" id="robert" checked> Robert Edge Detection
+                </label>
+                <div id="robEdgeStrength" min="0" max="1" step=".1" value=".1" label="Edge Strength" ></div>
+
+                <div id="contrast" min="-100" max="100" step="1" value="50" label="Contrast" ></div>
+                <div id="gamma" min="0" max="2" step=".1" value="1" label="Gamma" ></div>
+                <div id="grayscaleSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="Grayscale Range"></div>
+                <div id="grayscaleMapSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with remap)"></div>
+                <div id="grayscaleExpoSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with expo)"></div>
+                <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo" ></div>
+                <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
+                
+                </label>
+                    <label>Filter Order:</label>
+                    <ul id="functionOrderList">
+                        <li data-function="contrast">Contrast</li>
+                        <li data-function="histoEq">Histogram Eq</li>
+                        <li data-function="clahe">CLAHE</li>
+                        <li data-function="sharpen">Sharpen</li>
+                        <li data-function="sobel">Sobel</li>
+                        <li data-function="robert">Robert</li>
+                    </ul>
+                    <script>
+                        const functionOrderList = document.getElementById('functionOrderList');
+                        Sortable.create(functionOrderList, {
+                            animation: 150,
+                            onEnd: () => {
+                                console.log('List order updated');
+                            }
+                        });
+                    </script>
+                </div>
             </div>
-            <label class="checkbox-label"> Fade Colour
-                <select id="fadeColour">
-                    <option value="black">black</option>
-                    <option value="white">white</option>
-                </select>
-            </label>
-            <label>
-                <span>Fade Duration: <span id="fadeDurVal">1000 ms</span></span>
-                <input type="range" id="fadeDur" min="200" max="2000" value="1000">
-            </label>
-            <label>
-                <span>Switch Duration: <span id="switchDurVal">15 s</span></span>
-                <input type="range" id="switchDur" min="2" max="30" value="15">
-            </label>
-            <label>
-                <span>All Black Duration: <span id="pauseDurVal">1 s</span></span>
-                <input type="range" id="pauseDur" min=".5" max="5" value="1">
-            </label>
-            <label class="checkbox-label"> Face vs Body
-                <select id="appVersion">
-                    <option value="face">Face</option>
-                    <option value="body">Body</option>
-                </select>
-            </label>
+            <div class="group">
+                <div class="group-header">DMX Tests <span class="toggle-button">+</span></div>
+                <div class="group-content">
+                    <label><input type="checkbox" id="screensaver">Screensaver</label>
+                    <div id="animSpeed" min=".1" max="5" step=".1" value="1" label="Animation Speed"></div>
+
+                    <label><input type="checkbox" id="blackScreen">Black Screen</label>
+                    <label><input type="checkbox" id="whiteScreen">White Screen</label>
+                    
+                </div>
+            </div>
+            <div class="group">
+                <div class="group-header">Camera Filters <span class="toggle-button">+</span></div>
+                <div class="group-content">
+                    <div id="camBrightness" min="-64" max="64" step="1" value="0" label="Cam Brightness"></div>
+                    <div id="camContrast" min="0" max="100" step="1" value="100" label="Cam Contrast"></div>
+                    <div id="camSaturation" min="0" max="100" step="1" value="50" label="Cam Saturation"></div>
+                    <div id="camSharpness" min="0" max="100" step="1" value="71" label="Cam Sharpness"></div>
+                    <div id="camGain" min="1" max="128" step="1" value="56" label="Cam Gain"></div>
+                    <div id="camBacklight" min="0" max="2" step=".1" value="1" label="Cam Backlight"></div>
+                    <div id="whiteBalanceMode">
+                        <label for="WhiteBalanceModeSelect">Cam White Balance Mode:</label>
+                        <select id="WhiteBalanceModeSelect">
+                            <option value="manual">Manual</option>
+                            <option value="continuous" selected>Continuous</option>
+                        </select>
+                    </div>
+                    <div id="colourTempContainer" style="display: none;">
+                        <div id="colourTemp" min="2800" max="6500" step="50" value="5500" label="Cam Colour Temp"></div>
+                    </div>
+                </div>
+            </div>
+
     </div>
     <div id="top">
-        <div class="video-container" style="background-color: white;">
+        <div class="video-container" >
+            <div class = "video-inner-container">
             <video class="video"></video>
             <canvas class="black-canvas"></canvas>
             <canvas class="canvas"></canvas>
@@ -289,6 +213,8 @@
                 <span class="pause-icon">&#10074;&#10074;</span>
             </button>
             <div class="fps-display"></div>
+        </div>
+            
             <div class="canvas-container">
                 <div class="canvas-wrapper">
                     <canvas class="gray-canvas" width="150" height="150"></canvas>
@@ -302,14 +228,16 @@
             </div>
         </div>
         <div class="video-container">
-            <video class="video"></video>
-            <canvas class="black-canvas"></canvas>
-            <canvas class="canvas" style=></canvas>
-            <button class="play-pause-button">
-                <span class="play-icon" style="display: none;">&#9654;</span>
-                <span class="pause-icon">&#10074;&#10074;</span>
-            </button>
-            <div class="fps-display"></div>
+            <div class = "video-inner-container">
+                <video class="video"></video>
+                <canvas class="black-canvas"></canvas>
+                <canvas class="canvas"></canvas>
+                <button class="play-pause-button">
+                    <span class="play-icon" style="display: none">&#9654;</span>
+                    <span class="pause-icon">&#10074;&#10074;</span>
+                </button>
+                <div class="fps-display"></div>
+            </div>
             <div class="canvas-container">
                 <div class="canvas-wrapper">
                     <canvas class="gray-canvas" width="150" height="150"></canvas>
@@ -322,14 +250,11 @@
                 </div>
             </div>
         </div>
+        <div class = "dmxGridWrapper">
+            <div class="dmxGrid" id="dmx1"></div>
+            <div class="dmxGrid" id="dmx2"></div>
+            <div class="dmxGrid" id="dmx3"></div>
+        </div>
     </div>
-
-    <div style="display: flex; align-items: center;">
-        <div class="dmxGrid" id="dmx1"></div>
-        <div class="dmxGrid" id="dmx2"></div>
-        <div class="dmxGrid" id="dmx3"></div>
-    </div>
-
 </body>
-
 </html>

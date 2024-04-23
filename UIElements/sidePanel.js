@@ -2,16 +2,42 @@ import {toggleHisto} from "../filters/histogramEq.js";
 import {changeOrientation, toggleMirror} from "./videoOrientation.js";
 import {toggleCenter} from "../drawing/drawROI.js";
 import {initClahe} from "../filters/clahe.js";
-import {initEdge, toggleSharpFilter} from '../filters/sharpenFilter.js'
 import {toggleBgSeg} from "../drawing/bgSeg.js";
-import {toggleAutoEV} from "../cameraFilters/autoExposure.js";
-import {initMinDistSlider} from "../drawing/minEyeDist.js";
 import {initCamFilters} from "../cameraFilters/camFilters.js";
 import {setNumCol} from "../imageRatio.js";
+import { createSliderComponent } from "./customSlider.js";
+import { updateOuterRoi } from "../drawing/outerRoi.js";
+import { createRangeSliderComponent } from "./rangeSlider.js";
+import { handleSliderChange } from "../filters/applyFilters.js";
 export function setupSidePanel() {
-    const openPanelButton = document.getElementById("openPanelButton");
-    const closePanelButton = document.getElementById("closePanelButton");
     const sidePanel = document.getElementById("sidePanel");
+    sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
+
+    document.addEventListener('keypress', function(event) {
+        // Check if the 'g' key was pressed
+        if (event.key === 'g') {
+            sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
+        }
+    });
+
+    const groupHeaders = document.querySelectorAll('.group-header');
+
+    groupHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling; // Assuming the content follows the header
+            const button = this.querySelector('.toggle-button'); // Find the toggle button within the header
+    
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                button.textContent = '+';
+            } else {
+                content.style.display = 'block';
+                button.textContent = '-';
+            }
+        });
+    });
+
+    const closePanelButton = document.getElementById("closePanelButton");
     const histogramEqCheckbox = document.getElementById("histogramEqCheckbox"); // Get the checkbox element
     const video = document.getElementById("videoAngle"); // Get the checkbox element
     const mirrorCheckbox = document.getElementById("mirrorCheckbox"); // Get the checkbox element
@@ -21,16 +47,8 @@ export function setupSidePanel() {
 
     const autoEV = document.getElementById("autoEV"); // Get the checkbox element
 
-    openPanelButton.addEventListener("click", function () {
-        sidePanel.classList.add("open");
-        openPanelButton.style.display = "none"; // Hide the open button
-        closePanelButton.style.display = "block"; // Show the close button
-    });
-
     closePanelButton.addEventListener("click", function () {
-        sidePanel.classList.remove("open");
-        openPanelButton.style.display = "block"; // Show the open button
-        closePanelButton.style.display = "none"; // Hide the close button
+        sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
     });
 
     histogramEqCheckbox.addEventListener("change", function () {
@@ -46,23 +64,6 @@ export function setupSidePanel() {
         changeOrientation(selectedAngle)
     });
 
-    const roi = document.getElementById("roi"); // Get the checkbox element
-    const roiValue = document.getElementById("roiValue");
-
-    roi.addEventListener("input", function () {
-        roiValue.textContent = this.value;
-    });
-
-    const roiXOffset = document.getElementById("roiXOffset");
-    const roiXOffsetVal = document.getElementById("roiXOffsetVal");
-    roiXOffset.addEventListener("input", function() {
-        roiXOffsetVal.textContent = this.value;
-    });
-    const roiYOffset = document.getElementById("roiYOffset");
-    const roiYOffsetVal = document.getElementById("roiYOffsetVal");
-    roiYOffset.addEventListener("input", function() {
-        roiYOffsetVal.textContent = this.value;
-    });
 
     const contrast = document.getElementById("contrast");
     const contrastVal = document.getElementById("contrastValue");
@@ -70,56 +71,21 @@ export function setupSidePanel() {
         contrastVal.textContent = this.value;
     });
 
-    
-
     var dmxGridElements = document.querySelectorAll('.dmxGrid');
-
-    const gap = document.getElementById("gap");
-    const gapVal = document.getElementById("gapValue");
-    gap.addEventListener("input", function() {
-        const newCol = this.value
-        gapVal.textContent = newCol;
-        setNumCol(30+parseInt(newCol))
-        dmxGridElements.forEach(function(element) {
-            element.style.margin = newCol*2 + 'px'; // Adjust the value as needed
-        });
-    });
-
-
-    const lag = document.getElementById("lag");
-    const lagVal = document.getElementById("lagVal");
-    lag.addEventListener("input", function() {
-        lagVal.textContent = this.value;
-
-    });
-
 
     centerFace.addEventListener("change", function () {
         toggleCenter()
     });
 
-    edge.addEventListener("change", function () {
-        toggleSharpFilter()
-    });
-    const bgColContainer = document.getElementById('bgColContainer');
+    const bg = document.getElementById('bg');
 
     bgSeg.addEventListener("change", function () {
         toggleBgSeg()
         if (this.checked) {
-            bgColContainer.style.display = 'block';
+            bg.style.display = 'block';
         } else {
-            bgColContainer.style.display = 'none';
+            bg.style.display = 'none';
         }
-    });
-
-    autoEV.addEventListener("change", function () {
-        toggleAutoEV()
-    });
-
-    const bgColour = document.getElementById("bg");
-    const bgValue = document.getElementById("bgValue");
-    bgColour.addEventListener("input", function() {
-        bgValue.textContent = this.value;
     });
 
     const gamm = document.getElementById("gamma");
@@ -128,9 +94,57 @@ export function setupSidePanel() {
         gammVal.textContent = this.value;
     });
 
+    createSliderComponent('gap', function(newCol) {
+        setNumCol(30 + parseInt(newCol, 10));
+        dmxGridElements.forEach(function(element) {
+            element.style.margin = `${newCol * 2}px`; // Adjust the value as needed
+        });
+    });
+    createSliderComponent('pixelSmooth')
+
+    createSliderComponent('bg', )
+    createSliderComponent('minEyeDist', )
+    createSliderComponent('centeringSpeed', )
+    createSliderComponent('centeringLeeway', )
+
+    createSliderComponent('exposureComp', )
+    createSliderComponent('exposureTime', )
+    createSliderComponent('roi', )
+    createSliderComponent('roiXOffset', )
+    createSliderComponent('roiYOffset', )
+    createSliderComponent('outerROIWidth', updateOuterRoi)
+    createSliderComponent('outerROIHeight', updateOuterRoi)
+
+    createSliderComponent('fadeDur', )
+    createSliderComponent('switchDur', )
+    createSliderComponent('pauseDur', )
+
+    createSliderComponent('clipLimit', )
+    createSliderComponent('tileSize', )
+    createSliderComponent('contrast', )
+    createSliderComponent('gamma', )
+    createSliderComponent('edgeStrength', )
+    createSliderComponent('sobEdgeStrength', )
+    createSliderComponent('robEdgeStrength', )
+    createSliderComponent('grayExpo', )
+
+    createSliderComponent('animSpeed', )
+
+    createSliderComponent('camBrightness', )
+    createSliderComponent('camContrast', )
+    createSliderComponent('camSaturation', )
+    createSliderComponent('camSharpness', )
+    createSliderComponent('camGain', )
+    createSliderComponent('camBacklight', )
+    createSliderComponent('colourTemp', )
+
+    createRangeSliderComponent('brightnessRange', )
+    createRangeSliderComponent('grayscaleSlider',handleSliderChange )
+    createRangeSliderComponent('grayscaleMapSlider', handleSliderChange)
+    createRangeSliderComponent('grayscaleExpoSlider',handleSliderChange )
+    createRangeSliderComponent('contrastEnh', handleSliderChange)
+
     initClahe()
-    initEdge()
-    initMinDistSlider()
     initCamFilters()
 }
 

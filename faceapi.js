@@ -2,7 +2,6 @@ import {
     FaceDetector,
     FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
-import { log } from "./overlay.js";
 export async function setupFaceAPI() {
     const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
@@ -21,7 +20,7 @@ export async function setupFaceAPI() {
         },
         runningMode: 'VIDEO'
     });
-    log(`Models loaded`);
+    console.log(`Models loaded`);
     return [faceDetector0, faceDetector1]
 }
 

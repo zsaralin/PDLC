@@ -1,4 +1,5 @@
-import { faceInFrame, isJumping } from "./poseDetectionChecks.js";
+import { isEyeDistanceAboveThresholdBody } from "./drawing/minEyeDist.js";
+import { faceInFrame, isFacingForward } from "./poseDetectionChecks.js";
 
 export let activeFaces = []
 let detectionState = []; // Array of objects to track state and counter for each index
@@ -7,23 +8,20 @@ export function processDetection(data, i) {
     if (!detectionState[i]) {
         detectionState[i] = { counter: 0, lastStatus: null };
     }
-
     const threshold = 10; // Threshold for switching from null to not null and vice versa
-    const dataPresent = data.length > 0;
-    const currentState = dataPresent  ? 'DATA' : 'NODATA';
- // && faceInFrame(data[0]) && !isJumping(data[0], i)
-    // Check if current state is the same as the last recorded state
+    let currentState = data.length > 0  ? 'DATA' : 'NODATA';
+
+    if (currentState === 'DATA' && !additionalChecks(data)) {
+        currentState = 'NODATA';  // Set to NODATA when eye distance is below the threshold
+    }
+
     if (currentState === detectionState[i].lastStatus) {
-        // Increment counter if state remains the same
         detectionState[i].counter++;
     } else {
-        // Reset counter and update last status on state change
         detectionState[i].counter = 1;
-
         detectionState[i].lastStatus = currentState;
     }
 
-    // Handle updating activeFaces based on the current and last recorded states
     if (currentState === 'DATA') {
         if (detectionState[i].counter >= threshold || activeFaces[i] !== null) {
             // If switching to DATA is consistent or activeFaces is already non-null, update activeFaces
@@ -39,8 +37,6 @@ export function processDetection(data, i) {
             }
 
             activeFaces[i] = closestPerson;
-            // Optionally, reset counter here if you want the threshold check to restart after an update
-            // detectionState[i].counter = 0;
         }
     } else if (currentState === 'NODATA' && detectionState[i].counter >= threshold) {
         // If switching to NODATA is consistent for at least 'threshold' detections, set activeFaces to null
@@ -67,4 +63,12 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
 
     // Avoid division by zero; if no valid points, set distance arbitrarily high
     return validPointsCount > 0 ? totalDistance / validPointsCount : Number.POSITIVE_INFINITY;
+}
+
+function additionalChecks(person){
+    if(!isEyeDistanceAboveThresholdBody(person[0]) || !faceInFrame(person[0])
+    || !isFacingForward(person[0])){
+        return false;
+    }
+    return true; 
 }

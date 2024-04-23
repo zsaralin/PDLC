@@ -15,17 +15,17 @@ const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
 const grayscaleMapSlider = document.getElementById('grayscaleMapSlider');
 const grayscaleExpoSlider = document.getElementById('grayscaleExpoSlider');
-const contrastEnhSlider = document.getElementById('contrastEnhSlider');
+const contrastEnhSlider = document.getElementById('contrastEnh');
 const contrastSlider = document.getElementById('contrast');
 const gammaSlider = document.getElementById('gamma');
 
 const sliders = [
+    contrastSlider,
+    gammaSlider,
     grayscaleSlider,
     grayscaleMapSlider,
     grayscaleExpoSlider,
     contrastEnhSlider,
-    contrastSlider,
-    gammaSlider
 ];
 
 const sliderValues = {};
@@ -35,10 +35,9 @@ export function handleSliderChange() {
         if (id === 'gamma' || id === 'contrast') {
             sliderValues[id] = parseInt(slider.value);
         } else {
-            const values = slider.noUiSlider.get();
             sliderValues[id] = {
-                min: parseFloat(values[0]),
-                max: parseFloat(values[1])
+                min: parseFloat(slider.getAttribute('lowValue')),
+                max: parseFloat(slider.getAttribute('highValue'))
             };
         }
     });
@@ -49,7 +48,6 @@ sliders.forEach(slider => {
     if (id === 'gamma' || id === 'contrast') {
         slider.addEventListener('change', handleSliderChange)
     } else {
-        slider.noUiSlider.on('update', handleSliderChange);
     }
 });
 
@@ -84,7 +82,7 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
                     case 'grayscaleExpoSlider':
                         modifyGrayscale(filterCanvas);
                         break;
-                    case 'contrastEnhSlider':
+                    case 'contrastEnh':
                         contrastEnhancement(filterCanvas);
                         break;
                     default:
@@ -122,7 +120,7 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
         }
     }
 
-    // const croppedImageData = filterCanvas.toDataURL('image/png');
-    // updateCanvas('cropped-canvas', croppedImageData, i);
+    const croppedImageData = filterCanvas.toDataURL('image/png');
+    updateCanvas('cropped-canvas', croppedImageData, i);
     pixelCanvas(filterCanvas, filterCtx, i);
 }

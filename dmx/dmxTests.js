@@ -9,13 +9,15 @@ const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true
 pixelatedCanvas.width = imgCol;
 pixelatedCanvas.height = imgRow;
 
+export function getScreensaverCanvas(){
+    return pixelatedCanvas
+}
+
 function sweepDown() {
-    // Clear the canvas or fill it with black
     pixelatedCtx.fillStyle = 'black';
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
     pixelatedCtx.fillStyle = 'white';
 
-    // Sweep effect: Draw a single white column based on sweepRow counter for vertical movement
     for (let col = 0; col < 30; col++) {
         pixelatedCtx.fillStyle = 'white';
         pixelatedCtx.fillRect(col, sweepRow, 1, 1);
@@ -23,6 +25,7 @@ function sweepDown() {
     sweepRow++;
     if(sweepRow >= imgRow) sweepRow = 0; // Reset for vertical movement
 }
+
 function drawStripes() {
     const canvasWidth = 30; // Width of the canvas
     const canvasHeight = 28; // Height of the canvas
@@ -97,40 +100,36 @@ function drawSmileyFaceFade() {
 let gradientOffset = 0; // Initialize the gradient offset
 let isSweepingDown = true; // Flag to indicate the direction of the sweep
 
+export function resetGradientSweep(){
+    gradientOffset = 0; 
+    isSweepingDown = true;
+}
+
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Adjust as needed
     const canvasHeight = imgRow; // Adjust as needed
-    
-    // Create a linear gradient that vertically sweeps across the canvas
     let gradient = pixelatedCtx.createLinearGradient(0, gradientOffset, 0, gradientOffset + canvasHeight);
+    let gradientStep = document.getElementById('animSpeed').value; 
 
-    // Setup the gradient transition from black to white and back to black
     gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Middle to white
     gradient.addColorStop(1, 'rgb(0, 0, 0)'); // End with black again
-    // gradient.addColorStop(1, 'rgb(255, 255, 255)'); // Middle to white
 
-    // Use the gradient to fill the canvas
     pixelatedCtx.fillStyle = gradient;
     pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Update the gradient offset based on the direction of the sweep
     if (isSweepingDown) {
-        gradientOffset += 1; // Move the gradient down
-        // Check if the gradient has reached the bottom
-        if (gradientOffset >= canvasHeight*1.5 ) {
+        gradientOffset += gradientStep; // Move the gradient down
+        if (gradientOffset >= canvasHeight*1.2 ) {
             isSweepingDown = false; // Change direction to up
         }
     } else {
-        gradientOffset -= 1; // Move the gradient up
-        // Check if the gradient has reached the top
-        if (gradientOffset <= -canvasHeight*1.5) {
+        gradientOffset -= gradientStep; // Move the gradient up
+        if (gradientOffset <= -canvasHeight) {
             isSweepingDown = true; // Change direction to down
         }
     }
-
-    // Request the next animation frame
 }
-
 
 function drawSmileyFace() {
     const canvasWidth = imgCol; // Adjust as needed
@@ -193,9 +192,15 @@ function sweepRight() {
 let greyValue = 0; // Initial grey value
 document.addEventListener('keydown', handleKeyPress);
 
-function fillCanvasWithGrey() {
+function fillCanvasWithBlack() {
     // Clear the canvas or fill it with grey
-    pixelatedCtx.fillStyle = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
+    pixelatedCtx.fillStyle = `rgb(${0}, ${0}, ${0})`;
+    pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
+}
+
+function fillCanvasWithWhite() {
+    // Clear the canvas or fill it with grey
+    pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
 }
 
@@ -211,9 +216,16 @@ function handleKeyPress(event) {
     }
 }
 
+const blackCheckbox = document.getElementById('blackScreen')
+const whiteCheckbox = document.getElementById('whiteScreen')
+
 export function drawDMXTest() {
-    // drawSmileyFaceFade()
-    animateGradientSweep()
+    if(blackCheckbox.checked){
+        fillCanvasWithBlack();
+    } else if(whiteCheckbox.checked){
+        fillCanvasWithWhite()
+    } else{
+    animateGradientSweep()}
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);

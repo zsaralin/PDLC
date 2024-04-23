@@ -2,7 +2,7 @@ import { setDMXFromPixelCanvas } from "./dmx/dmx.js";
 import { updateCanvas } from "./drawing/drawROI.js";
 import { getPixelImageData } from "./filters/pixelated.js";
 
-let fade_dur = 1000;
+export let fade_dur = 1000;
 let switch_dur = 8000;
 let pause_dur = 1000;
 
@@ -19,7 +19,7 @@ export function setCam1(status) {
     cam1 = status;
 }
 
-let currentCamIndex = 0; 
+export let currentCamIndex = 0; 
 let intervalId = null; 
 
 
@@ -108,6 +108,10 @@ export function sendPixelCanvas(pixelatedCanvases){
     offPixelCanvases = pixelatedCanvases
 }
 
+export function getPixelCanvases(){
+    return offPixelCanvases
+}
+
 function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) { // Adding pauseDuration parameter
     if (fadingBlack) return;
     fadingBlack = true;
@@ -173,10 +177,13 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
     let currentFrame = 0;
     const increment = 1 / totalFrames; // Incremental increase in opacity per frame
     const colorValue = fadeColor === "black" ? "0, 0, 0" : "255, 255, 255";
-    
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
     const fadeStep = () => {
         if (currentFrame <= totalFrames) {
             let opacity = increment * currentFrame;
+            ctx.putImageData(imageData, 0, 0);
+
             ctx.fillStyle = `rgba(${colorValue}, ${opacity})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -184,6 +191,7 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
             // imageDatas[currentCamIndex] = croppedImageData;
             const dataURL = canvas.toDataURL('image/png');
             updateCanvas('pixel-canvas', dataURL, canvasIndex);
+            
             setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), 1);
 
             if (opacity < 1) {
@@ -199,41 +207,28 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const fadeColourSelect = document.getElementById('fadeColour');
-    const fadeDurInput = document.getElementById('fadeDur');
-    const switchDurInput = document.getElementById('switchDur');
-    const pauseDurInput = document.getElementById('pauseDur');
-    const fadeDurValSpan = document.getElementById('fadeDurVal');
-    const switchDurValSpan = document.getElementById('switchDurVal');
-    const pauseDurValSpan = document.getElementById('pauseDurVal');
-
     function updateFadeColorFromSelect() {
         const fadeColourSelect = document.getElementById('fadeColour');
         fadeColor = fadeColourSelect.value; // Update fadeColor based on the select's value
         console.log(fadeColor)
     }
-
-    const updateFadeDuration = () => {
-        fadeDurValSpan.textContent = `${fadeDurInput.value} ms`;
-        fade_dur = parseInt(fadeDurInput.value, 10); // Update variable
-    };
-
-    const updateSwitchDuration = () => {
-        switchDurValSpan.textContent = `${switchDurInput.value} s`;
-        switch_dur = parseInt(switchDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
-    };
-    const updatePauseDuration = () => {
-        pauseDurValSpan.textContent = `${pauseDurInput.value} s`;
-        pause_dur = parseInt(pauseDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
-    };
-
     updateFadeColorFromSelect();
-    updateFadeDuration();
-    updateSwitchDuration();
-    updatePauseDuration()
-
     fadeColourSelect.addEventListener('change', updateFadeColorFromSelect);
-    fadeDurInput.addEventListener('input', updateFadeDuration);
-    switchDurInput.addEventListener('input', updateSwitchDuration);
-    pauseDurInput.addEventListener('input', updatePauseDuration);
+
 
 });
+
+export const updateFadeDuration = () => {
+    const fadeDurInput = document.getElementById('fadeDur');
+    fade_dur = parseInt(fadeDurInput.value, 10); // Update variable
+};
+
+export const updateSwitchDuration = () => {
+    const switchDurInput = document.getElementById('switchDur');
+    switch_dur = parseInt(switchDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
+};
+
+export const updatePauseDuration = () => {
+    const pauseDurInput = document.getElementById('pauseDur');
+    pause_dur = parseInt(pauseDurInput.value, 10) * 1000; // Convert to milliseconds and update variable
+};

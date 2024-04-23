@@ -1,5 +1,4 @@
 import {computeROI} from "./drawROI.js";
-import {isEyeDistanceAboveThresholdFace, isEyeDistanceAboveThresholdBody} from "./minEyeDist.js";
 import { angle, rotateCanvas } from "../UIElements/videoOrientation.js";
 
 export function clearCanvas(canvas){
@@ -7,11 +6,6 @@ export function clearCanvas(canvas){
 }
 
 export function drawFaces(canvas, ctx, person, video, i) {
-    if(!isEyeDistanceAboveThresholdBody(person)){
-        console.log('clearing pixel canvas')
-        clearPixelCanvas(canvas, i)
-        return
-    }
     drawBB(canvas, ctx, person)
 
 }

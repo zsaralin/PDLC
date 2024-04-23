@@ -1,6 +1,5 @@
 import { clearCanvas, drawFaces } from './drawing/drawFaces.js'
 import { processDetection } from "./newFaces.js";
-import { log } from "./overlay.js";
 import { setupSidePanel } from "./UIElements/sidePanel.js";
 import { changeOrientation, rotateCanvas } from "./UIElements/videoOrientation.js";
 import { monitorBrightness } from './cameraFilters/autoExposure.js'
@@ -16,6 +15,9 @@ import { startBodySegmenter, predictWebcamB } from './drawing/selfieSegmenter.js
 import { faceInFrame } from './poseDetectionChecks.js';
 import { adjustPersonKeypoints } from './drawing/adjustedKeypoints.js';
 import { angle } from './UIElements/videoOrientation.js';
+import { fadeToScreensaver, isScreensaver , fadeToFace} from './dmx/fadeToScreensaver.js';
+import { setScreensaverStatus } from './dmx/fadeToScreensaver.js';
+
 let currentFaces0 = null; // Global variable to hold the latest face detection results
 let currentFaces1 = null;
 
@@ -33,7 +35,14 @@ let video0; let video1;
 let canvas0; let canvas1;
 let numCameras;
 
+const screensaverMode = document.getElementById('screensaver');
+let screensaverInterval ; 
 export async function detectVideo() {
+    if(screensaverMode.checked){
+        drawDMXTest()
+        requestAnimationFrame(() => detectVideo());
+        return
+    } 
     if ((numCameras === 1 && (!video0 || video0.paused))
         || (numCameras === 2 && (!video0 || video0.paused || !video1 || video1.paused))) return Promise.resolve(false);
     calculateFPS(0)
@@ -46,35 +55,46 @@ export async function detectVideo() {
     if (numCameras === 2) {
         calculateFPS(1)
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
-    
         copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1);
         const poseDetections1 = await poseDetector1.estimatePoses(canvasWithOuterROI1)
         currentFaces1 = processDetection(poseDetections1, 1);
     }
-    if (currentFaces0 ) {
-        ctx0.clearRect(0, 0, canvas0.width, canvas0.height && faceInFrame(currentFaces1, video0.videoHeight));
-        predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0, bgSeg)
-        setCam0(true);
-    } else {
-        ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-        setCam0(false);
-    } if (currentFaces1 ) {
-        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1, bgSeg)
-        setCam1(true);
-    } else {
-        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-        setCam1(false);
+
+    if(!currentFaces0 || (numCameras > 1 && !currentFaces1)){
+        if(!currentFaces0){
+            setCam0(false);
+        } else if(numCameras > 1 && !currentFaces1){
+            setCam1(false)
+        }
+        fadeToScreensaver()
+    } else { 
+        if(isScreensaver){
+            fadeToFace()
+        } else{
+            if (currentFaces0) {
+                ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+                predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0, bgSeg)
+                setCam0(true);
+            } else {
+                ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+                setCam0(false);
+            } if (currentFaces1 ) {
+                ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+                predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1, bgSeg)
+                setCam1(true);
+            } else {
+                ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+                setCam1(false);
+            }
+        }
     }
+ 
     preDMX()
     requestAnimationFrame(() => detectVideo());
 }
 
 async function setupCamera() {
-    log('Setting up camera');
-
     if (!navigator.mediaDevices) {
-        log('Camera Error: access not supported');
         return null;
    }
 
@@ -107,7 +127,7 @@ async function setupCamera() {
             await Promise.all(loadedPromises);
             initializeVideo();
         } else {
-            log('No target cameras found or targetCamera is false');
+            console.log('No target cameras found or targetCamera is false');
             return null;
         }
     } catch (err) {
@@ -124,21 +144,24 @@ function findTargetCameras(videoInputs) {
 
 async function initializeVideoStream(deviceId, video) {
     const constraints = {
-        video: { audio: false, deviceId: { exact: deviceId }, width: 640 }
+        video: { audio: false, deviceId: { exact: deviceId }, width: { ideal: 1920 },  // Requesting a high width
+        height: { ideal: 1080 }  }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
 }
 
 function handleCameraError(err) {
     if (err.name === 'PermissionDeniedError' || err.name === 'NotAllowedError') {
-        log(`Camera Error: camera permission denied: ${err.message || err}`);
+        console.log(`Camera Error: camera permission denied: ${err.message || err}`);
     }
     if (err.name === 'SourceUnavailableError') {
-        log(`Camera Error: camera not available: ${err.message || err}`);
+        console.log(`Camera Error: camera not available: ${err.message || err}`);
     }
 }
 
 async function initializeVideo(video) {
+    setupSidePanel()
+
     canvas0.width = video0.videoWidth;
     canvas0.height = video0.videoHeight;
     canvasWithOuterROI0.width = video0.videoWidth;
@@ -163,14 +186,10 @@ async function initializeVideo(video) {
 
     setupPause(video0, video1);
     changeOrientation(0);
-    setupSidePanel()
     await detectVideo();
-    // setInterval(drawDMXTest, 50)
-    // drawDMXTest; // 5000 milliseconds = 5 seconds
 }
 
 async function main() {
-    log('PDLC');
     const videos = document.querySelectorAll('.video-container .video');
     const canvases = document.querySelectorAll('.video-container .canvas');
 
@@ -194,7 +213,5 @@ async function main() {
     // [faceDetector0, faceDetector1] = await setupFaceAPI();
     [poseDetector0, poseDetector1] = await createPoseDetector()
     await setupCamera();
-    document.getElementById('overlay').style.display = 'none'
 }
-
 window.onload = main;
