@@ -1,6 +1,10 @@
 
 const slider = document.getElementById('contrastEnh')
-
+/**
+ * Performs contrast enhancement on the given canvas using values from the contrast enhancement slider.
+ * Contrast enhancement adjusts the range of grayscale values in the image to increase contrast.
+ * @param {HTMLCanvasElement} canvas - The canvas element to apply contrast enhancement to.
+ */
 export function contrastEnhancement(canvas) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;

@@ -1,10 +1,11 @@
 // script.js
 
-import { SERVER_URL } from './config.js';
+import { SERVER_URL } from '../config.js';
 
 export let imgRatio = 32 / 28;
 export let imgRow = 28;
 export let imgCol = 32;
+
 sendPosition(imgCol, imgRow)
 
 export async function sendPosition(imgCol, imgRow) {

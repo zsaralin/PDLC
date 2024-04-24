@@ -1,19 +1,17 @@
 import { clearCanvas, drawFaces } from './drawing/drawFaces.js'
-import { processDetection } from "./newFaces.js";
+import { processDetection } from "./faceDetection/processDetection.js";
 import { setupSidePanel } from "./UIElements/sidePanel.js";
 import { changeOrientation, rotateCanvas } from "./UIElements/videoOrientation.js";
 import { monitorBrightness } from './cameraFilters/autoExposure.js'
 import { drawOuterRoi, initOuterRoi, copyVideoToCanvas } from "./drawing/outerRoi.js";
-import { predictWebcam, startImageSegmenter, bgSeg } from "./drawing/bgSeg.js";
-import { drawDMXTest } from "./dmx/dmxTests.js";
-import { setupFaceAPI } from './faceapi.js';
+import { drawDMXTest } from "./dmx/screensaverModes.js";
+import { setupFaceAPI } from './faceDetection/faceDetection.js';
 import { calculateFPS } from './UIElements/fps.js';
 import { setupPause } from './UIElements/pauseButton.js';
 import { setCam0, setCam1, preDMX } from './twoCam.js'
-import { createPoseDetector } from './poseDetection.js';
-import { startBodySegmenter, predictWebcamB } from './drawing/selfieSegmenter.js';
-import { faceInFrame } from './poseDetectionChecks.js';
-import { adjustPersonKeypoints } from './drawing/adjustedKeypoints.js';
+import { createPoseDetector } from './faceDetection/poseDetection.js';
+import { startBodySegmenter, predictWebcamB } from './drawing/bodyTracking.js';
+import { faceInFrame } from './faceDetection/poseDetectionChecks.js';
 import { angle } from './UIElements/videoOrientation.js';
 import { fadeToScreensaver, isScreensaver , fadeToFace} from './dmx/fadeToScreensaver.js';
 import { setScreensaverStatus } from './dmx/fadeToScreensaver.js';
@@ -54,6 +52,7 @@ export async function detectVideo() {
     currentFaces0 = processDetection(poseDetections0, 0);
     if (numCameras === 2) {
         calculateFPS(1)
+        document.getElementById('video-container2').style.display = "block"
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
         copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1);
         const poseDetections1 = await poseDetector1.estimatePoses(canvasWithOuterROI1)
@@ -73,14 +72,14 @@ export async function detectVideo() {
         } else{
             if (currentFaces0) {
                 ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-                predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0, bgSeg)
+                predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
                 setCam0(true);
             } else {
                 ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
                 setCam0(false);
             } if (currentFaces1 ) {
                 ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-                predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1, bgSeg)
+                predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1)
                 setCam1(true);
             } else {
                 ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
@@ -138,7 +137,7 @@ async function setupCamera() {
 
 function findTargetCameras(videoInputs) {
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
-    const usbCameras = videoInputs.slice(0, 1);
+    const usbCameras = videoInputs.slice(0, 2);
     return usbCameras;
 }
 
@@ -169,7 +168,6 @@ async function initializeVideo(video) {
     video0.play();
     initOuterRoi(video0);
     monitorBrightness(video0, 0);
-    await startImageSegmenter(video0, canvas0, 0);
     await startBodySegmenter(video0, canvas0, 0);
     if (numCameras > 1) {
         canvas1.width = video1.videoWidth;
@@ -179,7 +177,6 @@ async function initializeVideo(video) {
         video1.play();
         initOuterRoi(video1);
         monitorBrightness(video1, 1);
-        await startImageSegmenter(video1, canvas1, 1);
         await startBodySegmenter(video1, canvas1, 1);
 
     }

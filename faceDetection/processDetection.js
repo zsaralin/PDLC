@@ -1,5 +1,4 @@
-import { isEyeDistanceAboveThresholdBody } from "./drawing/minEyeDist.js";
-import { faceInFrame, isFacingForward } from "./poseDetectionChecks.js";
+import { faceInFrame, isFacingForward , isEyeDistanceAboveThresholdBody} from "./poseDetectionChecks.js";
 
 export let activeFaces = []
 let detectionState = []; // Array of objects to track state and counter for each index
@@ -66,8 +65,9 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
 }
 
 function additionalChecks(person){
-    if(!isEyeDistanceAboveThresholdBody(person[0]) || !faceInFrame(person[0])
-    || !isFacingForward(person[0])){
+    if(!isEyeDistanceAboveThresholdBody(person[0])
+        || !faceInFrame(person[0])
+        || !isFacingForward(person[0])){
         return false;
     }
     return true; 

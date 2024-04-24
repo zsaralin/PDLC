@@ -1,6 +1,6 @@
 const slider = document.getElementById('grayscaleMapSlider');
 
-export function remapGrayscaleValues(canvas) {
+export function remapGrayscaleLinear(canvas) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 

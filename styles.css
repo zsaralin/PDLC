@@ -88,18 +88,22 @@ body {
     margin-right: 15px;
 }
 
+:root {
+    --cell-size: 8px; /* Default cell size */
+}
+
 .dmxGrid {
-    position: relative; 
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(10, 5px); 
+    grid-template-columns: repeat(10, var(--cell-size));
     grid-gap: 1px;
     width: max-content;
-    margin: 4px;
+    margin: calc(var(--cell-size) / 2); /* Calculate the margin based on cell size */
 }
 
 .dmxCell {
-    width: 5px; /* Adjust the size as needed */
-    height: 5px; /* Adjust the size as needed */
+    width: var(--cell-size); /* Use CSS variable */
+    height: var(--cell-size); /* Use CSS variable */
     background-color: #000; /* Default color */
 }
 

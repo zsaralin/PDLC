@@ -1,10 +1,9 @@
 import OneEuroFilter from "./euroFilter.js";
 const lag = document.getElementById('lag');
 import { applyFilters } from "../filters/applyFilters.js";
-import { imgRatio } from "../imageRatio.js";
-import { bgSeg } from "./bgSeg.js";
+import { imgRatio } from "../dmx/imageRatio.js";
 import { rotateCanvas, mirror, angle } from "../UIElements/videoOrientation.js";
-import { appVersion } from "../UIElements/skeletonVersion.js";
+import { appVersion } from "../UIElements/appVersionHandler.js";
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
 const roiYOffset = document.getElementById("roiYOffset");
@@ -16,12 +15,6 @@ let previousCenterY;
 
 const centeringLeeway = document.getElementById('centeringLeeway')
 const centeringSpeed = document.getElementById('centeringSpeed')
-export let center = true;
-
-export function toggleCenter() {
-    center = !center;
-}
-
 const filterFreq = 60; // Frequency of incoming data, in Hz
 const minCutoff = 1.0; // Minimum cutoff frequency
 const beta = 0.01; // Beta parameter

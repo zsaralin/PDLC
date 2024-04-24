@@ -20,7 +20,6 @@ export async function setupFaceAPI() {
         },
         runningMode: 'VIDEO'
     });
-    console.log(`Models loaded`);
     return [faceDetector0, faceDetector1]
 }
 

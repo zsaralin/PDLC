@@ -1,8 +1,3 @@
-export let histo = false;
-export function toggleHisto(){
-    histo = !histo
-}
-
 export function histogramEqualization(canvas) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;

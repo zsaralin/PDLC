@@ -1,10 +1,10 @@
-import { drawDMXTest, getScreensaverCanvas } from "./dmxTests.js";
+import { drawDMXTest, getScreensaverCanvas } from "./screensaverModes.js";
 import { currentCamIndex, getPixelCanvases } from "../twoCam.js";
 import { updateCanvas } from "../drawing/drawROI.js";
 import { setDMXFromPixelCanvas } from "./dmx.js";
-import { getPixelImageData } from "../filters/pixelated.js";
-import { resetGradientSweep } from "./dmxTests.js";
-import { fadeToFaceFromBlack } from "../drawing/selfieSegmenter.js";
+import { getPixelImageData } from "../drawing/pixelCanvasUtils.js";
+import { resetGradientSweep } from "./screensaverModes.js";
+import { fadeToFaceFromBlack } from "../drawing/bodyTracking.js";
 import { fade_dur } from "../twoCam.js";
 
 export let isScreensaver = false; 

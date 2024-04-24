@@ -1,15 +1,15 @@
-import { grayscaleCanvas } from "./grayscale.js";
-import { remapGrayscaleValues } from "./remapGrayscaleValues.js";
-import { modifyGrayscale } from "./modifyGrayscale.js";
+import { grayscaleCanvas } from "./grayscale/grayscale.js";
+import { remapGrayscaleLinear } from "./grayscale/remapGrayscaleLinear.js";
+import { adjustGrayscaleWithExpo } from "./grayscale/adjustGrayscaleWithExpo.js";
 import { contrastEnhancement } from "./contrastEnh.js";
 import { gammaCorrection } from "./gamma.js";
 import { applyContrast } from "./contrast.js";
 import { claheFn, useClahe } from "./clahe.js";
-import { histo, histogramEqualization } from "./histogramEq.js";
-import { edge, sharpeningFilter } from "./sharpenFilter.js";
-import {sobel, sobelED} from './sobelEdge.js'
-import {robert, robertED} from './robertsEdge.js'
-import { pixelCanvas } from "./pixelated.js";
+import { histogramEqualization } from "./histogramEq.js";
+import { edge, sharpeningFilter } from "./edgeDetection/sharpenFilter.js";
+import {sobel, sobelED} from './edgeDetection/sobelEdge.js'
+import {robert, robertED} from './edgeDetection/robertsEdge.js'
+import { updatePixelatedCanvas } from "../drawing/pixelCanvasUtils.js";
 import { updateCanvas } from "../drawing/drawROI.js";
 const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
@@ -18,6 +18,7 @@ const grayscaleExpoSlider = document.getElementById('grayscaleExpoSlider');
 const contrastEnhSlider = document.getElementById('contrastEnh');
 const contrastSlider = document.getElementById('contrast');
 const gammaSlider = document.getElementById('gamma');
+const histo = document.getElementById('histogramEqCheckbox')
 
 const sliders = [
     contrastSlider,
@@ -33,7 +34,7 @@ export function handleSliderChange() {
     sliders.forEach(slider => {
         const id = slider.id;
         if (id === 'gamma' || id === 'contrast') {
-            sliderValues[id] = parseInt(slider.value);
+            sliderValues[id] = parseFloat(slider.value);
         } else {
             sliderValues[id] = {
                 min: parseFloat(slider.getAttribute('lowValue')),
@@ -59,11 +60,11 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
             if (values !== 1) {
                 switch (id) {
                     case 'gamma':
-                        gammaCorrection(filterCanvas, 0.5);
+                        gammaCorrection(filterCanvas);
                         break;
                     case 'contrast':
                         if (values !== 0) {
-                            applyContrast(filterCanvas, person);
+                            applyContrast(filterCanvas);
                         }
                         break;
                     default:
@@ -77,10 +78,10 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
                         grayscaleCanvas(filterCanvas);
                         break;
                     case 'grayscaleMapSlider':
-                        remapGrayscaleValues(filterCanvas);
+                        remapGrayscaleLinear(filterCanvas);
                         break;
                     case 'grayscaleExpoSlider':
-                        modifyGrayscale(filterCanvas);
+                        adjustGrayscaleWithExpo(filterCanvas);
                         break;
                     case 'contrastEnh':
                         contrastEnhancement(filterCanvas);
@@ -104,7 +105,7 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
                 if (useClahe) claheFn(filterCanvas);
                 break;
             case 'histoEq':
-                if (histo) histogramEqualization(filterCanvas);
+                if (histo.checked) histogramEqualization(filterCanvas);
                 break;
             case 'sharpen':
                 if (edge) sharpeningFilter(filterCanvas);
@@ -122,5 +123,5 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
 
     const croppedImageData = filterCanvas.toDataURL('image/png');
     updateCanvas('cropped-canvas', croppedImageData, i);
-    pixelCanvas(filterCanvas, filterCtx, i);
+    updatePixelatedCanvas(filterCanvas, filterCtx, i);
 }

@@ -1,5 +1,5 @@
 import {updateDMXGrid} from "./dmxGrid.js";
-import {imgCol, imgRow} from "../imageRatio.js";
+import {imgCol, imgRow} from "./imageRatio.js";
 import {SERVER_URL} from '../config.js'
 
 let prevBrightnessValues = Array.from({length: imgRow}, () => Array(imgCol).fill(0));
@@ -24,8 +24,7 @@ export async function setDMXFromPixelCanvas(imageData) {
             // Retrieve previous brightness and calculate smoothed value
             const prevBrightness = prevBrightnessValues[row][col];
             const smoothedBrightness = prevBrightness + smoothingFactor.value/4 * (currentBrightness - prevBrightness);
-            // Update the row's brightness array and the previous values storage
-            
+
             rowBrightness.push(smoothedBrightness);
             prevBrightnessValues[row][col] = smoothedBrightness;
         }

@@ -1,6 +1,6 @@
 import {updateCanvas} from "../drawing/drawROI.js";
 import {setDMXFromPixelCanvas} from "./dmx.js";
-import {imgCol, imgRow} from "../imageRatio.js";
+import {imgCol, imgRow} from "./imageRatio.js";
 
 let sweepRow = 0; // This counter will track the current row for the sweep
 

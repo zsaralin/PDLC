@@ -1,13 +1,13 @@
 // import { grayscaleCanvas } from "./grayscale.js";
 // import { remapGrayscaleValues } from "./remapGrayscaleValues.js";
-// import { modifyGrayscale } from "./modifyGrayscale.js";
+// import { adjustGrayscaleWithExpo } from "./adjustGrayscaleWithExpo.js";
 // import { contrastEnhancement } from "./contrastEnh.js";
 // import { gammaCorrection } from "./gamma.js";
 // import { applyContrast } from "./contrast.js";
 // import { claheFn, useClahe } from "./clahe.js";
 // import { histo, histogramEqualization } from "./histogramEq.js";
 // import { edge, edgeDetection } from "./edgeDetection.js";
-// import { pixelCanvas } from "./pixelated.js";
+// import { updatePixelatedCanvas } from "./pixelated.js";
 // import { updateCanvas } from "../filteredCanvas.js";
 //
 // const functionOrderList = document.getElementById('functionOrderList');
@@ -79,7 +79,7 @@
 //                         remapGrayscaleValues(filterCanvas);
 //                         break;
 //                     case 'grayscaleExpoSlider':
-//                         modifyGrayscale(filterCanvas);
+//                         adjustGrayscaleWithExpo(filterCanvas);
 //                         break;
 //                     case 'contrastEnhSlider':
 //                         contrastEnhancement(filterCanvas);
@@ -115,6 +115,6 @@
 //
 //     const croppedImageData = filterCanvas.toDataURL('image/png');
 //     updateCanvas('cropped-canvas', croppedImageData);
-//     pixelCanvas(filterCanvas, filterCtx);
+//     updatePixelatedCanvas(filterCanvas, filterCtx);
 // }
 

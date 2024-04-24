@@ -2,11 +2,12 @@ import { drawFaces } from "./drawFaces.js";
 import { drawOuterRoi } from "./outerRoi.js";
 import { rotateCanvas , angle, mirror} from "../UIElements/videoOrientation.js";
 import { computeROI } from "./drawROI.js";
-import { bgSeg } from "./bgSeg.js";
-import { isEyeDistanceAboveThresholdBody } from "./minEyeDist.js";
 let imageSegmenters = [];
 let canvases = [];
 let ctxs = [];
+
+const bgSegCheckbox = document.getElementById('bgSeg')
+const bg = document.getElementById('bg')
 
 export async function startBodySegmenter(video, canvasI, i) {
     canvases[i] = canvasI;
@@ -19,12 +20,12 @@ export async function createBodySegmenter() {
     const segmenterConfig = {
         runtime: 'mediapipe',
         solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation'
-        // or 'base/node_modules/@mediapipe/selfie_segmentation' in npm.
     };
     return await bodySegmentation.createSegmenter(model, segmenterConfig);
 }
 
 export async function predictWebcamB(video, i, canvas, ctx, person) {
+    console.log(person)
     if (!video || video.paused || !imageSegmenters[i]) return
     callbackForVideo(person.segmentation, video, i, canvas, ctx, person)
 }
@@ -42,7 +43,7 @@ function callbackForVideo(segmentation, video, i, canvas, ctx, person) {
 
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    if (bgSeg) {
+    if (bgSegCheckbox.checked) {
         ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
     } else {
         ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -88,5 +89,5 @@ function callbackForVideo(segmentation, video, i, canvas, ctx, person) {
 
 export function fadeToFaceFromBlack(){
     fadeFromBlack = true
-    currentAlpha = 1; 
+    currentAlpha = 1;
 }

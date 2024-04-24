@@ -1,4 +1,4 @@
-import {imgCol} from '../imageRatio.js'
+import {imgCol} from './imageRatio.js'
 
 function generateDmxGrid(gridId, startCol, endCol) {
     let dmxGrid = document.getElementById(gridId);
@@ -16,7 +16,6 @@ function generateDmxGrid(gridId, startCol, endCol) {
     }
 }
 
-// Generate grids for dmx1, dmx2, and dmx3
 generateDmxGrid('dmx1', 0, 10);
 generateDmxGrid('dmx2', 10, 20);
 generateDmxGrid('dmx3', 20, 30);
