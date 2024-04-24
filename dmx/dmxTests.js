@@ -108,11 +108,16 @@ export function resetGradientSweep(){
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Adjust as needed
     const canvasHeight = imgRow; // Adjust as needed
-    let gradient = pixelatedCtx.createLinearGradient(0, gradientOffset, 0, gradientOffset + canvasHeight);
-    let gradientStep = document.getElementById('animSpeed').value; 
+    let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
-    gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Middle to white
-    gradient.addColorStop(1, 'rgb(0, 0, 0)'); // End with black again
+    let gradientStep = parseFloat(document.getElementById('animSpeed').value); 
+
+    let colorStop1Position = Math.max(0, Math.min(1, (gradientOffset / canvasHeight)));
+    let colorStop2Position = Math.max(0, Math.min(1, (gradientOffset + canvasHeight) / canvasHeight));
+
+
+    gradient.addColorStop(colorStop1Position, 'rgb(255, 255, 255)'); // Middle to white
+    gradient.addColorStop(colorStop2Position, 'rgb(0, 0, 0)'); // End with black again
 
     pixelatedCtx.fillStyle = gradient;
     pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -120,7 +125,8 @@ function animateGradientSweep() {
     // Update the gradient offset based on the direction of the sweep
     if (isSweepingDown) {
         gradientOffset += gradientStep; // Move the gradient down
-        if (gradientOffset >= canvasHeight*1.2 ) {
+
+        if (gradientOffset >= canvasHeight) {
             isSweepingDown = false; // Change direction to up
         }
     } else {
@@ -129,6 +135,7 @@ function animateGradientSweep() {
             isSweepingDown = true; // Change direction to down
         }
     }
+
 }
 
 function drawSmileyFace() {

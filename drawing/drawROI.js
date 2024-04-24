@@ -6,6 +6,8 @@ import { bgSeg } from "./bgSeg.js";
 import { rotateCanvas, mirror, angle } from "../UIElements/videoOrientation.js";
 import { appVersion } from "../UIElements/skeletonVersion.js";
 const roi = document.getElementById("roi");
+const roiXOffset = document.getElementById("roiXOffset");
+const roiYOffset = document.getElementById("roiYOffset");
 
 let currentCenterX;
 let currentCenterY;
@@ -58,8 +60,7 @@ export function computeROI(video, canvas, ctx, person, i) {
     const width = appVersion === 'face' ? Math.abs(person.keypoints[8].x - person.keypoints[7].x) : Math.abs(person.keypoints[29].y - person.keypoints[0].y);
     
     let x = person.keypoints[0].x
-    const y = appVersion === 'face' ? person.keypoints[0].y: person.keypoints[24].y
-
+    const y = appVersion === 'face' ? person.keypoints[0].y: width/2
     const centerX = x
     const centerY = y
 
@@ -96,13 +97,13 @@ export function computeROI(video, canvas, ctx, person, i) {
         prevCenterX[i] = centerX;
     }
     
-    let deltaXThreshold = centeringLeeway.value * width; 
+    let deltaXThreshold = centeringLeeway.value * width  
 
     if (!animating) {
-        if (Math.abs(currentCenterX[i] - prevCenterX[i]) > deltaXThreshold) {
+        if ((Math.abs(currentCenterX[i] - prevCenterX[i] ) )  > deltaXThreshold) {
             animating = true;
-            let deltaX = centerX - currentCenterX[i];
-            let newValue = currentCenterX[i] + deltaX;
+            let deltaX = centerX - currentCenterX[i] + parseFloat(roiXOffset.value)*width;
+            let newValue = currentCenterX[i]  + deltaX 
 
             const numSteps = (centeringSpeed.max+1-centeringSpeed.value); // Adjust as needed
             let step = 0;
@@ -118,14 +119,14 @@ export function computeROI(video, canvas, ctx, person, i) {
                     currentCenterX[i] = newValue; // Set currentCenterX[i] to newValue
                     animating = false;
                 }
-            }, 5);
+            }, 30);
         }
 
         prevCenterX[i] = currentCenterX[i];
     }
 
     let adjustedCenterX = Math.min(canvas.width - w / 2, Math.max(w / 2, currentCenterX[i]));
-    let adjustedCenterY = Math.min(canvas.height - h / 2, Math.max(h / 2, centerY));
+    let adjustedCenterY = Math.min(canvas.height - h / 2, Math.max(h / 2, centerY+ parseFloat(roiYOffset.value)*width));
 
     let topLeftX = adjustedCenterX - w / 2;
     let topLeftY = adjustedCenterY - h / 2;
