@@ -102,12 +102,13 @@ async function setupCamera() {
    }
 
     try {
+        
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(device => device.kind === 'videoinput');
         const targetCameras = findTargetCameras(videoInputs); // Assuming findTargetCameras returns an array or false
         numCameras = targetCameras.length
-
         if (targetCameras) {
+            console.log(numCameras)
             const videoElements = numCameras === 1 ? [video0] : [video0, video1]; // Ensure video0 and video1 are defined and accessible here
             const streamPromises = targetCameras.map(async (camera, index) => {
                 const video = videoElements[index]; // Select the corresponding video element
@@ -140,6 +141,7 @@ async function setupCamera() {
 }
 
 function findTargetCameras(videoInputs) {
+    console.log('finding target caameras')
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
     const usbCameras = videoInputs.slice(0, 2);
     return usbCameras;
@@ -147,8 +149,9 @@ function findTargetCameras(videoInputs) {
 
 async function initializeVideoStream(deviceId, video) {
     const constraints = {
-        video: { audio: false, deviceId: { exact: deviceId }, width: { ideal: 1920 },  // Requesting a high width
-        height: { ideal: 1080 }  }
+        video: { audio: false, deviceId: { exact: deviceId }, 
+        width: { ideal: 1920/4 },  // Requesting a high width
+        height: { ideal: 1080/4 }  }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
 }
@@ -210,7 +213,6 @@ async function main() {
     ctx1.strokeStyle = 'white';
     ctx1.fillStyle = 'white';
     ctx1.globalAlpha = 0.9;
-
     [poseDetector0, poseDetector1] = await createPoseDetector();
     await initBgSegmenters()
     await setupCamera();

@@ -118,8 +118,8 @@ function calculateBrightness(video, person, sampleRate = 1) {
 
         ctx.beginPath();
 
-        const leftEar = person.keypoints[7]
-        const rightEar = person.keypoints[8]
+        const leftEar = person.keypoints[3]
+        const rightEar = person.keypoints[4]
         const nose = person.keypoints[0]
         const faceWidth = Math.abs(leftEar.x - rightEar.x);
         const midPointY = nose.y

@@ -1,34 +1,15 @@
-let typeBP = "heavy"; // lite, full, heavy
-let model = "MoveNet"; // MoveNet, BlazePose
+let model = "MoveNet"; // Model will always be "MoveNet"
 
 export async function createPoseDetector() {
-    let detectorConfig = {};
-    let chosenModel;
+    const detectorConfig = {
+        modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
+    };
 
-    switch (model) {
-        case "MoveNet":
-            chosenModel = poseDetection.SupportedModels.MoveNet;
-            detectorConfig = {
-                modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
-                enableSegmentation: true,
-            };
-            break;
-        case "BlazePose":
-            chosenModel = poseDetection.SupportedModels.BlazePose;
-            detectorConfig = {
-                runtime: 'mediapipe',
-                enableSegmentation: true,
-                solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
-                type: typeBP,
-                numPoses: 5
-            };
-            break;
-        default:
-            console.error("Unsupported model:", model);
-            return [];
-    }
+    // Create both pose detectors concurrently
+    const [poseDetector0, poseDetector1] = await Promise.all([
+        poseDetection.createDetector(poseDetection.SupportedModels[model], detectorConfig),
+        poseDetection.createDetector(poseDetection.SupportedModels[model], detectorConfig)
+    ]);
 
-    const poseDetector0 = await poseDetection.createDetector(chosenModel, detectorConfig);
-    const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
     return [poseDetector0, poseDetector1];
 }
