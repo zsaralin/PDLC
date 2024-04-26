@@ -1,6 +1,8 @@
-import { setDMXFromPixelCanvas } from "./dmx/dmx.js";
-import { updateCanvas } from "./drawing/updateCanvas.js";
-import { getPixelImageData } from "./drawing/pixelCanvasUtils.js";
+import { setDMXFromPixelCanvas } from "./dmx.js";
+import { updateCanvas } from "../drawing/updateCanvas.js";
+import { getPixelImageData } from "../drawing/pixelCanvasUtils.js";
+import {fadeToScreensaver} from "./fadeToScreensaver.js";
+import {resetGradientSweep} from "./screensaverModes.js";
 
 export let fade_dur = 1000;
 let switch_dur = 8000;
@@ -87,10 +89,16 @@ export function preDMX() {
             intervalId = setInterval(switchCameras, switch_dur); // Switch every 15 seconds
         }
     } else {
-        fadeCanvasToBlack(currentCamIndex)
-        if (intervalId !== null) {
-            clearInterval(intervalId);
-            intervalId = null;
+        if(!isBlack){
+            fadeCanvasToBlack(currentCamIndex)
+            resetGradientSweep()
+            if (intervalId !== null) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+        }
+        else{
+            fadeToScreensaver()
         }
     }
 }
@@ -167,7 +175,7 @@ function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) { // Adding 
 }
 
 let isBlack = false;
-function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
+function fadeCanvasToBlack(canvasIndex, duration = fade_dur, callback) {
     if (isBlack) return;
     isBlack = true;
     const canvas = offPixelCanvases[canvasIndex];
@@ -198,8 +206,13 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur) {
                 currentFrame++;
                 requestAnimationFrame(fadeStep);
             } else {
+                if (callback && typeof callback === 'function') {
+                    callback();  // Call the callback function once fading is complete
+                }
             }
+
         }
+
     };
 
     fadeStep();

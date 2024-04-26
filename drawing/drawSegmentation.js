@@ -34,15 +34,7 @@ export async function drawSegmentation(canvas, ctx, i) {
     offscreenCtx.restore();
     offscreenCtx.globalCompositeOperation = 'destination-in';
     offscreenCtx.drawImage(person.segmentation.mask.mask, 0, 0, canvas.width, canvas.height);
-    // Fade from black iteratively based on the frame calls
-    if (fadeFromBlack && currentAlpha > 0) {
-        offscreenCtx.fillStyle = `rgba(0, 0, 0, ${1-currentAlpha})`;
-        offscreenCtx.fillRect(0, 0, canvas.width, canvas.height);
-        currentAlpha -= fadeRate;
-        if (currentAlpha <= 0) {
-            fadeFromBlack = false; // Stop fading once fully transparent
-        }
-    }
+
     if (bgSeg.checked) {
         ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
     } else {

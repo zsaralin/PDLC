@@ -17,43 +17,13 @@ function callbackForVideo(segmentation, video, i, canvas, ctx, person) {
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     if (mirror) ctx.scale(-1, 1); // This flips the context horizontally
-
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    // if (bgSegCheckbox.checked) {
-    //     ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
-    // } else {
-    //     ctx.fillStyle = 'rgba(0,0,0,0)';
-    // }
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    //
-    // let offscreenCanvas = document.createElement('canvas');
-    // offscreenCanvas.width = video.videoWidth;
-    // offscreenCanvas.height = video.videoHeight;
-    // const offscreenCtx = offscreenCanvas.getContext('2d');
-    // offscreenCtx.save();
-    // offscreenCtx.translate(canvas.width / 2, canvas.height / 2);
-    // offscreenCtx.rotate(radians);
-    // offscreenCtx.translate(-canvas.width / 2, -canvas.height / 2);
-    // offscreenCtx.drawImage(video, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-    // offscreenCtx.restore();
-    // offscreenCtx.globalCompositeOperation = 'destination-in';
-    // offscreenCtx.drawImage(segmentation.mask.mask, 0, 0, video.videoWidth, video.videoHeight);
-    //
-    // // Fade from black iteratively based on the frame calls
-    // if (fadeFromBlack && currentAlpha > 0) {
-    //     offscreenCtx.fillStyle = `rgba(0, 0, 0, ${1-currentAlpha})`;
-    //     offscreenCtx.fillRect(0, 0, canvas.width, canvas.height);
-    //     currentAlpha -= fadeRate;
-    //     if (currentAlpha <= 0) {
-    //         fadeFromBlack = false; // Stop fading once fully transparent
-    //     }
-    // }
-    //
-    // ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+
     ctx.restore();
     // drawOuterRoi(canvas);
     computeROI(video, canvas, ctx, person, i);
+
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     if (mirror) ctx.scale(-1, 1);

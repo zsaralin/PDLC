@@ -8,7 +8,7 @@ import { drawDMXTest } from "./dmx/screensaverModes.js";
 import { setupFaceAPI } from './faceDetection/faceDetection.js';
 import { calculateFPS } from './UIElements/fps.js';
 import { setupPause } from './UIElements/pauseButton.js';
-import { setCam0, setCam1, preDMX } from './twoCam.js'
+import {setCam0, setCam1, preDMX, currentCamIndex} from './dmx/preDMX.js'
 import { createPoseDetector } from './faceDetection/poseDetection.js';
 import {predictWebcamB} from './drawing/bodyTracking.js';
 import { faceInFrame } from './faceDetection/poseDetectionChecks.js';
@@ -62,36 +62,27 @@ export async function detectVideo() {
         const poseDetections1 = await poseDetector1.estimatePoses(canvasWithOuterROI1)
         currentFaces1 = processDetection(poseDetections1, 1);
     }
+    if (currentFaces0) {
+        if(currentCamIndex === 0) {
+            ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+            predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
+        }
+        setCam0(true);
 
-    if(!currentFaces0 || (numCameras > 1 && !currentFaces1)){
-        if(!currentFaces0){
-            setCam0(false);
-        } else if(numCameras > 1 && !currentFaces1){
-            setCam1(false)
+    } else {
+        ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+        setCam0(false);
+    } if (currentFaces1 ) {
+        if(currentCamIndex === 1) {
+            ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1)
         }
-        fadeToScreensaver()
-    } else { 
-        if(isScreensaver){
-            fadeToFace()
-        } else{
-            if (currentFaces0) {
-                ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-                predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
-                setCam0(true);
-            } else {
-                ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
-                setCam0(false);
-            } if (currentFaces1 ) {
-                ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-                predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1)
-                setCam1(true);
-            } else {
-                ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
-                setCam1(false);
-            }
-        }
+        setCam1(true);
+    } else {
+        ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        setCam1(false);
     }
- 
+
     preDMX()
     requestAnimationFrame(() => detectVideo());
 }
@@ -143,15 +134,15 @@ async function setupCamera() {
 function findTargetCameras(videoInputs) {
     console.log('finding target caameras')
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
-    const usbCameras = videoInputs.slice(0, 2);
+    const usbCameras = videoInputs.slice(0, 1);
     return usbCameras;
 }
 
 async function initializeVideoStream(deviceId, video) {
     const constraints = {
         video: { audio: false, deviceId: { exact: deviceId }, 
-        width: { ideal: 1920/4 },  // Requesting a high width
-        height: { ideal: 1080/4 }  }
+        width: { ideal: 1920/5 },  // Requesting a high width
+        height: { ideal: 1080/5 }  }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
 }

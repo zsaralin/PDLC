@@ -15,7 +15,7 @@ const centeringSpeed = document.getElementById('centeringSpeed')
 const filterFreq = 30, minCutoff = .0001, beta = 0.01, dCutoff = 5;
 
 const filter =
-    [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq, 0.1, 0, dCutoff)]
+    [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq,  minCutoff, beta, dCutoff)]
 
 const filterCanvases = [], filterCtxs = [];
 for (let i = 0; i < 2; i++) {
@@ -125,7 +125,6 @@ async function drawROI(x, y, video, ctx, index, width, height) {
     ctx.beginPath();
     filterCtxs[index].drawImage(video, x, y, width, height, 0, 0, filterCanvases[index].width, filterCanvases[index].height);
     ctx.strokeStyle = "blue";
-    ctx.lineWidth = 3;
     ctx.rect(x, y, width, height);
     ctx.stroke();
     ctx.closePath();

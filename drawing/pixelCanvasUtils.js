@@ -1,6 +1,6 @@
 import { updateCanvas } from "./updateCanvas.js";
 import {imgCol, imgRow} from "../dmx/imageRatio.js";
-import { sendPixelCanvas } from "../twoCam.js";
+import { sendPixelCanvas } from "../dmx/preDMX.js";
 import {drawSegmentation} from "./drawSegmentation.js";
 const pixelatedCanvases = [];
 const pixelatedCtxs = [];
