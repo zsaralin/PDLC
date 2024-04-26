@@ -6,8 +6,8 @@ export function faceInFrame(person) {
             return false; 
         }
         const nose = person.keypoints[0];
-        const leftEar = person.keypoints[7];
-        const rightEar = person.keypoints[8];
+        const leftEar = person.keypoints[3];
+        const rightEar = person.keypoints[4];
         const faceWidth = Math.abs(leftEar.x - rightEar.x);
 
         const faceLeftX = nose.x - faceWidth / 2;
@@ -35,8 +35,8 @@ export function isFacingForward(person) {
     }
 
     const nose = person.keypoints[0];
-    const leftEar = person.keypoints[7];
-    const rightEar = person.keypoints[8];
+    const leftEar = person.keypoints[3];
+    const rightEar = person.keypoints[4];
     if (!nose || !leftEar || !rightEar) {
         return false;
     }
@@ -50,21 +50,10 @@ export function isFacingForward(person) {
 
     const normalizedAngle = Math.abs(angle); // This normalizes the angle to positive values only
 
-    const forwardAngleRange = 10; // Allowable angle range in degrees to still be considered facing forward
+    const minForwardAngle = 10;  // Minimum allowable angle in degrees to still be considered facing forward
+    const maxForwardAngle = 170; // Maximum allowable angle in degrees to still be considered facing forward
 
-    return !(normalizedAngle <= forwardAngleRange || normalizedAngle >= 170);
-}
-
-export function isEyeDistanceAboveThresholdFace(person) {
-    if (!person.keypoints) {
-        return false;
-    }
-    const leftEye = person.keypoints[0]; // Adjust index as needed
-    const rightEye = person.keypoints[1]; // Adjust index as needed
-
-    const distance = Math.sqrt(Math.pow(rightEye.x - leftEye.x, 2) + Math.pow(rightEye.y - leftEye.y, 2));
-    const thres = document.getElementById('minEyeDist').value;
-    return distance > thres;
+    return normalizedAngle >= minForwardAngle && normalizedAngle <= maxForwardAngle;
 }
 
 export function isEyeDistanceAboveThresholdBody(person) {

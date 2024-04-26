@@ -1,6 +1,5 @@
 import { drawDMXTest, getScreensaverCanvas } from "./screensaverModes.js";
 import { currentCamIndex, getPixelCanvases } from "../twoCam.js";
-import { updateCanvas } from "../drawing/drawROI.js";
 import { setDMXFromPixelCanvas } from "./dmx.js";
 import { getPixelImageData } from "../drawing/pixelCanvasUtils.js";
 import { resetGradientSweep } from "./screensaverModes.js";

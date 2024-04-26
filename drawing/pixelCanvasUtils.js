@@ -1,7 +1,7 @@
-import { updateCanvas } from "./drawROI.js";
+import { updateCanvas } from "./updateCanvas.js";
 import {imgCol, imgRow} from "../dmx/imageRatio.js";
-import { getTransformedImageData } from "../UIElements/videoOrientation.js";
 import { sendPixelCanvas } from "../twoCam.js";
+import {drawSegmentation} from "./drawSegmentation.js";
 const pixelatedCanvases = [];
 const pixelatedCtxs = [];
 
@@ -22,17 +22,18 @@ function createPixelCanv() {
     sendPixelCanvas(pixelatedCanvases);
 }
 
-export function updatePixelatedCanvas(filterCanvas, filterCtx, i) {
+export async function updatePixelatedCanvas(filterCanvas, filterCtx, i) {
     pixelatedCanvases[i].width = imgCol;
     pixelatedCanvases[i].height = imgRow;
     const cellWidth = filterCanvas.width / imgCol;
     const cellHeight = filterCanvas.height / imgRow;
-    if(!filterCtx || cellWidth <1||  cellHeight < 1 ) return
+    if (!filterCtx || cellWidth < 1 || cellHeight < 1) return
     pixelatedCtxs[i].drawImage(filterCanvas, 0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
+
     const croppedImageData = pixelatedCanvases[i].toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, i);
 }
 
 export function getPixelImageData(i){
-    return getTransformedImageData(pixelatedCanvases[i], pixelatedCtxs[i])
+    return pixelatedCtxs[i].getImageData(0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
 }

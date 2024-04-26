@@ -31,17 +31,17 @@ export async function setDMXFromPixelCanvas(imageData) {
         brightnessValues.push(rowBrightness);
     }
     updateDMXGrid(brightnessValues);
-        fetch(`${SERVER_URL}/set-dmx`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                dmxValues: brightnessValues // Your DMX values here
-            })
-        })
-            .then(response => response.json())
-            .catch(error => console.error('Error:', error));
+    //     fetch(`${SERVER_URL}/set-dmx`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             dmxValues: brightnessValues // Your DMX values here
+    //         })
+    //     })
+    //         .then(response => response.json())
+    //         .catch(error => console.error('Error:', error));
 
 }
 

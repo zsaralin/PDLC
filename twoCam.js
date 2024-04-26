@@ -1,5 +1,5 @@
 import { setDMXFromPixelCanvas } from "./dmx/dmx.js";
-import { updateCanvas } from "./drawing/drawROI.js";
+import { updateCanvas } from "./drawing/updateCanvas.js";
 import { getPixelImageData } from "./drawing/pixelCanvasUtils.js";
 
 export let fade_dur = 1000;

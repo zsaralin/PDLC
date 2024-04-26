@@ -1,7 +1,7 @@
-let typeBP = "heavy"; // lite, full, heavy
-let model = "MoveNet"; // MoveNet, BlazePose
+let typeBP = "lite"; // lite, full, heavy
+export let model = "BlazePose"; // MoveNet, BlazePose
 
-export async function createPoseDetector() {
+export async function createBackgroundSegmenter() {
     let detectorConfig = {};
     let chosenModel;
 
@@ -9,8 +9,7 @@ export async function createPoseDetector() {
         case "MoveNet":
             chosenModel = poseDetection.SupportedModels.MoveNet;
             detectorConfig = {
-                modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
-                enableSegmentation: true,
+                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
             };
             break;
         case "BlazePose":
@@ -20,7 +19,6 @@ export async function createPoseDetector() {
                 enableSegmentation: true,
                 solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
                 type: typeBP,
-                numPoses: 5
             };
             break;
         default:

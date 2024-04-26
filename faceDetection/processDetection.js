@@ -7,7 +7,7 @@ export function processDetection(data, i) {
     if (!detectionState[i]) {
         detectionState[i] = { counter: 0, lastStatus: null };
     }
-    const threshold = 10; // Threshold for switching from null to not null and vice versa
+    const threshold = 50; // Threshold for switching from null to not null and vice versa
     let currentState = data.length > 0  ? 'DATA' : 'NODATA';
 
     if (currentState === 'DATA' && !additionalChecks(data)) {

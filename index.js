@@ -10,11 +10,13 @@ import { calculateFPS } from './UIElements/fps.js';
 import { setupPause } from './UIElements/pauseButton.js';
 import { setCam0, setCam1, preDMX } from './twoCam.js'
 import { createPoseDetector } from './faceDetection/poseDetection.js';
-import { startBodySegmenter, predictWebcamB } from './drawing/bodyTracking.js';
+import {predictWebcamB} from './drawing/bodyTracking.js';
 import { faceInFrame } from './faceDetection/poseDetectionChecks.js';
 import { angle } from './UIElements/videoOrientation.js';
 import { fadeToScreensaver, isScreensaver , fadeToFace} from './dmx/fadeToScreensaver.js';
 import { setScreensaverStatus } from './dmx/fadeToScreensaver.js';
+import {createBackgroundSegmenter} from "./faceDetection/backgroundSegmenter.js";
+import {drawSegmentation, initBgSegmenters} from "./drawing/drawSegmentation.js";
 
 let currentFaces0 = null; // Global variable to hold the latest face detection results
 let currentFaces1 = null;
@@ -29,6 +31,7 @@ const ctxWithOuterROI1 = canvasWithOuterROI1.getContext('2d');
 
 let faceDetector0; let faceDetector1;
 let poseDetector0; let poseDetector1;
+
 let video0; let video1;
 let canvas0; let canvas1;
 let numCameras;
@@ -50,6 +53,7 @@ export async function detectVideo() {
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
     const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
     currentFaces0 = processDetection(poseDetections0, 0);
+    // await drawSegmentation()
     if (numCameras === 2) {
         calculateFPS(1)
         document.getElementById('video-container2').style.display = "block"
@@ -168,7 +172,7 @@ async function initializeVideo(video) {
     video0.play();
     initOuterRoi(video0);
     monitorBrightness(video0, 0);
-    await startBodySegmenter(video0, canvas0, 0);
+    // await startBodySegmenter(video0, canvas0, 0);
     if (numCameras > 1) {
         canvas1.width = video1.videoWidth;
         canvas1.height = video1.videoHeight;
@@ -177,7 +181,7 @@ async function initializeVideo(video) {
         video1.play();
         initOuterRoi(video1);
         monitorBrightness(video1, 1);
-        await startBodySegmenter(video1, canvas1, 1);
+        // await startBodySegmenter(video1, canvas1, 1);
 
     }
 
@@ -207,8 +211,8 @@ async function main() {
     ctx1.fillStyle = 'white';
     ctx1.globalAlpha = 0.9;
 
-    // [faceDetector0, faceDetector1] = await setupFaceAPI();
-    [poseDetector0, poseDetector1] = await createPoseDetector()
+    [poseDetector0, poseDetector1] = await createPoseDetector();
+    await initBgSegmenters()
     await setupCamera();
 }
 window.onload = main;

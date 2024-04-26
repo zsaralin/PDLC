@@ -1,185 +1,133 @@
 import OneEuroFilter from "./euroFilter.js";
+
 const lag = document.getElementById('lag');
-import { applyFilters } from "../filters/applyFilters.js";
-import { imgRatio } from "../dmx/imageRatio.js";
-import { rotateCanvas, mirror, angle } from "../UIElements/videoOrientation.js";
-import { appVersion } from "../UIElements/appVersionHandler.js";
+import {applyFilters} from "../filters/applyFilters.js";
+import {imgRatio} from "../dmx/imageRatio.js";
+import {rotateCanvas, mirror, angle} from "../UIElements/videoOrientation.js";
+import {appVersion} from "../UIElements/appVersionHandler.js";
+import {createBackgroundSegmenter} from "../faceDetection/backgroundSegmenter.js";
+
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
 const roiYOffset = document.getElementById("roiYOffset");
-
-let currentCenterX;
-let currentCenterY;
-let previousCenterX;
-let previousCenterY;
-
 const centeringLeeway = document.getElementById('centeringLeeway')
 const centeringSpeed = document.getElementById('centeringSpeed')
-const filterFreq = 60; // Frequency of incoming data, in Hz
-const minCutoff = 1.0; // Minimum cutoff frequency
-const beta = 0.01; // Beta parameter
-const dCutoff = 1.0; // Derivative cutoff frequency
+const filterFreq = 30, minCutoff = .0001, beta = 0.01, dCutoff = 5;
 
-const filterX =
-    [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff)];
-const filterY =
-    [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff)];
-const filterZ =
-    [new OneEuroFilter(filterFreq, 0.1, 0, dCutoff), new OneEuroFilter(filterFreq, 0.1, 0, dCutoff)]
+const filter =
+    [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq, 0.1, 0, dCutoff)]
 
-const filterCanvases = [];
-const filterCtxs = [];
-
-// Create the canvases and their contexts, then store them in the arrays
+const filterCanvases = [], filterCtxs = [];
 for (let i = 0; i < 2; i++) {
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     canvas.width = 50;
-    canvas.height = canvas.width * (1 / imgRatio)
+    canvas.height = canvas.width * (1 / imgRatio);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     filterCanvases.push(canvas);
     filterCtxs.push(ctx);
 }
 
+let adjustedCenterX, adjustedCenterY;
+let topLeftX = [null, null], topLeftY = [null, null];
+
+
 let animating = false;
 
+
 export function computeROI(video, canvas, ctx, person, i) {
-    if (!currentCenterX || !currentCenterY || !previousCenterX || !previousCenterY) {
-        currentCenterX = [roi.value / 2, roi.value / 2];
-        currentCenterY = [roi.value / 2, roi.value / 2]
-        previousCenterX = [roi.value / 2, roi.value / 2]
-        previousCenterY = [roi.value / 2, roi.value / 2]
+    if (!adjustedCenterX || !adjustedCenterY) {
+        adjustedCenterX = [roi.value / 2, roi.value / 2];
+        adjustedCenterY = [roi.value / 2, roi.value / 2]
     }
-    if (!filterCtxs[i]) return;
-    const width = appVersion === 'face' ? Math.abs(person.keypoints[8].x - person.keypoints[7].x) : Math.abs(person.keypoints[29].y - person.keypoints[0].y);
-    
-    let x = person.keypoints[0].x
-    const y = appVersion === 'face' ? person.keypoints[0].y: width/2
-    const centerX = x
-    const centerY = y
 
     let timestamp = Date.now()
-    let smoothedWidth = filterZ[i].filter(width, timestamp);
 
-    let w = smoothedWidth * roi.value * imgRatio; 
-    let h =  smoothedWidth * roi.value;
-    let canvasAspectRatio = canvas.width / canvas.height;
+    const bbWidth = appVersion === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : Math.abs(person.keypoints[29].y - person.keypoints[0].y);
 
-    let roiAspectRatio = w / h;
+    const currCenterX = person.keypoints[0].x
+    const currCenterY = appVersion === 'face' ? person.keypoints[0].y : bbWidth / 2
 
-    w = (roiAspectRatio > canvasAspectRatio) ? 
-    (w > canvas.width ? canvas.width : w) :
-    (h > canvas.height ? canvas.height * imgRatio : w);
-    h = (roiAspectRatio > canvasAspectRatio) ? w / imgRatio : h;
+    let smoothedWidth = filter[i].filter(bbWidth, timestamp);
+    const {roiW, roiH} = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
 
-    w = (w > canvas.width) ? canvas.width : w;
-    h = (h > canvas.height) ? canvas.height : h;
+    let deltaThreshold = centeringLeeway.value * bbWidth
 
-    if (w < canvas.width && roiAspectRatio > canvasAspectRatio) {
-        h = w / imgRatio;
+    if (!animating && (Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold))  {
+        animatePosition(i, bbWidth, currCenterX, currCenterY, true, roiW, roiH, canvas)
     }
-
-    if (h < canvas.height && roiAspectRatio <= canvasAspectRatio) {
-        w = h * imgRatio;
-    }
-
-    if (typeof prevCenterX === 'undefined') {
-        var prevCenterX = []; 
-    }
-
-    if (prevCenterX[i] === undefined) {
-        prevCenterX[i] = centerX;
-    }
-    
-    let deltaXThreshold = centeringLeeway.value * width  
-
-    if (!animating) {
-        if ((Math.abs(currentCenterX[i] - prevCenterX[i] ) )  > deltaXThreshold) {
-            animating = true;
-            let deltaX = centerX - currentCenterX[i] + parseFloat(roiXOffset.value)*width;
-            let newValue = currentCenterX[i]  + deltaX 
-
-            const numSteps = (centeringSpeed.max+1-centeringSpeed.value); // Adjust as needed
-            let step = 0;
-
-            const increment = deltaX / numSteps;
-
-            const intervalId = setInterval(() => {
-                currentCenterX[i] += increment; // Update currentCenterX[i] by the increment
-                step++;
-
-                if (step >= numSteps) {
-                    clearInterval(intervalId); // Clear the interval
-                    currentCenterX[i] = newValue; // Set currentCenterX[i] to newValue
-                    animating = false;
-                }
-            }, 30);
-        }
-
-        prevCenterX[i] = currentCenterX[i];
-    }
-
-    let adjustedCenterX = Math.min(canvas.width - w / 2, Math.max(w / 2, currentCenterX[i]));
-    let adjustedCenterY = Math.min(canvas.height - h / 2, Math.max(h / 2, centerY+ parseFloat(roiYOffset.value)*width));
-
-    let topLeftX = adjustedCenterX - w / 2;
-    let topLeftY = adjustedCenterY - h / 2;
-    if (mirror) {
-        topLeftX = canvas.width - topLeftX - w;
-        topLeftX = Math.max(0, Math.min(canvas.width - w, topLeftX));
-    }
-    drawROI(topLeftX, topLeftY, canvas, ctx, i, w, h);
+    setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
+    drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
     applyFilters(filterCanvases[i], filterCtxs[i], person, i)
+
 }
 
-function drawROI(x, y, video, ctx, i, w, h) {
+function setTopLeft(i, roiW, roiH, canvas){
+    topLeftX[i] = adjustedCenterX[i] - roiW / 2;
+    topLeftY[i] =  adjustedCenterY[i] - roiH / 2;
+    if (mirror) {
+        topLeftX[i] = canvas.width - (topLeftX[i] + roiW);  // Calculate mirrored position
+    }
+    topLeftX[i] = Math.max(0, Math.min(topLeftX[i], canvas.width - roiW));
+    topLeftY[i] = Math.max(0, Math.min(topLeftY[i], canvas.height - roiH));
+}
+
+function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
+    let roiW = smoothedWidth * roiValue * imgRatio;
+    let roiH = smoothedWidth * roiValue;
+
+    // Adjust dimensions based on aspect ratio
+    const canvasAspectRatio = canvas.width / canvas.height;
+    let roiAspectRatio = roiW / roiH;
+
+    if (roiAspectRatio > canvasAspectRatio) {
+        roiW = Math.min(roiW, canvas.width);
+        roiH = roiW / imgRatio;
+    } else {
+        roiH = Math.min(roiH, canvas.height);
+        roiW = roiH * imgRatio;
+    }
+
+    return {roiW, roiH};
+}
+function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
+    if (!animating) {
+        animating = true;  // Set the global animation flag to true
+
+        let offsetX = parseFloat(roiXOffset.value) * bbWidth;
+        let offsetY = parseFloat(roiYOffset.value) * bbWidth;
+        let deltaX = centerX - adjustedCenterX[i] + offsetX;
+        let deltaY = centerY - adjustedCenterY[i] + offsetY;
+        let newCenterX = adjustedCenterX[i] + deltaX;
+        let newCenterY = adjustedCenterY[i] + deltaY;
+
+        const numSteps = (centeringSpeed.max + 1 - centeringSpeed.value);
+        let step = 0;
+        const incrementX = deltaX / numSteps;
+        const incrementY = deltaY / numSteps;
+
+        const intervalId = setInterval(() => {
+            adjustedCenterX[i] += incrementX;  // Update the current centerX position
+            adjustedCenterY[i] += incrementY;  // Update the current centerY position
+            step++;
+
+            if (step >= numSteps) {
+                clearInterval(intervalId);  // Stop the animation when done
+                adjustedCenterX[i] = newCenterX;  // Set the final centerX position
+                adjustedCenterY[i] = newCenterY;  // Set the final centerY position
+                animating = false;  // Reset the global animation flag
+            }
+
+        }, 30);
+    }
+}
+
+async function drawROI(x, y, video, ctx, index, width, height) {
     ctx.beginPath();
-    filterCtxs[i].drawImage(
-        video,
-        x,
-        y,
-        w,
-        h,
-        0,
-        0,
-        filterCanvases[i].width,
-        filterCanvases[i].height
-    );
-    ctx.strokeStyle = "blue"
-    ctx.lineWidth = 3
-    ctx.rect(
-        x,
-        y,
-        w,
-        h
-    );
-    ctx.stroke()
+    filterCtxs[index].drawImage(video, x, y, width, height, 0, 0, filterCanvases[index].width, filterCanvases[index].height);
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 3;
+    ctx.rect(x, y, width, height);
+    ctx.stroke();
     ctx.closePath();
-    ctx.strokeStyle = "white"
-}
-
-const classNames = ['pixel-canvas', 'gray-canvas', 'cropped-canvas'];
-const dict = {};
-
-classNames.forEach(className => {
-    const elements = document.querySelectorAll(`.${className}`);
-    if (elements.length) {
-        dict[className] = Array.from(elements).map(el => el.getContext('2d', { willReadFrequently: 'true' }));
-    }
-});
-
-export function updateCanvas(canvasId, croppedImageData, i) {
-    const ctx = dict[canvasId][i];
-    if (ctx) {
-        const img = new Image();
-        img.src = croppedImageData;
-        img.onload = () => {
-            let drawWidth = 100; 
-            let drawHeight = drawWidth / imgRatio;
-
-            ctx.canvas.width = drawWidth;
-            ctx.canvas.height = drawHeight;
-
-            ctx.drawImage(img, 0, 0, drawWidth, drawHeight);
-        };
-    }
+    ctx.strokeStyle = "white";
 }

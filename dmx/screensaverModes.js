@@ -1,4 +1,4 @@
-import {updateCanvas} from "../drawing/drawROI.js";
+import {updateCanvas} from "../drawing/updateCanvas.js";
 import {setDMXFromPixelCanvas} from "./dmx.js";
 import {imgCol, imgRow} from "./imageRatio.js";
 

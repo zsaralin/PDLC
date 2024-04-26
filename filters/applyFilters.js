@@ -10,7 +10,8 @@ import { edge, sharpeningFilter } from "./edgeDetection/sharpenFilter.js";
 import {sobel, sobelED} from './edgeDetection/sobelEdge.js'
 import {robert, robertED} from './edgeDetection/robertsEdge.js'
 import { updatePixelatedCanvas } from "../drawing/pixelCanvasUtils.js";
-import { updateCanvas } from "../drawing/drawROI.js";
+import { updateCanvas } from "../drawing/updateCanvas.js";
+import {drawSegmentation} from "../drawing/drawSegmentation.js";
 const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
 const grayscaleMapSlider = document.getElementById('grayscaleMapSlider');
@@ -54,7 +55,7 @@ sliders.forEach(slider => {
 
 handleSliderChange()
 
-export function applyFilters(filterCanvas, filterCtx, person, i) {
+export async function applyFilters(filterCanvas, filterCtx, person, i) {
     for (const [id, values] of Object.entries(sliderValues)) {
         if (id === 'gamma' || id === 'contrast') {
             if (values !== 1) {
@@ -95,7 +96,6 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
 
     const croppedGrayscale = filterCanvas.toDataURL('image/png');
     updateCanvas('gray-canvas', croppedGrayscale, i);
-
     const listItems = functionOrderList.children;
 
     for (const listItem of listItems) {
@@ -120,8 +120,8 @@ export function applyFilters(filterCanvas, filterCtx, person, i) {
                 break;
         }
     }
-
     const croppedImageData = filterCanvas.toDataURL('image/png');
     updateCanvas('cropped-canvas', croppedImageData, i);
+    await drawSegmentation(filterCanvas, filterCtx, i)
     updatePixelatedCanvas(filterCanvas, filterCtx, i);
 }
