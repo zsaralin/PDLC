@@ -23,7 +23,9 @@ export function fadeToScreensaver() {
     //     }, fade_dur);
     // } else if (isScreensaver && !isFading){
     isScreensaver = true;
-    drawDMXTest()
+    requestAnimationFrame(drawDMXTest);
+
+    // drawDMXTest()
 }
 export function fadeToFace() {
     const canvas = getScreensaverCanvas()

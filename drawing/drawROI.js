@@ -54,6 +54,8 @@ export function computeROI(video, canvas, ctx, person, i) {
 
     if (!animating && (Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold))  {
         animatePosition(i, bbWidth, currCenterX, currCenterY, true, roiW, roiH, canvas)
+    } else if((Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold)){
+
     }
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
@@ -89,6 +91,8 @@ function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
 
     return {roiW, roiH};
 }
+
+let currAnimInterval;
 function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
     if (!animating) {
         animating = true;  // Set the global animation flag to true
@@ -105,19 +109,20 @@ function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
         const incrementX = deltaX / numSteps;
         const incrementY = deltaY / numSteps;
 
-        const intervalId = setInterval(() => {
-            adjustedCenterX[i] += incrementX;  // Update the current centerX position
-            adjustedCenterY[i] += incrementY;  // Update the current centerY position
-            step++;
-
-            if (step >= numSteps) {
-                clearInterval(intervalId);  // Stop the animation when done
-                adjustedCenterX[i] = newCenterX;  // Set the final centerX position
-                adjustedCenterY[i] = newCenterY;  // Set the final centerY position
-                animating = false;  // Reset the global animation flag
+        function stepAnimation() {
+            if (step < numSteps) {
+                adjustedCenterX[i] += incrementX;
+                adjustedCenterY[i] += incrementY;
+                step++;
+                requestAnimationFrame(stepAnimation);
+            } else {
+                adjustedCenterX[i] = newCenterX;
+                adjustedCenterY[i] = newCenterY;
+                animating = false;
             }
+        }
 
-        }, 30);
+        requestAnimationFrame(stepAnimation);
     }
 }
 
