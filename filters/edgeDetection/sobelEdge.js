@@ -28,7 +28,6 @@ export function sobelED(canvas) {
     const data = imageData.data;
     // Create a copy of the image data to work on
     const copyData = new Uint8ClampedArray(data);
-    console.log(sobelEdgeStrength.value +  ' here!!!!!! ')
     const width = canvas.width;
     const height = canvas.height;
 

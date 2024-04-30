@@ -27,18 +27,26 @@ for (let i = 0; i < 2; i++) {
     filterCtxs.push(ctx);
 }
 
-let adjustedCenterX, adjustedCenterY;
 let topLeftX = [null, null], topLeftY = [null, null];
 
+let animating = [];  // Or use an object if index 'i' is non-sequential
 
-let animating = false;
+let adjustedCenterX = [];
+let adjustedCenterY = [];
+let lastCenterX = [];
+let lastCenterY = [];
+let currentAnimationId = [];
+const significantMovePercentage = 0.10; // 10% of the bounding box width
 
-
+for (let i = 0; i < 2; i++) {
+    animating[i] = false;
+    adjustedCenterX[i] = 0; // Initial position, adjust as needed
+    adjustedCenterY[i] = 0; // Initial position, adjust as needed
+    lastCenterX[i] = 0; // Initial position, adjust as needed
+    lastCenterY[i] = 0; // Initial position, adjust as needed
+    currentAnimationId[i] = null;
+}
 export function computeROI(video, canvas, ctx, person, i) {
-    if (!adjustedCenterX || !adjustedCenterY) {
-        adjustedCenterX = [roi.value / 2, roi.value / 2];
-        adjustedCenterY = [roi.value / 2, roi.value / 2]
-    }
 
     let timestamp = Date.now()
 
@@ -52,10 +60,8 @@ export function computeROI(video, canvas, ctx, person, i) {
 
     let deltaThreshold = centeringLeeway.value * bbWidth
 
-    if (!animating && (Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold))  {
-        animatePosition(i, bbWidth, currCenterX, currCenterY, true, roiW, roiH, canvas)
-    } else if((Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold)){
-
+    if (!animating[i] && (Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold)) {
+        animatePosition(i, bbWidth, currCenterX, currCenterY, roiW, roiH, canvas);
     }
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
@@ -92,29 +98,40 @@ function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
     return {roiW, roiH};
 }
 
-let currAnimInterval;
 function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
+    let offsetX = parseFloat(roiXOffset.value) * bbWidth;
+    let offsetY = parseFloat(roiYOffset.value) * bbWidth;
+    let deltaX = centerX - adjustedCenterX[i] + offsetX;
+    let deltaY = centerY - adjustedCenterY[i] + offsetY;
+    let newCenterX = adjustedCenterX[i] + deltaX;
+    let newCenterY = adjustedCenterY[i] + deltaY;
+
+    // Calculate the significant move threshold as a percentage of the bounding box width
+    let significantMoveThreshold = bbWidth * significantMovePercentage;
+
+    // Determine if a significant move has occurred
+    if (animating && (Math.abs(newCenterX - lastCenterX[i]) > significantMoveThreshold || Math.abs(newCenterY - lastCenterY[i]) > significantMoveThreshold)) {
+        // Reset the animation if the target has moved significantly
+        cancelAnimationFrame(currentAnimationId[i]); // Assuming currentAnimationId[i] is tracked
+        animating = false; // Allow the animation to restart
+    }
+
     if (!animating) {
         animating = true;  // Set the global animation flag to true
-
-        let offsetX = parseFloat(roiXOffset.value) * bbWidth;
-        let offsetY = parseFloat(roiYOffset.value) * bbWidth;
-        let deltaX = centerX - adjustedCenterX[i] + offsetX;
-        let deltaY = centerY - adjustedCenterY[i] + offsetY;
-        let newCenterX = adjustedCenterX[i] + deltaX;
-        let newCenterY = adjustedCenterY[i] + deltaY;
-
         const numSteps = (centeringSpeed.max + 1 - centeringSpeed.value);
         let step = 0;
         const incrementX = deltaX / numSteps;
         const incrementY = deltaY / numSteps;
+
+        lastCenterX[i] = newCenterX; // Update last known target X position
+        lastCenterY[i] = newCenterY; // Update last known target Y position
 
         function stepAnimation() {
             if (step < numSteps) {
                 adjustedCenterX[i] += incrementX;
                 adjustedCenterY[i] += incrementY;
                 step++;
-                requestAnimationFrame(stepAnimation);
+                currentAnimationId[i] = requestAnimationFrame(stepAnimation);
             } else {
                 adjustedCenterX[i] = newCenterX;
                 adjustedCenterY[i] = newCenterY;
@@ -122,7 +139,7 @@ function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
             }
         }
 
-        requestAnimationFrame(stepAnimation);
+        currentAnimationId[i] = requestAnimationFrame(stepAnimation);
     }
 }
 
