@@ -35,6 +35,7 @@ export function setupSidePanel() {
     createSliderComponent('exposureComp');
     createSliderComponent('exposureTime');
     createSliderComponent('cellSize', updateCellSize);
+    createSliderComponent('resetInterval');
 
     createSliderComponent('roi');
     createSliderComponent('roiXOffset');

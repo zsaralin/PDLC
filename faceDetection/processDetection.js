@@ -2,9 +2,9 @@ import { faceInFrame, isFacingForward , isEyeDistanceAboveThresholdBody} from ".
 
 export let activeFaces = []
 let detectionState = []; // Array of objects to track state and counter for each index
-const updateInterval = 5 * 60 * 1000; // 5 minutes in milliseconds
-
+const resetIntervalSlider = document.getElementById('resetInterval')
 export function processDetection(data, i) {
+    const resetInterval = resetIntervalSlider.value * 60 * 1000; // 5 minutes in milliseconds
     if (!detectionState[i]) {
         detectionState[i] = { counter: 0, lastStatus: null, lastChanged: Date.now() };
     }
@@ -17,11 +17,12 @@ export function processDetection(data, i) {
 
     if (currentState === detectionState[i].lastStatus) {
         detectionState[i].counter++;
-        if (currentState === 'DATA' && (Date.now() - detectionState[i].lastChanged) > updateInterval) {
+        if (currentState === 'DATA' && (Date.now() - detectionState[i].lastChanged) > resetInterval) {
             currentState = 'NODATA';
             detectionState[i].lastStatus = 'NODATA';
             detectionState[i].lastChanged = Date.now();  // Reset the timer
             detectionState[i].counter = 0;
+            activeFaces[i] = getLargestFace(data)
         }
     } else {
         detectionState[i].counter = 1;
@@ -51,7 +52,53 @@ export function processDetection(data, i) {
     return activeFaces[i];
 }
 
+function calculateScale(keypoints) {
+    if (!keypoints) return 10000; // Default scale if no keypoints are available
+    // Calculate scale, e.g., by finding the bounding box area
+    let minX = Math.min(...keypoints.map(k => k.x));
+    let maxX = Math.max(...keypoints.map(k => k.x));
+    let minY = Math.min(...keypoints.map(k => k.y));
+    let maxY = Math.max(...keypoints.map(k => k.y));
+    return (maxX - minX) * (maxY - minY);
+}
+function calculateOKS(activeKeypoints, personKeypoints, scale) {
+    let sumOKS = 0;
+    let visibleCount = 0;
 
+    activeKeypoints.forEach((activePoint, index) => {
+        if (activePoint.v > 0 && index < personKeypoints.length) {
+            const personPoint = personKeypoints[index];
+            if (personPoint.v > 0) {
+                const dx = activePoint.x - personPoint.x;
+                const dy = activePoint.y - personPoint.y;
+                const distanceSquared = dx * dx + dy * dy;
+                const keypointScale = scale * 2; // No need for kValues
+                sumOKS += Math.exp(-distanceSquared / keypointScale) * (personPoint.v > 0);
+                visibleCount++;
+            }
+        }
+    });
+
+    return visibleCount > 0 ? sumOKS / visibleCount : 0;
+}
+
+function getLargestFace(data) {
+    let largestPerson = null;
+    let maxDistance = -1;
+
+    // Iterate over each person to calculate the face width and find the largest
+    for (const person of data) {
+        if (person.keypoints[3] && person.keypoints[4]) {
+            const distance = Math.abs(person.keypoints[4].x - person.keypoints[3].x);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                largestPerson = person;
+            }
+        }
+    }
+
+    return largestPerson;
+}
 function calculateKeyPointsDistance(keypoints1, keypoints2) {
     let totalDistance = 0;
     let validPointsCount = 0;

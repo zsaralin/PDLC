@@ -1,7 +1,7 @@
 import { clearCanvas, drawFaces } from './drawing/drawFaces.js'
 import { processDetection } from "./faceDetection/processDetection.js";
 import { setupSidePanel } from "./UIElements/sidePanel.js";
-import { changeOrientation, rotateCanvas } from "./UIElements/videoOrientation.js";
+import { changeOrientation } from "./UIElements/videoOrientation.js";
 import { monitorBrightness } from './cameraFilters/autoExposure.js'
 import { drawOuterRoi, initOuterRoi, copyVideoToCanvas } from "./drawing/outerRoi.js";
 import { drawDMXTest } from "./dmx/screensaverModes.js";

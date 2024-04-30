@@ -19,6 +19,7 @@ export function toggleMirror(){
     changeOrientation()
 }
 
+
 export function rotateCanvas(canvas) {
     // Create a new canvas where the rotated image will be drawn
     const rotatedCanvas = document.createElement('canvas');

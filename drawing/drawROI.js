@@ -3,7 +3,7 @@ import OneEuroFilter from "./euroFilter.js";
 const lag = document.getElementById('lag');
 import {applyFilters} from "../filters/applyFilters.js";
 import {imgRatio} from "../dmx/imageRatio.js";
-import {rotateCanvas, mirror, angle} from "../UIElements/videoOrientation.js";
+import {mirror, angle} from "../UIElements/videoOrientation.js";
 import {appVersion} from "../UIElements/appVersionHandler.js";
 import {createBackgroundSegmenter} from "../faceDetection/backgroundSegmenter.js";
 
@@ -50,10 +50,10 @@ export function computeROI(video, canvas, ctx, person, i) {
 
     let timestamp = Date.now()
 
-    const bbWidth = appVersion === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : Math.abs(person.keypoints[29].y - person.keypoints[0].y);
+    const bbWidth = appVersion === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : person.keypoints[16].score > .3 ? Math.abs(person.keypoints[16].y - person.keypoints[0].y): Math.abs(canvas.height - person.keypoints[0].y);
 
     const currCenterX = person.keypoints[0].x
-    const currCenterY = appVersion === 'face' ? person.keypoints[0].y : bbWidth / 2
+    const currCenterY = appVersion === 'face' ? person.keypoints[0].y : person.keypoints[11].score > .3 ? person.keypoints[11].y : person.keypoints[0].y
 
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
     const {roiW, roiH} = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
