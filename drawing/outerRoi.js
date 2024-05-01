@@ -39,20 +39,23 @@ export function updateOuterRoi() {
 export function copyVideoToCanvas(ctx, video, canvas) {
     const radians = angle * Math.PI / 180; // Convert to radians
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
+    ctx.save(); // Save the current context state
 
+    // Adjust translation to the center of the canvas
     ctx.translate(canvas.width / 2, canvas.height / 2);
 
-    // Apply mirroring if needed
-    // if (mirror) {
-        // ctx.scale(-1, 1); // This flips the context horizontally
-    // }
-
+    // Rotate the canvas
     ctx.rotate(radians);
-
+    // Apply mirroring if needed
+    if (mirror) {
+        if (angle % 180 === 0) {
+            ctx.scale(-1, 1)
+        } else {
+            ctx.scale(1, -1)
+        }
+    }
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
-    ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const rects = [
         { x: 0, y: 0, width: video.videoWidth, height: roi.y },
@@ -61,7 +64,7 @@ export function copyVideoToCanvas(ctx, video, canvas) {
         { x: 0, y: roi.y + roi.height, width: video.videoWidth, height: video.videoHeight - roi.y - roi.height }
     ];
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 1)'; 
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
     rects.forEach(rect => {
         ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
     });

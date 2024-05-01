@@ -1,4 +1,4 @@
-import { changeOrientation, toggleMirror } from "./videoOrientation.js";
+import { changeOrientation } from "./videoOrientation.js";
 import { initClahe } from "../filters/clahe.js";
 import { initCamFilters } from "../cameraFilters/camFilters.js";
 import { setNumCol } from "../dmx/imageRatio.js";
@@ -23,8 +23,10 @@ export function setupSidePanel() {
     const mirrorCheckbox = document.getElementById("mirrorCheckbox");
 
     closePanelButton.addEventListener("click", toggleSidePanel);
-    mirrorCheckbox.addEventListener("change", toggleMirror);
+    mirrorCheckbox.addEventListener("change", handleVideoChange);
     video.addEventListener("change", handleVideoChange);
+
+    createSliderComponent('skeletonBrightness');
 
     createSliderComponent('gap', handleGapChange);
     createSliderComponent('pixelSmooth');

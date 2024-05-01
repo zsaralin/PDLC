@@ -12,6 +12,10 @@ import {robert, robertED} from './edgeDetection/robertsEdge.js'
 import { updatePixelatedCanvas } from "../drawing/pixelCanvasUtils.js";
 import { updateCanvas } from "../drawing/updateCanvas.js";
 import {drawSegmentation} from "../drawing/drawSegmentation.js";
+import {appVersion} from "../UIElements/appVersionHandler.js";
+import {applyBrightness} from "./brightness.js";
+import {adjustSkeletonBrightness} from "./skeletonBrightness.js";
+
 const functionOrderList = document.getElementById('functionOrderList');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
 const grayscaleMapSlider = document.getElementById('grayscaleMapSlider');
@@ -72,7 +76,8 @@ export async function applyFilters(filterCanvas, filterCtx, person, i) {
                         break;
                 }
             }
-        } else {
+    }
+    else {
             if (values.min !== 0 || values.max !== 255) {
                 switch (id) {
                     case 'grayscaleSlider':
@@ -120,8 +125,10 @@ export async function applyFilters(filterCanvas, filterCtx, person, i) {
                 break;
         }
     }
+
     const croppedImageData = filterCanvas.toDataURL('image/png');
     updateCanvas('cropped-canvas', croppedImageData, i);
+
     await drawSegmentation(filterCanvas, filterCtx, i)
     updatePixelatedCanvas(filterCanvas, filterCtx, i);
 }

@@ -1,4 +1,5 @@
 import { faceInFrame, isFacingForward , isEyeDistanceAboveThresholdBody} from "./poseDetectionChecks.js";
+import {appVersion} from "../UIElements/appVersionHandler.js";
 
 export let activeFaces = []
 let detectionState = []; // Array of objects to track state and counter for each index
@@ -120,6 +121,7 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
 }
 
 function additionalChecks(person){
+    if(appVersion === 'skeleton'){ return true}
     if(!isEyeDistanceAboveThresholdBody(person[0])
         || !faceInFrame(person[0])
         || !isFacingForward(person[0])){

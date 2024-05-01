@@ -72,9 +72,12 @@ export function computeROI(video, canvas, ctx, person, i) {
 function setTopLeft(i, roiW, roiH, canvas){
     topLeftX[i] = adjustedCenterX[i] - roiW / 2;
     topLeftY[i] =  adjustedCenterY[i] - roiH / 2;
-    if (mirror) {
-        topLeftX[i] = canvas.width - (topLeftX[i] + roiW);  // Calculate mirrored position
-    }
+    const width = angle % 90 === 0 ? canvas.height: canvas.width;
+    const height = angle % 90 === 0 ? canvas.width: canvas.height;
+
+    // if (mirror) {
+    //     topLeftX[i] = canvas.width - (topLeftX[i] + roiW);  // Calculate mirrored position
+    // }
     topLeftX[i] = Math.max(0, Math.min(topLeftX[i], canvas.width - roiW));
     topLeftY[i] = Math.max(0, Math.min(topLeftY[i], canvas.height - roiH));
 }

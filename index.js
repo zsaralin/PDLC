@@ -50,6 +50,7 @@ export async function detectVideo() {
     let startTimeMs = performance.now();
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
+
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
     const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
     currentFaces0 = processDetection(poseDetections0, 0);
@@ -71,6 +72,8 @@ export async function detectVideo() {
 
     } else {
         ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+        predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
+
         setCam0(false);
     } if (currentFaces1 ) {
         if(currentCamIndex === 1) {
