@@ -54,6 +54,7 @@ export function setupSidePanel() {
     createSliderComponent('edgeStrength');
     createSliderComponent('sobEdgeStrength');
     createSliderComponent('robEdgeStrength');
+    createSliderComponent('gaussianBlur');
     createSliderComponent('grayExpo');
     createSliderComponent('animSpeed');
     createSliderComponent('camBrightness');

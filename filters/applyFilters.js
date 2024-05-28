@@ -24,6 +24,7 @@ const contrastEnhSlider = document.getElementById('contrastEnh');
 const contrastSlider = document.getElementById('contrast');
 const gammaSlider = document.getElementById('gamma');
 const histo = document.getElementById('histogramEqCheckbox')
+const gaussianBlur = document.getElementById('gaussianBlur')
 
 const sliders = [
     contrastSlider,
@@ -96,6 +97,9 @@ export async function applyFilters(filterCanvas, filterCtx, person, i) {
                         break;
                 }
             }
+        }
+        if(appVersion === 'skeleton' ) {
+            filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
         }
     }
 

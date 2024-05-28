@@ -11,7 +11,7 @@ export function adjustSkeletonBrightness(canvas) {
     // Ensuring the value remains within the valid range for the slider
     const maxAdjustment = 1;
     const boundedAdjustment = Math.max(-maxAdjustment, Math.min(maxAdjustment, adjustment));
-    const newSliderValue = Math.max(0, Math.min(255, parseInt(slider.value, 10) + boundedAdjustment));
+    const newSliderValue = Math.max(-255, Math.min(255, parseInt(slider.value, 10) + boundedAdjustment));
     // Update the slider value
     brightnessSlider.value = newSliderValue;
     applyBrightness(canvas)

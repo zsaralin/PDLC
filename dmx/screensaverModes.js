@@ -185,11 +185,11 @@ function sweepLeft() {
 function sweepRight() {
     // Clear the canvas or fill it with black
     pixelatedCtx.fillStyle = 'black';
-    pixelatedCtx.fillRect(0, 0, 30, 28);
+    pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
 
     // Sweep effect: Draw a single white column from right to left based on sweepRow counter for horizontal movement
     let colToDraw = 29 - sweepRow; // Calculate the column to draw from right to left
-    for (let row = 0; row < 28; row++) {
+    for (let row = 0; row < 30; row++) {
         pixelatedCtx.fillStyle = 'white';
         pixelatedCtx.fillRect(colToDraw, row, 1, 1);
     }
@@ -203,6 +203,8 @@ function fillCanvasWithBlack() {
     // Clear the canvas or fill it with grey
     pixelatedCtx.fillStyle = `rgb(${0}, ${0}, ${0})`;
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
+    pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
+    pixelatedCtx.fillRect(0, 0, 28, imgRow);
 }
 
 function fillCanvasWithWhite() {
@@ -232,7 +234,8 @@ export function drawDMXTest() {
     } else if(whiteCheckbox.checked){
         fillCanvasWithWhite()
     } else{
-    animateGradientSweep()}
+    animateGradientSweep()
+}
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);

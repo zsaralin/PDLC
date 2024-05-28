@@ -106,7 +106,7 @@ export async function monitorBrightness(video, camIndex) {
     }
 }
 const videoCanvas = document.createElement('canvas');
-const ctx = videoCanvas.getContext('2d');
+const ctx = videoCanvas.getContext('2d',  { willReadFrequently: true });
 
 
 function calculateBrightness(video, person, sampleRate = 1) {

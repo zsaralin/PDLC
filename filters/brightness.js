@@ -6,13 +6,13 @@ const brightness = document.getElementById('brightness');
  * @param {HTMLCanvasElement} canvas - The canvas element to apply brightness adjustment to.
  */
 export function applyBrightness(canvas) {
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d',  { willReadFrequently: true });
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
     const b = parseInt(brightness.value, 10); // Get the brightness value from the slider
     for (let i = 0; i < data.length; i += 4) {
-        // Adjust RGB values by adding the brightness value
+        // Adjust RGB values by adding the brightness value, which can be positive or negative
         data[i] = Math.max(0, Math.min(255, data[i] + b));   // Red channel
         data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + b)); // Green channel
         data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + b)); // Blue channel

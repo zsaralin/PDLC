@@ -18,14 +18,10 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-segmentation"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>
     <script async src="filters/opencv.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 </head>
@@ -54,7 +50,7 @@
                 <option value="skeleton">Skeleton</option>
             </select>
         </label>
-        <div id="skeletonBrightness" min="0" max="255" step="1" value="128" label="Skeleton Brightness"  style="display: none;"></div>
+        <div id="skeletonBrightness" min="-255" max="255" step="1" value="128" label="Skeleton Brightness"  style="display: none;"></div>
 
         <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
         <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".1" label="Pixel Smoothing"></div>
@@ -150,6 +146,8 @@
                 <div id="grayscaleExpoSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with expo)"></div>
                 <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo" ></div>
                 <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
+                <div id="gaussianBlur" min="0" max="5" step=".1" value = "0" label="Gaussian Blur"></div>
+
         </label>
                     <label>Filter Order:</label>
                     <ul id="functionOrderList">

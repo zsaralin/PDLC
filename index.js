@@ -52,8 +52,9 @@ export async function detectVideo() {
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
 
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
-    const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
+    if(poseDetector0){ const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
     currentFaces0 = processDetection(poseDetections0, 0);
+    }
     // await drawSegmentation()
     if (numCameras === 2) {
         calculateFPS(1)
@@ -186,6 +187,7 @@ async function initializeVideo(video) {
     changeOrientation(0);
     await detectVideo();
 }
+
 
 async function main() {
     const videos = document.querySelectorAll('.video-container .video');

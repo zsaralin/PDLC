@@ -38,6 +38,7 @@ export async function drawSegmentation(canvas, ctx, i) {
         ctx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+    
     }
 }
 

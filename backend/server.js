@@ -22,19 +22,28 @@ const options = {
 const artnet = require('artnet')(options);
 let csvMapping0;
 let csvMapping1;
+let csvMapping2;
 
 createCsvMapping()
     .then(c => {
         // Use the mapping here
         csvMapping0 = c[0];
         csvMapping1 = c[1]
+        csvMapping2 = c[2]
+        // console.log(csvMapping2)
+
+
     })
     .catch(error => {
         console.error('Failed to create CSV mapping:', error);
     });
 
+    let once = false;
 
 app.post('/set-dmx', async (req, res) => {
+        if(false){}
+        else{
+            once = true; 
         try {
                 // once = true;
                 let {dmxValues} = req.body; // Received all 30 columns brightness values
@@ -45,11 +54,28 @@ app.post('/set-dmx', async (req, res) => {
                 const gridWidth = 10; // Number of columns to display
                 const rows = dmxValues.length; // Total rows
                 for (let row = 0; row < rows; row++) {
-                    const rowData = dmxValues[row]; // Get the brightness values for the current row
+                    const rowData = dmxValues[row]//.reverse(); // Get the brightness values for the current row
                     for (let col = 0; col < 10; col++) {
                         let colIndex = col //- (imgCol - 30); // Considering the gridWidth as totalColumns
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
-                        const mapping = csvMapping0[`${row}-${col}`]; // Assuming the mapping is based on row and colIndex
+                        const mapping = csvMapping0[`${row}-${10-col}`]; // Assuming the mapping is based on row and colIndex
+                        if (mapping) {
+                            const {dmxUniverse, dmxChannel} =
+                                mapping;
+                            if (!universeData[0]) {
+                                universeData[0] = [];
+                            }
+                            universeData[0].push({channel: dmxChannel, value: brightness});
+                        }
+                    }
+                }
+                for (let row = 0; row < rows; row++) {
+                    const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
+                    for (let col = 10; col < 20; col++) {
+                        // console.log(imgCol)
+                        const colIndex = col + (imgCol - 30)/2; // Considering the gridWidth as totalColumns
+                        const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
+                        const mapping = csvMapping1[`${row}-${col - 10}`]; // Assuming the mapping is based on row and colIndex
                         if (mapping) {
                             const {dmxUniverse, dmxChannel} =
                                 mapping;
@@ -62,23 +88,27 @@ app.post('/set-dmx', async (req, res) => {
                 }
                 for (let row = 0; row < rows; row++) {
                     const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
-                    for (let col = 10; col < 20; col++) {
-                        const colIndex = col + (imgCol - 30)/2; // Considering the gridWidth as totalColumns
+                    for (let col = 20; col < 30; col++) {
+                        const colIndex = col + (imgCol - 30); // Considering the gridWidth as totalColumns
+                        // console.log(imgCol)
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
-                        const mapping = csvMapping1[`${row}-${col - 10}`]; // Assuming the mapping is based on row and colIndex
+                        // console.log(10-(col-20))
+                        const mapping = csvMapping2[`${row}-${10-(col-20)}`]; // Assuming the mapping is based on row and colIndex
                         if (mapping) {
                             const {dmxUniverse, dmxChannel} =
                                 mapping;
-                            if (!universeData[0]) {
-                                universeData[0] = [];
+                            if (!universeData[2]) {
+                                universeData[2] = [];
                             }
-                            universeData[0].push({channel: dmxChannel, value: brightness});
+                            universeData[2].push({channel: dmxChannel, value: brightness});
                         }
                     }
                 }
+                // console.log(universeData[2])
                 // Send DMX values for each universe
                 const setPromises = [];
                 for (const [universe, channels] of Object.entries(universeData)) {
+                
                     let values = new Array(512).fill(0); // Initialize with zeros for all channels
                     channels.forEach(({channel, value}) => {
                         // console.log('uni ' + universe + ' and ' + channel)
@@ -96,8 +126,9 @@ app.post('/set-dmx', async (req, res) => {
                 res.status(500).json({error: 'Error setting DMX'});
             }
         }
+    }
 
-});
+})
 
 // Start the server
 const PORT = 3000; // Port number for the HTTP server
