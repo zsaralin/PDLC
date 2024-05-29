@@ -59,14 +59,14 @@ body {
 
 }
 .video,
-.canvas, 
+.canvas, .top-canvas,
 .blackCanvas {
     position: absolute;
     top: 0;
     right: 150px; /* Ensures they start from the left edge */
     height: 100%;
 
-    object-fit: contain; /* Only necessary for .video */
+    object-fit: contain; 
 }
 
 

@@ -60,7 +60,7 @@ sliders.forEach(slider => {
 
 handleSliderChange()
 
-export async function applyFilters(filterCanvas, filterCtx, person, i) {
+export async function applyFilters(filterCanvas, filterCtx, i) {
     for (const [id, values] of Object.entries(sliderValues)) {
         if (id === 'gamma' || id === 'contrast') {
             if (values !== 1) {
@@ -103,8 +103,8 @@ export async function applyFilters(filterCanvas, filterCtx, person, i) {
         }
     }
 
-    const croppedGrayscale = filterCanvas.toDataURL('image/png');
-    updateCanvas('gray-canvas', croppedGrayscale, i);
+    // const croppedGrayscale = filterCanvas.toDataURL('image/png');
+    // updateCanvas('gray-canvas', croppedGrayscale, i);
     const listItems = functionOrderList.children;
 
     for (const listItem of listItems) {
@@ -130,9 +130,7 @@ export async function applyFilters(filterCanvas, filterCtx, person, i) {
         }
     }
 
-    const croppedImageData = filterCanvas.toDataURL('image/png');
-    updateCanvas('cropped-canvas', croppedImageData, i);
-
-    await drawSegmentation(filterCanvas, filterCtx, i)
+    // const croppedImageData = filterCanvas.toDataURL('image/png');
+    // updateCanvas('cropped-canvas', croppedImageData, i);
     updatePixelatedCanvas(filterCanvas, filterCtx, i);
 }

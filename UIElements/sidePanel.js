@@ -6,7 +6,7 @@ import { createRangeSliderComponent } from "./customSliders/rangeSlider.js";
 import { createSliderComponent } from "./customSliders/normalSlider.js";
 import { updateOuterRoi } from "../drawing/outerRoi.js";
 import { handleSliderChange } from "../filters/applyFilters.js";
-
+import { setOffsetChanged  } from "../drawing/drawROI.js";
 export function setupSidePanel() {
     const sidePanel = document.getElementById("sidePanel");
     sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
@@ -40,8 +40,8 @@ export function setupSidePanel() {
     createSliderComponent('resetInterval');
 
     createSliderComponent('roi');
-    createSliderComponent('roiXOffset');
-    createSliderComponent('roiYOffset');
+    createSliderComponent('roiXOffset', setOffsetChanged);
+    createSliderComponent('roiYOffset', setOffsetChanged);
     createSliderComponent('outerROIWidth', updateOuterRoi);
     createSliderComponent('outerROIHeight', updateOuterRoi);
     createSliderComponent('fadeDur');

@@ -1,7 +1,16 @@
 
+
+const topCanvases = document.querySelectorAll('.video-container .top-canvas');
+const topCtxs = [topCanvases[0].getContext('2d', { willReadFrequently: true }), 
+                topCanvases[1].getContext('2d', { willReadFrequently: true })]
+
 export function drawFaces(canvas, ctx, person, video, i) {
-    drawBB(canvas, ctx, person)
-    drawSkeleton(canvas,ctx,person)
+
+    const topCtx = topCtxs[i];
+    const topCanvas = topCanvases[i];
+
+    drawBB(topCanvas, topCtx, person)
+    drawSkeleton(topCanvas,topCtx,person)
 }
 function drawBB(canvas, ctx, person){
     ctx.beginPath();

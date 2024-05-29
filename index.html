@@ -50,7 +50,7 @@
                 <option value="skeleton">Skeleton</option>
             </select>
         </label>
-        <div id="skeletonBrightness" min="-255" max="255" step="1" value="-200" label="Skeleton Brightness"  style="display: none;"></div>
+        <div id="skeletonBrightness" min="-255" max="255" step="1" value="0" label="Skeleton Brightness"></div>
 
         <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
         <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".1" label="Pixel Smoothing"></div>
@@ -208,9 +208,10 @@
     <div id="top">
         <div class="video-container" >
             <div class = "video-inner-container">
-            <video class="video" style  = "display : none"></video>
-            <canvas class="black-canvas"></canvas>
+            <video class="video" ></video>
             <canvas class="canvas"></canvas>
+            <canvas class="top-canvas"></canvas>
+
             <button class="play-pause-button">
                 <span class="play-icon" style="display: none">&#9654;</span>
                 <span class="pause-icon">&#10074;&#10074;</span>
@@ -219,12 +220,12 @@
         </div>
             
             <div class="canvas-container">
-                <div class="canvas-wrapper">
+                <!-- <div class="canvas-wrapper">
                     <canvas class="gray-canvas" width="150" height="150"></canvas>
                 </div>
                 <div class="canvas-wrapper">
                     <canvas class="cropped-canvas" width="150" height="150"></canvas>
-                </div>
+                </div> -->
                 <div class="canvas-wrapper">
                     <canvas class="pixel-canvas" width="150" height="150"></canvas>
                 </div>
@@ -233,8 +234,8 @@
         <div class="video-container" id = "video-container2" style = "display: none" >
             <div class = "video-inner-container">
                 <video class="video"></video>
-                <canvas class="black-canvas"></canvas>
                 <canvas class="canvas"></canvas>
+                <canvas class="top-canvas"></canvas>
                 <button class="play-pause-button">
                     <span class="play-icon" style="display: none">&#9654;</span>
                     <span class="pause-icon">&#10074;&#10074;</span>

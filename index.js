@@ -22,8 +22,9 @@ let currentFaces0 = null; // Global variable to hold the latest face detection r
 let currentFaces1 = null;
 
 let ctx0; let ctx1;
-const canvasWithOuterROI0 = document.createElement('canvas');
+let topCtx0; let topCtx1;
 
+const canvasWithOuterROI0 = document.createElement('canvas');
 const ctxWithOuterROI0 = canvasWithOuterROI0.getContext('2d');
 
 const canvasWithOuterROI1 = document.createElement('canvas');
@@ -34,6 +35,7 @@ let poseDetector0; let poseDetector1;
 
 let video0; let video1;
 let canvas0; let canvas1;
+let topCanvas0; let topCanvas1;
 let numCameras;
 
 const screensaverMode = document.getElementById('screensaver');
@@ -52,7 +54,7 @@ export async function detectVideo() {
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
 
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
-    if(poseDetector0){ const poseDetections0 = await poseDetector0.estimatePoses(canvas0);
+    if(poseDetector0){ const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
     currentFaces0 = processDetection(poseDetections0, 0);
     }
     // await drawSegmentation()
@@ -67,23 +69,29 @@ export async function detectVideo() {
     if (currentFaces0) {
         if(currentCamIndex === 0) {
             ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+            topCtx0.clearRect(0, 0, canvas0.width, canvas0.height);
             predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
         }
         setCam0(true);
 
     } else {
         ctx0.clearRect(0, 0, canvas0.width, canvas0.height);
+        topCtx0.clearRect(0, 0, canvas0.width, canvas0.height);
+
         predictWebcamB(video0, 0, canvas0, ctx0, currentFaces0)
 
         setCam0(false);
     } if (currentFaces1 ) {
         if(currentCamIndex === 1) {
             ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+            topCtx1.clearRect(0, 0, canvas1.width, canvas1.height);
             predictWebcamB(video1, 1, canvas1, ctx1, currentFaces1)
         }
         setCam1(true);
     } else {
         ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+        topCtx1.clearRect(0, 0, canvas1.width, canvas1.height);
+
         setCam1(false);
     }
 
@@ -165,6 +173,9 @@ async function initializeVideo(video) {
 
     canvas0.width = video0.videoWidth;
     canvas0.height = video0.videoHeight;
+    topCanvas0.width = video0.videoWidth;
+    topCanvas0.height = video0.videoHeight;
+
     canvasWithOuterROI0.width = video0.videoWidth;
     canvasWithOuterROI0.height = video0.videoHeight;
     video0.play();
@@ -174,6 +185,9 @@ async function initializeVideo(video) {
     if (numCameras > 1) {
         canvas1.width = video1.videoWidth;
         canvas1.height = video1.videoHeight;
+        topCanvas1.height = video1.videoHeight;
+        topCanvas1.height = video1.videoHeight;
+    
         canvasWithOuterROI1.width = video1.videoWidth;
         canvasWithOuterROI1.height = video1.videoHeight;
         video1.play();
@@ -192,23 +206,29 @@ async function initializeVideo(video) {
 async function main() {
     const videos = document.querySelectorAll('.video-container .video');
     const canvases = document.querySelectorAll('.video-container .canvas');
+    const topCanvases = document.querySelectorAll('.video-container .top-canvas');
 
     video0 = videos[0]; // First video element
     video1 = videos[1]; // Second video element
     canvas0 = canvases[0]; // First canvas element
     canvas1 = canvases[1]; // Second canvas element
+    topCanvas0 = topCanvases[0]; 
+    topCanvas1 = topCanvases[1]; 
+
     ctx0 = canvas0.getContext('2d', { willReadFrequently: true });
     ctx1 = canvas1.getContext('2d', { willReadFrequently: true });
+    topCtx0 = topCanvas0.getContext('2d', { willReadFrequently: true });
+    topCtx1 = topCanvas1.getContext('2d', { willReadFrequently: true });
 
-    ctx0.lineWidth = 3;
-    ctx0.strokeStyle = 'white';
-    ctx0.fillStyle = 'white';
-    ctx0.globalAlpha = 0.9;
+    // ctx0.lineWidth = 3;
+    // ctx0.strokeStyle = 'white';
+    // ctx0.fillStyle = 'white';
+    // ctx0.globalAlpha = 0.9;
 
-    ctx1.lineWidth = 3;
-    ctx1.strokeStyle = 'white';
-    ctx1.fillStyle = 'white';
-    ctx1.globalAlpha = 0.9;
+    // ctx1.lineWidth = 3;
+    // ctx1.strokeStyle = 'white';
+    // ctx1.fillStyle = 'white';
+    // ctx1.globalAlpha = 0.9;
     [poseDetector0, poseDetector1] = await createPoseDetector();
     await initBgSegmenters()
     await setupCamera();

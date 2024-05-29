@@ -6,6 +6,8 @@ import {imgRatio} from "../dmx/imageRatio.js";
 import {mirror, angle} from "../UIElements/videoOrientation.js";
 import {appVersion} from "../UIElements/appVersionHandler.js";
 import {createBackgroundSegmenter} from "../faceDetection/backgroundSegmenter.js";
+import { drawSegmentation } from "./drawSegmentation.js";
+import { updatePixelatedCanvas } from "./pixelCanvasUtils.js";
 
 const roi = document.getElementById("roi");
 const roiXOffset = document.getElementById("roiXOffset");
@@ -13,6 +15,7 @@ const roiYOffset = document.getElementById("roiYOffset");
 const centeringLeeway = document.getElementById('centeringLeeway')
 const centeringSpeed = document.getElementById('centeringSpeed')
 const filterFreq = 30, minCutoff = .0001, beta = 0.01, dCutoff = 5;
+
 
 const filter =
     [new OneEuroFilter(filterFreq, minCutoff, beta, dCutoff), new OneEuroFilter(filterFreq,  minCutoff, beta, dCutoff)]
@@ -25,6 +28,16 @@ for (let i = 0; i < 2; i++) {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     filterCanvases.push(canvas);
     filterCtxs.push(ctx);
+}
+
+export const largerCanvases = [], largerCtxs = [];
+for (let i = 0; i < 2; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = canvas.width * (1 / imgRatio);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    largerCanvases.push(canvas);
+    largerCtxs.push(ctx);
 }
 
 let topLeftX = [null, null], topLeftY = [null, null];
@@ -46,7 +59,13 @@ for (let i = 0; i < 2; i++) {
     lastCenterY[i] = 0; // Initial position, adjust as needed
     currentAnimationId[i] = null;
 }
-export function computeROI(video, canvas, ctx, person, i) {
+
+let offsetChanged = false; 
+export function setOffsetChanged(){
+    offsetChanged = true; 
+}
+
+export async function computeROI(video, canvas, ctx, person, i) {
 
     let timestamp = Date.now()
 
@@ -57,15 +76,23 @@ export function computeROI(video, canvas, ctx, person, i) {
 
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
     const {roiW, roiH} = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
-
+    
     let deltaThreshold = centeringLeeway.value * bbWidth
 
-    if (!animating[i] && (Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold)) {
+    if (!animating[i] && ((Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold) || offsetChanged)) {
+        offsetChanged = offsetChanged === true ? false : offsetChanged;  
         animatePosition(i, bbWidth, currCenterX, currCenterY, roiW, roiH, canvas);
     }
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
+
+    const can = await drawSegmentation(canvas, ctx, i)
+    filterCtxs[i].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[i].width, filterCanvases[i].height);
+
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
-    applyFilters(filterCanvases[i], filterCtxs[i], person, i)
+
+    // applyFilters(filterCanvases[i], filterCtxs[i], i)
+    // applyFilters(off, off.getContext('2d'), person, i)
+    updatePixelatedCanvas(filterCanvases[i], filterCtxs[i], i);
 
 }
 
@@ -113,7 +140,7 @@ function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
     let significantMoveThreshold = bbWidth * significantMovePercentage;
 
     // Determine if a significant move has occurred
-    if (animating && (Math.abs(newCenterX - lastCenterX[i]) > significantMoveThreshold || Math.abs(newCenterY - lastCenterY[i]) > significantMoveThreshold)) {
+    if (animating && Math.abs(newCenterX - lastCenterX[i]) > significantMoveThreshold || Math.abs(newCenterY - lastCenterY[i]) > significantMoveThreshold){
         // Reset the animation if the target has moved significantly
         cancelAnimationFrame(currentAnimationId[i]); // Assuming currentAnimationId[i] is tracked
         animating = false; // Allow the animation to restart
@@ -146,12 +173,20 @@ function animatePosition(i, bbWidth, centerX, centerY, roiW, roiH, canvas) {
     }
 }
 
-async function drawROI(x, y, video, ctx, index, width, height) {
-    ctx.beginPath();
-    filterCtxs[index].drawImage(video, x, y, width, height, 0, 0, filterCanvases[index].width, filterCanvases[index].height);
-    ctx.strokeStyle = "blue";
-    ctx.rect(x, y, width, height);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.strokeStyle = "white";
+const topCanvases = document.querySelectorAll('.video-container .top-canvas');
+const topCtxs = [topCanvases[0].getContext('2d', { willReadFrequently: true }), 
+                topCanvases[1].getContext('2d', { willReadFrequently: true })]
+
+
+async function drawROI(x, y, canvas, ctx, index, width, height) {
+    const topCtx = topCtxs[index];
+    const topCanvas = topCanvases[index];
+    // topCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+
+    topCtx.beginPath();
+    topCtx.strokeStyle = "blue";
+    topCtx.rect(x, y, width, height);
+    topCtx.stroke();
+    topCtx.closePath();
+    topCtx.strokeStyle = "white";
 }

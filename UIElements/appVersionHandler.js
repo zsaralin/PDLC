@@ -13,12 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen for changes and update the appVersion variable
     appVersionSelect.addEventListener('change', (e) => {
         appVersion = (e.target.value);
+        if(appVersion === 'face'){
+            bgCol.value = beforeBgVal ?? 0 ; 
+            skeletonBrightness.style.display = "none";
+
+        } else { 
+            skeletonBrightness.style.display = "block";
+            beforeBgVal = bgCol.value;
+            bgCol.value = '-1'
+        }
     });
     document.addEventListener('keypress', (event) => {
         if (event.key === 'f') {
             appVersion = 'face';
             appVersionSelect.value = 'face';
             bgCol.value = beforeBgVal ?? 0 ; 
+            skeletonBrightness.style.display = "none";
+
         } else if (event.key === 's') {
             appVersion = 'skeleton';
             appVersionSelect.value = 'skeleton';

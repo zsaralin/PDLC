@@ -3,7 +3,6 @@ import {applyBrightness} from "./brightness.js";
 
 const slider = document.getElementById('skeletonBrightness')
 export function adjustSkeletonBrightness(canvas) {
-
     let averageLuminance = segmentationBrightness
     const brightnessSlider = document.getElementById('brightness');
     const targetBrightness = slider.value;
@@ -11,6 +10,7 @@ export function adjustSkeletonBrightness(canvas) {
     // Ensuring the value remains within the valid range for the slider
     const maxAdjustment = 1;
     const boundedAdjustment = Math.max(-maxAdjustment, Math.min(maxAdjustment, adjustment));
+    console.log(slider.value)
     const newSliderValue = Math.max(-255, Math.min(255, parseInt(slider.value, 10) + boundedAdjustment));
     // Update the slider value
     brightnessSlider.value = newSliderValue;
