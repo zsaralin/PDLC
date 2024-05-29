@@ -121,6 +121,7 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
 }
 
 function additionalChecks(person){
+    return true; 
     if(appVersion === 'skeleton'){ return true}
     if(!isEyeDistanceAboveThresholdBody(person[0])
         || !faceInFrame(person[0])

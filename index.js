@@ -52,7 +52,7 @@ export async function detectVideo() {
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
 
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
-    if(poseDetector0){ const poseDetections0 = await poseDetector0.estimatePoses(canvasWithOuterROI0);
+    if(poseDetector0){ const poseDetections0 = await poseDetector0.estimatePoses(canvas0);
     currentFaces0 = processDetection(poseDetections0, 0);
     }
     // await drawSegmentation()
@@ -115,7 +115,7 @@ async function setupCamera() {
             // Create promises that resolve when each video's `loadeddata` event fires
             const loadedPromises = videoElements.map(video => {
                 return new Promise((resolve) => {
-                    console.log(video.readyState)
+                    // console.log(video.readyState)
                     if (video.readyState >= 2) {
                         resolve(video);
                     } else {

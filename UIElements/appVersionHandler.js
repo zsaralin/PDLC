@@ -1,7 +1,12 @@
 export let appVersion = 'face'; 
+let beforeBgVal; 
 document.addEventListener('DOMContentLoaded', () => {
     const appVersionSelect = document.getElementById('appVersion');
     const skeletonBrightness = document.getElementById('skeletonBrightness')
+
+    const bgCol = document.getElementById('bg')
+
+
     // Set the current selection based on the appVersion variable
     appVersion = appVersionSelect.value
 
@@ -13,10 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.key === 'f') {
             appVersion = 'face';
             appVersionSelect.value = 'face';
+            bgCol.value = beforeBgVal ?? 0 ; 
         } else if (event.key === 's') {
             appVersion = 'skeleton';
             appVersionSelect.value = 'skeleton';
-            skeletonBrightness.style.display = "block"
+            skeletonBrightness.style.display = "block";
+            beforeBgVal = bgCol.value;
+            bgCol.value = '-1'
         }
     });
 });
