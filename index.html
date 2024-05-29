@@ -67,7 +67,7 @@
             <input type="checkbox" id="autoEV" checked> Auto-adjust EV
         </label>
         </label>
-        <div id="brightnessRange" min="0" max="255" step="1" lowValue="115" highValue="150" label="Brightness"></div>
+        <div id="brightnessRange" min="0" max="255" step="1" lowValue="150" highValue="180" label="Brightness"></div>
         <label>
             <div id="exposureModeWrapper">
                 <label for="exposureModeSelect">Exposure Mode:
@@ -87,7 +87,7 @@
             <div class="group">
             <div class="group-header">ROI <span class="toggle-button">+</span></div>
             <div class="group-content">
-                <div id="roi" min="0.1" max="10" step=".1" value="2.4" label="ROI"></div>
+                <div id="roi" min="0.1" max="10" step=".1" value="3" label="ROI"></div>
                 <div id="roiXOffset" min="-2" max="2" step=".1" value="0" label="ROI X offset"></div>
                 <div id="roiYOffset" min="-2" max="2" step=".1" value="0" label="ROI Y offset"></div>
                 <label>
@@ -137,12 +137,12 @@
                 </label>
                 <div id="robEdgeStrength" min="0" max="1" step=".1" value=".1" label="Edge Strength" ></div>
 
-                <div id="contrast" min="-100" max="100" step="1" value="50" label="Contrast" ></div>
+                <div id="contrast" min="-100" max="100" step="1" value="0" label="Contrast" ></div>
                 <div id="gamma" min="0" max="2" step=".1" value="1" label="Gamma" ></div>
                 <div id="brightness" min="0" max="255" step="1" value="128" label="Brightness" ></div>
 
-                <div id="grayscaleSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="Grayscale Range"></div>
-                <div id="grayscaleMapSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with remap)"></div>
+                <div id="grayscaleSlider" min="0" max="255" step="1" lowValue="50" highValue="200" label="Grayscale Range"></div>
+                <div id="grayscaleMapSlider" min="0" max="255" step="1" lowValue="50" highValue="200" label="GR (with remap)"></div>
                 <div id="grayscaleExpoSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with expo)"></div>
                 <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo" ></div>
                 <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
