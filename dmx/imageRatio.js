@@ -2,9 +2,9 @@
 
 import { SERVER_URL } from '../config.js';
 
-export let imgRatio = 32 / 28;
 export let imgRow = 28;
 export let imgCol = 32;
+export let imgRatio = imgCol / imgRow;
 
 sendPosition(imgCol, imgRow)
 

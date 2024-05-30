@@ -1,4 +1,5 @@
 import {imgCol} from './imageRatio.js'
+import { setNumCol } from "../dmx/imageRatio.js";
 
 function generateDmxGrid(gridId, startCol, endCol) {
     let dmxGrid = document.getElementById(gridId);
@@ -19,6 +20,7 @@ function generateDmxGrid(gridId, startCol, endCol) {
 generateDmxGrid('dmx1', 0, 10);
 generateDmxGrid('dmx2', 10, 20);
 generateDmxGrid('dmx3', 20, 30);
+handleGapChange(imgCol-30)
 
 export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 30) {
     const gridWidth = 30; // Number of columns to display
@@ -48,4 +50,12 @@ export function updateDMXGrid(brightnessValues, startColumn = 0, totalColumns = 
             cell.style.backgroundColor = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
         }
     }
+}
+
+export function handleGapChange(newCol) {
+    const dmxGridElements = document.querySelectorAll('.dmxGrid');
+    setNumCol(30 + parseInt(newCol, 10));
+    dmxGridElements.forEach(element => {
+        element.style.margin = `${newCol * 2}px`;
+    });
 }

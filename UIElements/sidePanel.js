@@ -1,12 +1,12 @@
 import { changeOrientation } from "./videoOrientation.js";
 import { initClahe } from "../filters/clahe.js";
 import { initCamFilters } from "../cameraFilters/camFilters.js";
-import { setNumCol } from "../dmx/imageRatio.js";
 import { createRangeSliderComponent } from "./customSliders/rangeSlider.js";
 import { createSliderComponent } from "./customSliders/normalSlider.js";
 import { updateOuterRoi } from "../drawing/outerRoi.js";
 import { handleSliderChange } from "../filters/applyFilters.js";
 import { setOffsetChanged  } from "../drawing/drawROI.js";
+import { handleGapChange } from "../dmx/dmxGrid.js";
 export function setupSidePanel() {
     const sidePanel = document.getElementById("sidePanel");
     sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
@@ -94,14 +94,6 @@ export function setupSidePanel() {
 
     function handleVideoChange() {
         changeOrientation(video.value);
-    }
-
-    function handleGapChange(newCol) {
-        const dmxGridElements = document.querySelectorAll('.dmxGrid');
-        setNumCol(30 + parseInt(newCol, 10));
-        dmxGridElements.forEach(element => {
-            element.style.margin = `${newCol * 2}px`;
-        });
     }
 
     function updateCellSize(){

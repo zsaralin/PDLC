@@ -86,7 +86,7 @@ export async function computeROI(video, canvas, ctx, person, i) {
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
 
     const can = await drawSegmentation(canvas, ctx, i)
-    filterCtxs[i].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[i].width, filterCanvases[i].height);
+    if(can) filterCtxs[i].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[i].width, filterCanvases[i].height);
 
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
 

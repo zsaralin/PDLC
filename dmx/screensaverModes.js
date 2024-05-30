@@ -203,8 +203,8 @@ function fillCanvasWithBlack() {
     // Clear the canvas or fill it with grey
     pixelatedCtx.fillStyle = `rgb(${0}, ${0}, ${0})`;
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
-    pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
-    pixelatedCtx.fillRect(0, 0, 28, imgRow);
+    // pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
+    // pixelatedCtx.fillRect(2, 0, 1, imgRow);
 }
 
 function fillCanvasWithWhite() {

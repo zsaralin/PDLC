@@ -58,7 +58,7 @@ app.post('/set-dmx', async (req, res) => {
                     for (let col = 0; col < 10; col++) {
                         let colIndex = col //- (imgCol - 30); // Considering the gridWidth as totalColumns
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
-                        const mapping = csvMapping0[`${row}-${10-col}`]; // Assuming the mapping is based on row and colIndex
+                        const mapping = csvMapping0[`${row}-${9-col}`]; // Assuming the mapping is based on row and colIndex
                         if (mapping) {
                             const {dmxUniverse, dmxChannel} =
                                 mapping;
@@ -72,7 +72,6 @@ app.post('/set-dmx', async (req, res) => {
                 for (let row = 0; row < rows; row++) {
                     const rowData = dmxValues[row].reverse(); // Get the brightness values for the current row
                     for (let col = 10; col < 20; col++) {
-                        // console.log(imgCol)
                         const colIndex = col + (imgCol - 30)/2; // Considering the gridWidth as totalColumns
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
                         const mapping = csvMapping1[`${row}-${col - 10}`]; // Assuming the mapping is based on row and colIndex
@@ -93,7 +92,7 @@ app.post('/set-dmx', async (req, res) => {
                         // console.log(imgCol)
                         const brightness = rowData[colIndex]; // Set first row to black, others follow rowData values
                         // console.log(10-(col-20))
-                        const mapping = csvMapping2[`${row}-${10-(col-20)}`]; // Assuming the mapping is based on row and colIndex
+                        const mapping = csvMapping2[`${row}-${9-(col-20)}`]; // Assuming the mapping is based on row and colIndex
                         if (mapping) {
                             const {dmxUniverse, dmxChannel} =
                                 mapping;
@@ -109,7 +108,7 @@ app.post('/set-dmx', async (req, res) => {
                 const setPromises = [];
                 for (const [universe, channels] of Object.entries(universeData)) {
                 
-                    let values = new Array(512).fill(0); // Initialize with zeros for all channels
+                    let values = new Array(512).fill(255); // Initialize with zeros for all channels
                     channels.forEach(({channel, value}) => {
                         // console.log('uni ' + universe + ' and ' + channel)
                         if (channel <= 300) { // Considering only channels up to 280
