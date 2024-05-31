@@ -229,7 +229,7 @@ async function main() {
     // ctx1.strokeStyle = 'white';
     // ctx1.fillStyle = 'white';
     // ctx1.globalAlpha = 0.9;
-    [poseDetector0, poseDetector1] = await createPoseDetector();
+    // [poseDetector0, poseDetector1] = await createPoseDetector();
     await initBgSegmenters()
     await setupCamera();
 }
