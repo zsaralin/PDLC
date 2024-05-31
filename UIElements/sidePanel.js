@@ -26,7 +26,7 @@ export function setupSidePanel() {
     mirrorCheckbox.addEventListener("change", handleVideoChange);
     video.addEventListener("change", handleVideoChange);
 
-    createSliderComponent('skeletonBrightness');
+    createSliderComponent('targetBrightness');
 
     createSliderComponent('gap', handleGapChange);
     createSliderComponent('pixelSmooth');
@@ -51,6 +51,8 @@ export function setupSidePanel() {
     createSliderComponent('tileSize');
     createSliderComponent('contrast', handleSliderChange);
     createSliderComponent('gamma', handleSliderChange);
+    createSliderComponent('brightness', handleSliderChange);
+
     createSliderComponent('edgeStrength');
     createSliderComponent('sobEdgeStrength');
     createSliderComponent('robEdgeStrength');

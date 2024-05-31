@@ -23,12 +23,15 @@ const grayscaleExpoSlider = document.getElementById('grayscaleExpoSlider');
 const contrastEnhSlider = document.getElementById('contrastEnh');
 const contrastSlider = document.getElementById('contrast');
 const gammaSlider = document.getElementById('gamma');
+const brightnessSlider = document.getElementById('brightness');
+
 const histo = document.getElementById('histogramEqCheckbox')
 const gaussianBlur = document.getElementById('gaussianBlur')
 
 const sliders = [
     contrastSlider,
     gammaSlider,
+    brightnessSlider,
     grayscaleSlider,
     grayscaleMapSlider,
     grayscaleExpoSlider,
@@ -39,7 +42,7 @@ const sliderValues = {};
 export function handleSliderChange() {
     sliders.forEach(slider => {
         const id = slider.id;
-        if (id === 'gamma' || id === 'contrast') {
+        if (id === 'gamma' || id === 'contrast' || id === 'brightness') {
             sliderValues[id] = parseFloat(slider.value);
         } else {
             sliderValues[id] = {
@@ -52,7 +55,7 @@ export function handleSliderChange() {
 
 sliders.forEach(slider => {
     const id = slider.id;
-    if (id === 'gamma' || id === 'contrast') {
+    if (id === 'gamma' || id === 'contrast' || id === 'brightness') {
         slider.addEventListener('change', handleSliderChange)
     } else {
     }
@@ -62,7 +65,7 @@ handleSliderChange()
 
 export async function applyFilters(filterCanvas, filterCtx, i) {
     for (const [id, values] of Object.entries(sliderValues)) {
-        if (id === 'gamma' || id === 'contrast') {
+        if (id === 'gamma' || id === 'contrast' || id === 'brightness') {
             if (values !== 1) {
                 switch (id) {
                     case 'gamma':
@@ -71,6 +74,11 @@ export async function applyFilters(filterCanvas, filterCtx, i) {
                     case 'contrast':
                         if (values !== 0) {
                             applyContrast(filterCanvas);
+                        }
+                        break;
+                    case 'brightness':
+                        if (values !== 0) {
+                            applyBrightness(filterCanvas);
                         }
                         break;
                     default:
@@ -98,9 +106,7 @@ export async function applyFilters(filterCanvas, filterCtx, i) {
                 }
             }
         }
-        if(appVersion === 'skeleton' ) {
-            filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
-        }
+    filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
     }
 
     // const croppedGrayscale = filterCanvas.toDataURL('image/png');

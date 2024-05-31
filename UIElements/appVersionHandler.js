@@ -1,57 +1,49 @@
-export let appVersion = 'face'; 
-let beforeBgVal; 
-let beforePixel;
-let beforeSkel;
 
+export let appVersion = document.getElementById('appVersion')
 document.addEventListener('DOMContentLoaded', () => {
     const appVersionSelect = document.getElementById('appVersion');
-    const skeletonBrightness = document.getElementById('skeletonBrightness')
-    const pixelSmoothing = document.getElementById('pixelSmooth')
-    const bgCol = document.getElementById('bg')
+    const brightness = document.getElementById('brightness');
+    const pixelSmoothing = document.getElementById('pixelSmooth');
+    const bgCol = document.getElementById('bg');
 
-    // Set the current selection based on the appVersion variable
-    appVersion = appVersionSelect.value
+    let beforeSkel, beforePixel, beforeBgVal;
 
-    // Listen for changes and update the appVersion variable
+    function updateUIForFace() {
+        bgCol.updateValue(beforeBgVal ?? 0)
+        brightness.updateValue(beforeSkel ?? 25)
+        pixelSmoothing.updateValue(beforePixel ?? .1)
+
+    }
+
+    function updateUIForSkeleton() {
+        beforeSkel = brightness.value;
+        brightness.updateValue(-50)
+        // skeletonBrightness.value = -50;
+
+        beforeBgVal = bgCol.value;
+        bgCol.updateValue(-1)
+
+        beforePixel = pixelSmoothing.value;
+        pixelSmoothing.updateValue(1)
+
+        // skeletonBrightness.style.display = "block";
+    }
+
     appVersionSelect.addEventListener('change', (e) => {
-        appVersion = (e.target.value);
-        if(appVersion === 'face'){
-            bgCol.value = beforeBgVal ?? 0 ; 
-            // skeletonBrightness.style.display = "none";
-            skeletonBrightness.value = beforeSkel ?? 25; 
-            pixelSmoothing.value = beforePixel ?? .1; 
-
-        } else { 
-
-            // skeletonBrightness.style.display = "block";
-            beforeSkel = skeletonBrightness.value;
-            skeletonBrightness.value = -50;
-
-            beforeBgVal = bgCol.value;
-            bgCol.value = '-1'
-            beforePixel = pixelSmoothing.value;
-            pixelSmoothing.value = 1;
+        if (e.target.value === 'face') {
+            updateUIForFace();
+        } else {
+            updateUIForSkeleton();
         }
     });
+
     document.addEventListener('keypress', (event) => {
         if (event.key === 'f') {
-            appVersion = 'face';
             appVersionSelect.value = 'face';
-            bgCol.value = beforeBgVal ?? 0 ; 
-            skeletonBrightness.value = beforeSkel ?? 25; 
-            // skeletonBrightness.style.display = "none";
-            pixelSmoothing.value = beforePixel ?? .1; 
+            updateUIForFace();
         } else if (event.key === 's') {
-            beforeSkel = skeletonBrightness.value;
-            skeletonBrightness.value = -50;
-
-            appVersion = 'skeleton';
             appVersionSelect.value = 'skeleton';
-            // skeletonBrightness.style.display = "block";
-            beforeBgVal = bgCol.value;
-            bgCol.value = '-1'
-            beforePixel = pixelSmoothing.value;
-            pixelSmoothing.value = 1;
+            updateUIForSkeleton();
         }
     });
 });

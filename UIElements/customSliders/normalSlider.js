@@ -95,4 +95,11 @@ export function createSliderComponent(containerId, onValueChange) {
     numberInput.addEventListener('input', function() {
         updateSlider(parseFloat(this.value));
     });
+
+    // External method to update the slider programmatically
+    container.updateValue = (newValue) => {
+        if (newValue >= min && newValue <= max) {
+            updateSlider(newValue);
+        }
+    };
 }
