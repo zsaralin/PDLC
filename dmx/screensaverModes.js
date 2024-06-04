@@ -105,7 +105,7 @@ export function resetGradientSweep() {
     gradientOffset = 0;
     isSweepingDown = true;
 }
-function animateGradientSweep() {
+function animateGradientBar() {
     const canvasWidth = imgCol; // Canvas width, adjust as needed
     const canvasHeight = imgRow; // Canvas height, adjust as needed
 
@@ -154,7 +154,48 @@ function animateGradientSweep() {
         clearInterval(intervalId);
     };
 }
-// To start the animation
+function animateGradientSweep() {
+    const canvasWidth = imgCol; // Canvas width, adjust as needed
+    const canvasHeight = imgRow * 1.5; // Canvas height, adjust as needed
+
+    let gradientOffset = 0;  // Initialize gradient offset
+    let timeoutHandle = null; // Store the timeout handle to allow clearing
+
+    // Define the update function that uses setTimeout for dynamic intervals
+    const updateGradient = () => {
+        // Create a linear gradient
+        let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
+
+        // Ensure the gradient offsets cycle correctly from 0 to canvasHeight and back
+        let colorStopPosition = Math.abs((gradientOffset % (canvasHeight * 2)) - canvasHeight) / canvasHeight;
+
+        // Configure the gradient to have a seamless transition
+        gradient.addColorStop(colorStopPosition, 'rgb(255, 255, 255)'); // White transitions through the middle
+        gradient.addColorStop(Math.max(0, colorStopPosition - 0.7), 'rgb(0, 0, 0)'); // Black fills the rest
+
+        // Apply the gradient as fill style and fill the canvas
+        pixelatedCtx.fillStyle = gradient;
+        pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Update the gradient offset continuously
+        gradientOffset += 0.3; // Update by a fixed small increment
+        if (gradientOffset >= canvasHeight * 2) {  // When it reaches double the height, it resets
+            gradientOffset = 0;  // Reset to loop seamlessly
+        }
+
+        // Schedule the next update, using the value from the input field to determine the interval
+        timeoutHandle = setTimeout(updateGradient, parseFloat(document.getElementById('animSpeed').value));
+    };
+
+    // Start the first update
+    updateGradient();
+
+    // Return a function to stop the animation
+    return () => {
+        clearTimeout(timeoutHandle);
+        animationHandle = false;
+    };
+}
 
 
 function drawSmileyFace() {
