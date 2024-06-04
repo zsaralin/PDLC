@@ -37,12 +37,9 @@ export async function drawSegmentation(canvas, ctx, i) {
 
 
         await applyFilters(offscreenCanvas, offscreenCtx, i);
-        segmentationBrightness = calculateAverageBrightness(offscreenCanvas, offscreenCtx, canvas.width, canvas.height);
 
-        adjustSkeletonBrightness(offscreenCanvas);
-
-
-        // adjustSkeletonBrightness(offscreenCanvas);
+        adjustSkeletonBrightness();
+        segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
 
         offscreenCtx.globalCompositeOperation = 'destination-in';
         offscreenCtx.drawImage(person.segmentation.mask.mask, 0, 0, canvas.width, canvas.height);
@@ -70,17 +67,18 @@ export async function drawSegmentation(canvas, ctx, i) {
     }
 }
 
-function calculateAverageBrightness(canvas, ctx, width, height) {
+function calculateAverageBrightness(ctx, width, height) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const data = imageData.data;
-    let totalLuminance = 0;
-    // First, calculate the current average luminance
+    let totalBrightness = 0;
+    let count = 0;
+
     for (let i = 0; i < data.length; i += 4) {
-        const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        totalLuminance += luminance;
+        // Assuming the mask is grayscale, average RGB values (since R=G=B in grayscale)
+        let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        totalBrightness += avg;
+        count++;
     }
-    const averageLuminance = totalLuminance / (canvas.width * canvas.height * 0.299 + 0.587 + 0.114);
-    return averageLuminance
 
     return totalBrightness / count;
 }

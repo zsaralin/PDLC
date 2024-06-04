@@ -5,11 +5,11 @@ import {imgCol, imgRow} from "./imageRatio.js";
 let sweepRow = 0; // This counter will track the current row for the sweep
 
 const pixelatedCanvas = document.createElement('canvas');
-const pixelatedCtx = pixelatedCanvas.getContext('2d', { willReadFrequently: true });
+const pixelatedCtx = pixelatedCanvas.getContext('2d', {willReadFrequently: true});
 pixelatedCanvas.width = imgCol;
 pixelatedCanvas.height = imgRow;
 
-export function getScreensaverCanvas(){
+export function getScreensaverCanvas() {
     return pixelatedCanvas
 }
 
@@ -23,7 +23,7 @@ function sweepDown() {
         pixelatedCtx.fillRect(col, sweepRow, 1, 1);
     }
     sweepRow++;
-    if(sweepRow >= imgRow) sweepRow = 0; // Reset for vertical movement
+    if (sweepRow >= imgRow) sweepRow = 0; // Reset for vertical movement
 }
 
 function drawStripes() {
@@ -43,6 +43,7 @@ function drawStripes() {
         pixelatedCtx.fillRect(0, y, canvasWidth, stripeHeight);
     }
 }
+
 let fadeCounter = 0; // Initialize outside the function
 let increasing = true; // Flag to track whether we're increasing or decreasing the color value
 
@@ -100,43 +101,60 @@ function drawSmileyFaceFade() {
 let gradientOffset = 0; // Initialize the gradient offset
 let isSweepingDown = true; // Flag to indicate the direction of the sweep
 
-export function resetGradientSweep(){
-    gradientOffset = 0; 
+export function resetGradientSweep() {
+    gradientOffset = 0;
     isSweepingDown = true;
 }
 
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Adjust as needed
     const canvasHeight = imgRow; // Adjust as needed
-    let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
-    let gradientStep = parseFloat(document.getElementById('animSpeed').value); 
+    let gradientOffset = 0;  // Initialize gradient offset
+    let isSweepingDown = true; // Initial direction
 
-    let colorStop1Position = Math.max(0, Math.min(1, (gradientOffset / canvasHeight)));
-    let colorStop2Position = Math.max(0, Math.min(1, (gradientOffset + canvasHeight) / canvasHeight));
+    const updateGradient = () => {
+        let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
+        let colorStop1Position = Math.max(0, Math.min(1, (gradientOffset / canvasHeight)));
+        let colorStop2Position = Math.max(0, Math.min(1, (gradientOffset + canvasHeight) / canvasHeight));
 
-    gradient.addColorStop(colorStop1Position, 'rgb(255, 255, 255)'); // Middle to white
-    gradient.addColorStop(colorStop2Position, 'rgb(0, 0, 0)'); // End with black again
+        gradient.addColorStop(colorStop1Position, 'rgb(255, 255, 255)'); // Middle to white
+        gradient.addColorStop(colorStop2Position, 'rgb(0, 0, 0)'); // End with black again
 
-    pixelatedCtx.fillStyle = gradient;
-    pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+        pixelatedCtx.fillStyle = gradient;
+        pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Update the gradient offset based on the direction of the sweep
-    if (isSweepingDown) {
-        gradientOffset += gradientStep; // Move the gradient down
+        // Update the gradient offset based on the direction of the sweep
+        if (isSweepingDown) {
+            gradientOffset += parseFloat(document.getElementById('animSpeed').value); // Move the gradient down
 
-        if (gradientOffset >= canvasHeight) {
-            isSweepingDown = false; // Change direction to up
+            if (gradientOffset >= canvasHeight) {
+                isSweepingDown = false; // Change direction to up
+            }
+        } else {
+            gradientOffset -= parseFloat(document.getElementById('animSpeed').value); // Move the gradient up
+            if (gradientOffset <= -canvasHeight) {
+                isSweepingDown = true; // Change direction to down
+            }
         }
-    } else {
-        gradientOffset -= gradientStep; // Move the gradient up
-        if (gradientOffset <= -canvasHeight) {
-            isSweepingDown = true; // Change direction to down
-        }
-    }
+        const croppedImageData = pixelatedCanvas.toDataURL('image/png');
+        updateCanvas('pixel-canvas', croppedImageData, 0);
+        const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
+        setDMXFromPixelCanvas(imageData)
+    };
 
+    // Start the interval to update the gradient
+    const intervalId = setInterval(updateGradient, 20); // Adjust interval timing as needed
+
+    return () => {
+        clearInterval(intervalId);
+        animationHandle = false;
+    } // Return a function to stop the animation
 }
+
+// To start the animation
+
 
 function drawSmileyFace() {
     const canvasWidth = imgCol; // Adjust as needed
@@ -179,7 +197,7 @@ function sweepLeft() {
         pixelatedCtx.fillRect(sweepRow, row, 1, 1);
     }
     sweepRow++;
-    if(sweepRow > 29) sweepRow = 0; // Correct reset condition for horizontal movement
+    if (sweepRow > 29) sweepRow = 0; // Correct reset condition for horizontal movement
 }
 
 function sweepRight() {
@@ -194,8 +212,9 @@ function sweepRight() {
         pixelatedCtx.fillRect(colToDraw, row, 1, 1);
     }
     sweepRow++;
-    if(sweepRow > 29) sweepRow = 0; // Reset for horizontal movement, moving left
+    if (sweepRow > 29) sweepRow = 0; // Reset for horizontal movement, moving left
 }
+
 let greyValue = 0; // Initial grey value
 document.addEventListener('keydown', handleKeyPress);
 
@@ -216,11 +235,11 @@ function fillCanvasWithWhite() {
 function handleKeyPress(event) {
     if (event.key === 'ArrowUp') {
         // Increase grey value (make lighter)
-        greyValue = Math.min(greyValue+10, 255);
+        greyValue = Math.min(greyValue + 10, 255);
         drawDMXTest();
     } else if (event.key === 'ArrowDown') {
         // Decrease grey value (make darker)
-        greyValue = Math.max(greyValue-10, 0);
+        greyValue = Math.max(greyValue - 10, 0);
         drawDMXTest();
     }
 }
@@ -228,16 +247,29 @@ function handleKeyPress(event) {
 const blackCheckbox = document.getElementById('blackScreen')
 const whiteCheckbox = document.getElementById('whiteScreen')
 
+let testDrawn = false;
+let animationHandle;    // Handle for the animation to control its lifecycle
+
 export function drawDMXTest() {
-    if(blackCheckbox.checked){
+    // Check for black or white checkbox states
+    if (blackCheckbox.checked) {
+        if(animationHandle) animationHandle()
         fillCanvasWithBlack();
-    } else if(whiteCheckbox.checked){
-        fillCanvasWithWhite()
-    } else{
-    animateGradientSweep()
-}
+    } else if (whiteCheckbox.checked) {
+        if(animationHandle) animationHandle()
+        fillCanvasWithWhite();
+    } else {
+        if (!animationHandle) {
+
+            // Start the gradient animation if no boxes are checked
+            animationHandle = animateGradientSweep();
+            return;  // Skip the rest of the function if starting an animation
+        }
+    }
+
+    // Common operations for black or white canvas
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-    setDMXFromPixelCanvas(imageData)
+    setDMXFromPixelCanvas(imageData);
 }
