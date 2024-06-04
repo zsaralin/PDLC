@@ -105,39 +105,43 @@ export function resetGradientSweep() {
     gradientOffset = 0;
     isSweepingDown = true;
 }
-
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Canvas width, adjust as needed
     const canvasHeight = imgRow; // Canvas height, adjust as needed
 
     let gradientOffset = 0;  // Initialize gradient offset
     let isSweepingDown = true; // Initial direction of the gradient sweep
+    let animSpeed = parseFloat(document.getElementById('animSpeed').value); // Speed of animation from the input
 
     const updateGradient = () => {
         // Create a linear gradient
         let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
-        // Calculate the position of the color stop, wrapping around the canvas height
-        let colorStopPosition = Math.abs((gradientOffset % (canvasHeight * 2)) - canvasHeight) / canvasHeight;
+        // Calculate position of the gradient stop within the canvas, ensuring it wraps smoothly
+        let position = gradientOffset / canvasHeight;
+        let fadeLength = 0.8; // Length of the gradient fade, adjust as needed
 
-        // Add a single color stop for a sweeping effect
-        gradient.addColorStop(colorStopPosition, 'rgb(255, 255, 255)'); // Single stop at varying position
-        gradient.addColorStop(Math.max(0, colorStopPosition - 0.01), 'rgb(0, 0, 0)'); // Black fills the rest
+        // Set gradient transitions using calculated position
+        gradient.addColorStop(Math.max(0, position - fadeLength), 'rgb(0, 0, 0)'); // Start fading from black
+        gradient.addColorStop(position, 'rgb(255, 255, 255)'); // Full white at the middle of the gradient
+        gradient.addColorStop(Math.min(1, position + fadeLength), 'rgb(0, 0, 0)'); // End fading to black
 
         // Apply the gradient as fill style and fill the canvas
         pixelatedCtx.fillStyle = gradient;
         pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-        // Update the gradient offset based on the direction of the sweep
+        // Update the gradient offset based on the direction
         if (isSweepingDown) {
-            gradientOffset += parseFloat(document.getElementById('animSpeed').value);
-            if (gradientOffset >= canvasHeight * 2) {  // When it reaches double the height, it resets
-                gradientOffset = 0;  // Reset to loop seamlessly
+            gradientOffset += animSpeed;
+            if (gradientOffset > canvasHeight) {
+                isSweepingDown = false;
+                gradientOffset = canvasHeight; // Correct for overshoot
             }
         } else {
-            gradientOffset -= parseFloat(document.getElementById('animSpeed').value);
-            if (gradientOffset <= 0) {
+            gradientOffset -= animSpeed;
+            if (gradientOffset < 0) {
                 isSweepingDown = true;
+                gradientOffset = 0; // Correct for undershoot
             }
         }
     };
@@ -148,7 +152,6 @@ function animateGradientSweep() {
     // Return a function to stop the animation
     return () => {
         clearInterval(intervalId);
-        animationHandle = false;
     };
 }
 // To start the animation
