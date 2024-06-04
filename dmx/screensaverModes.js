@@ -107,63 +107,50 @@ export function resetGradientSweep() {
 }
 
 function animateGradientSweep() {
-    const canvasWidth = imgCol; // Adjust as needed
-    const canvasHeight = imgRow; // Adjust as needed
-<<<<<<< HEAD
-=======
-    console.log(canvasHeight)
-    let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
->>>>>>> 2b0ce769895ac3f0ea61c9f7f693bb56da787741
+    const canvasWidth = imgCol; // Canvas width, adjust as needed
+    const canvasHeight = imgRow; // Canvas height, adjust as needed
 
     let gradientOffset = 0;  // Initialize gradient offset
-    let isSweepingDown = true; // Initial direction
+    let isSweepingDown = true; // Initial direction of the gradient sweep
 
     const updateGradient = () => {
+        // Create a linear gradient
         let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
-<<<<<<< HEAD
-        let colorStop1Position = Math.max(0, Math.min(1, (gradientOffset / canvasHeight)));
-        let colorStop2Position = Math.max(0, Math.min(1, (gradientOffset + canvasHeight) / canvasHeight));
+        // Calculate the position of the color stop, wrapping around the canvas height
+        let colorStopPosition = Math.abs((gradientOffset % (canvasHeight * 2)) - canvasHeight) / canvasHeight;
 
-        gradient.addColorStop(colorStop1Position, 'rgb(255, 255, 255)'); // Middle to white
-        gradient.addColorStop(colorStop2Position, 'rgb(0, 0, 0)'); // End with black again
-=======
-    
-    gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Middle to white
-    gradient.addColorStop(.7, 'rgb(0, 0, 0)'); // End with black again
->>>>>>> 2b0ce769895ac3f0ea61c9f7f693bb56da787741
+        // Add a single color stop for a sweeping effect
+        gradient.addColorStop(colorStopPosition, 'rgb(255, 255, 255)'); // Single stop at varying position
+        gradient.addColorStop(Math.max(0, colorStopPosition - 0.01), 'rgb(0, 0, 0)'); // Black fills the rest
 
+        // Apply the gradient as fill style and fill the canvas
         pixelatedCtx.fillStyle = gradient;
         pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Update the gradient offset based on the direction of the sweep
         if (isSweepingDown) {
-            gradientOffset += parseFloat(document.getElementById('animSpeed').value); // Move the gradient down
-
-            if (gradientOffset >= canvasHeight) {
-                isSweepingDown = false; // Change direction to up
+            gradientOffset += parseFloat(document.getElementById('animSpeed').value);
+            if (gradientOffset >= canvasHeight * 2) {  // When it reaches double the height, it resets
+                gradientOffset = 0;  // Reset to loop seamlessly
             }
         } else {
-            gradientOffset -= parseFloat(document.getElementById('animSpeed').value); // Move the gradient up
-            if (gradientOffset <= -canvasHeight) {
-                isSweepingDown = true; // Change direction to down
+            gradientOffset -= parseFloat(document.getElementById('animSpeed').value);
+            if (gradientOffset <= 0) {
+                isSweepingDown = true;
             }
         }
-        const croppedImageData = pixelatedCanvas.toDataURL('image/png');
-        updateCanvas('pixel-canvas', croppedImageData, 0);
-        const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-        setDMXFromPixelCanvas(imageData)
     };
 
-    // Start the interval to update the gradient
-    const intervalId = setInterval(updateGradient, 20); // Adjust interval timing as needed
+    // Start the interval to update the gradient every 20 milliseconds
+    const intervalId = setInterval(updateGradient, 20);
 
+    // Return a function to stop the animation
     return () => {
         clearInterval(intervalId);
         animationHandle = false;
-    } // Return a function to stop the animation
+    };
 }
-
 // To start the animation
 
 
