@@ -109,6 +109,11 @@ export function resetGradientSweep() {
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Adjust as needed
     const canvasHeight = imgRow; // Adjust as needed
+<<<<<<< HEAD
+=======
+    console.log(canvasHeight)
+    let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
+>>>>>>> 2b0ce769895ac3f0ea61c9f7f693bb56da787741
 
     let gradientOffset = 0;  // Initialize gradient offset
     let isSweepingDown = true; // Initial direction
@@ -116,11 +121,17 @@ function animateGradientSweep() {
     const updateGradient = () => {
         let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
 
+<<<<<<< HEAD
         let colorStop1Position = Math.max(0, Math.min(1, (gradientOffset / canvasHeight)));
         let colorStop2Position = Math.max(0, Math.min(1, (gradientOffset + canvasHeight) / canvasHeight));
 
         gradient.addColorStop(colorStop1Position, 'rgb(255, 255, 255)'); // Middle to white
         gradient.addColorStop(colorStop2Position, 'rgb(0, 0, 0)'); // End with black again
+=======
+    
+    gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Middle to white
+    gradient.addColorStop(.7, 'rgb(0, 0, 0)'); // End with black again
+>>>>>>> 2b0ce769895ac3f0ea61c9f7f693bb56da787741
 
         pixelatedCtx.fillStyle = gradient;
         pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -222,8 +233,8 @@ function fillCanvasWithBlack() {
     // Clear the canvas or fill it with grey
     pixelatedCtx.fillStyle = `rgb(${0}, ${0}, ${0})`;
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
-    // pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
-    // pixelatedCtx.fillRect(2, 0, 1, imgRow);
+    pixelatedCtx.fillStyle = `rgb(${255}, ${255}, ${255})`;
+    pixelatedCtx.fillRect(2, 0, 1, imgRow);
 }
 
 function fillCanvasWithWhite() {

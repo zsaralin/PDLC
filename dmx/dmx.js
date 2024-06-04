@@ -20,16 +20,17 @@ export function setDMXFromPixelCanvas(imageData) {
             const green = data[index + 1];
             const blue = data[index + 2];
             // Calculate current brightness
-            const currentBrightness = 0.299 * red + 0.587 * green + 0.114 * blue;
+            const currentBrightness = data[index]//0.299 * red + 0.587 * green + 0.114 * blue;
             // Retrieve previous brightness and calculate smoothed value
             const prevBrightness = prevBrightnessValues[row][col];
             const smoothedBrightness = prevBrightness + smoothingFactor.value/4 * (currentBrightness - prevBrightness);
-
+            
             rowBrightness.push(smoothedBrightness);
             prevBrightnessValues[row][col] = smoothedBrightness;
         }
         brightnessValues.push(rowBrightness);
     }
+    
     updateDMXGrid(brightnessValues);
         fetch(`${SERVER_URL}/set-dmx`, {
             method: 'POST',

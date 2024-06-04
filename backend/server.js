@@ -111,7 +111,7 @@ app.post('/set-dmx', async (req, res) => {
                     let values = new Array(512).fill(255); // Initialize with zeros for all channels
                     channels.forEach(({channel, value}) => {
                         // console.log('uni ' + universe + ' and ' + channel)
-                        if (channel <= 300) { // Considering only channels up to 280
+                        if (channel <= 301) { // Considering only channels up to 280
                             values[channel - 1] = value; // Subtracting 1 to adjust for zero-based indexing
                         }
                     });
