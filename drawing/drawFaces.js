@@ -1,3 +1,4 @@
+import {appVersion} from "../UIElements/appVersionHandler.js";
 
 
 const topCanvases = document.querySelectorAll('.video-container .top-canvas');
@@ -13,9 +14,10 @@ export function drawFaces(canvas, ctx, person, video, i) {
     drawSkeleton(topCanvas,topCtx,person)
 }
 function drawBB(canvas, ctx, person){
+    const isSkeleton = appVersion.value === 'skeleton';
     ctx.beginPath();
-    const leftEar = person.keypoints[4]
-    const rightEar = person.keypoints[3]
+    const leftEar = isSkeleton ? person.keypoints[8] : person.keypoints[4]
+    const rightEar = isSkeleton ? person.keypoints[7] : person.keypoints[3]
     const nose = person.keypoints[0]
     const faceWidth = Math.abs(leftEar.x - rightEar.x);
     const midPointY = nose.y
@@ -30,65 +32,63 @@ function drawBB(canvas, ctx, person){
 let keypoint_thres = .11
 
 function drawSkeleton(canvas,ctx,person){
+    const isSkeleton = appVersion.value === 'skeleton';
+
     ctx.beginPath();
-    ctx.moveTo(person.keypoints[5].x, person.keypoints[5].y);
+    const leftShoulder = isSkeleton ? person.keypoints[12] : person.keypoints[5]
+    const rightShoulder = isSkeleton ? person.keypoints[11] : person.keypoints[6]
+    const leftElbow = isSkeleton ? person.keypoints[14] : person.keypoints[7]
+    const rightElbow = isSkeleton ? person.keypoints[13] : person.keypoints[8]
+    const leftWrist = isSkeleton ? person.keypoints[16] : person.keypoints[9]
+    const rightWrist = isSkeleton ? person.keypoints[15] : person.keypoints[10]
+    const leftHip = isSkeleton ? person.keypoints[24] : person.keypoints[11]
+    const rightHip = isSkeleton ? person.keypoints[23] : person.keypoints[12]
+    const leftKnee = isSkeleton ? person.keypoints[26] : person.keypoints[13]
+    const rightKnee = isSkeleton ? person.keypoints[25] : person.keypoints[14]
+    const leftAnkle = isSkeleton ? person.keypoints[28] : person.keypoints[15]
+    const rightAnkle = isSkeleton ? person.keypoints[27] : person.keypoints[16]
 
-    if (person.keypoints[6].score > keypoint_thres) {
-        ctx.lineTo(person.keypoints[6].x, person.keypoints[6].y);
-        if (person.keypoints[8].score > keypoint_thres) {
-            ctx.lineTo(person.keypoints[8].x, person.keypoints[8].y);
-            if (person.keypoints[10].score > keypoint_thres) {
-                ctx.lineTo(person.keypoints[10].x, person.keypoints[10].y);
+    ctx.moveTo(leftShoulder.x, leftShoulder.y);
+
+    if (rightShoulder.score > keypoint_thres) {
+        ctx.lineTo(rightShoulder.x, rightShoulder.y);
+        if (rightElbow.score > keypoint_thres) {
+            ctx.lineTo(rightElbow.x, rightElbow.y);
+            if (rightWrist.score > keypoint_thres) {
+                ctx.lineTo(rightWrist.x, rightWrist.y);
             }
         }
     }
 
-    ctx.moveTo(person.keypoints[5].x, person.keypoints[5].y);
-    if (person.keypoints[7].score > keypoint_thres) {
-        ctx.lineTo(person.keypoints[7].x, person.keypoints[7].y);
-        if (person.keypoints[9].score > keypoint_thres) {
-            ctx.lineTo(person.keypoints[9].x, person.keypoints[9].y);
+    ctx.moveTo(leftShoulder.x, leftShoulder.y);
+    if (leftElbow.score > keypoint_thres) {
+        ctx.lineTo(leftElbow.x, leftElbow.y);
+        if (leftWrist.score > keypoint_thres) {
+            ctx.lineTo(leftWrist.x, leftWrist.y);
         }
     }
 
-    ctx.moveTo(person.keypoints[5].x, person.keypoints[5].y);
-    if (person.keypoints[11].score > keypoint_thres) {
-        ctx.lineTo(person.keypoints[11].x, person.keypoints[11].y);
-        if (person.keypoints[13].score > keypoint_thres) {
-            ctx.lineTo(person.keypoints[13].x, person.keypoints[13].y);
-            if (person.keypoints[15].score > keypoint_thres) {
-                ctx.lineTo(person.keypoints[15].x, person.keypoints[15].y);
+    ctx.moveTo(leftShoulder.x, leftShoulder.y);
+    if (leftHip.score > keypoint_thres) {
+        ctx.lineTo(leftHip.x, leftHip.y);
+        if (leftKnee.score > keypoint_thres) {
+            ctx.lineTo(leftKnee.x, leftKnee.y);
+            if (leftAnkle.score > keypoint_thres) {
+                ctx.lineTo(leftAnkle.x, leftAnkle.y);
             }
         }
     }
 
-    ctx.moveTo(person.keypoints[6].x, person.keypoints[6].y);
-    if (person.keypoints[12].score > keypoint_thres) {
-        ctx.lineTo(person.keypoints[12].x, person.keypoints[12].y);
-        if (person.keypoints[14].score > keypoint_thres) {
-            ctx.lineTo(person.keypoints[14].x, person.keypoints[14].y);
-            if (person.keypoints[16].score > keypoint_thres) {
-                ctx.lineTo(person.keypoints[16].x, person.keypoints[16].y);
+    ctx.moveTo(rightShoulder.x, rightShoulder.y);
+    if (rightHip.score > keypoint_thres) {
+        ctx.lineTo(rightHip.x, rightHip.y);
+        if (rightKnee.score > keypoint_thres) {
+            ctx.lineTo(rightKnee.x, rightKnee.y);
+            if (rightAnkle.score > keypoint_thres) {
+                ctx.lineTo(rightAnkle.x, rightAnkle.y);
             }
         }
     }
-    // ctx.moveTo(person.keypoints[12].x, person.keypoints[12].y);
-    // ctx.lineTo(person.keypoints[14].x, person.keypoints[14].y);
-    // ctx.lineTo(person.keypoints[16].x, person.keypoints[16].y);
-    // ctx.lineTo(person.keypoints[18].x, person.keypoints[18].y);
-    //
-    // ctx.moveTo(person.keypoints[11].x, person.keypoints[11].y);
-    // ctx.lineTo(person.keypoints[23].x, person.keypoints[23].y);
-    //
-    // ctx.moveTo(person.keypoints[24].x, person.keypoints[24].y);
-    // ctx.lineTo(person.keypoints[26].x, person.keypoints[26].y);
-    // ctx.lineTo(person.keypoints[28].x, person.keypoints[28].y);
-    // ctx.lineTo(person.keypoints[32].x, person.keypoints[32].y);
-    //
-    // ctx.moveTo(person.keypoints[23].x, person.keypoints[23].y);
-    // ctx.lineTo(person.keypoints[25].x, person.keypoints[25].y);
-    // ctx.lineTo(person.keypoints[27].x, person.keypoints[27].y);
-    // ctx.lineTo(person.keypoints[31].x, person.keypoints[31].y);
 
     ctx.stroke();
     ctx.closePath();

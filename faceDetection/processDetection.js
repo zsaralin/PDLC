@@ -106,7 +106,7 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
     keypoints1.forEach((point1, index) => {
         const point2 = keypoints2[index];
         // Ensure the keypoint names match to compare corresponding points
-        if (point1.name === point2.name && point1.score > 0.3 && point2.score > 0.3) {
+        if (point1.score > 0.3 && point2.score > 0.3) {
             const deltaX = point1.x - point2.x;
             const deltaY = point1.y - point2.y;
             const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);

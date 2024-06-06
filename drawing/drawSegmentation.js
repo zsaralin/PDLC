@@ -10,7 +10,11 @@ import { applyFilters } from "../filters/applyFilters.js";
 let bgSegmenters;
 export async function initBgSegmenters() {
     bgSegmenters = await createBackgroundSegmenter()
+}
 
+export async function getSegmentation(canvas, i){
+    if(!bgSegmenters) await initBgSegmenters()
+    return bgSegmenters[i].estimatePoses(canvas)
 }
 
 export let segmentationBrightness = 128 ;

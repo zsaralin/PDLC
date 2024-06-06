@@ -1,5 +1,7 @@
 let model = "MoveNet"; // Model will always be "MoveNet"
 
+let poseDetectors;
+
 export async function createPoseDetector() {
     const detectorConfig = {
         modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
@@ -14,5 +16,10 @@ export async function createPoseDetector() {
         poseDetection.createDetector(poseDetection.SupportedModels[model], detectorConfig)
     ]);
 
-    return [poseDetector0, poseDetector1];
+    poseDetectors = [poseDetector0, poseDetector1];
+}
+
+export async function getPoseDetection(canvas, i) {
+    if (!poseDetectors) await createPoseDetector()
+    return poseDetectors[i].estimatePoses(canvas)
 }

@@ -69,10 +69,10 @@ export async function computeROI(video, canvas, ctx, person, i) {
 
     let timestamp = Date.now()
 
-    const bbWidth = appVersion === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : person.keypoints[16].score > .3 ? Math.abs(person.keypoints[16].y - person.keypoints[0].y): Math.abs(canvas.height - person.keypoints[0].y);
+    const bbWidth = appVersion.value === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : person.keypoints[27].score > .3 ? Math.abs(person.keypoints[27].y - person.keypoints[0].y): Math.abs(canvas.height - person.keypoints[0].y);
 
     const currCenterX = person.keypoints[0].x
-    const currCenterY = appVersion === 'face' ? person.keypoints[0].y : person.keypoints[11].score > .3 ? person.keypoints[11].y : person.keypoints[0].y
+    const currCenterY = appVersion.value === 'face' ? person.keypoints[0].y : person.keypoints[11].score > .3 ? person.keypoints[11].y : person.keypoints[0].y
 
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
     const {roiW, roiH} = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
