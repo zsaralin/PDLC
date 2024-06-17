@@ -5,14 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const brightness = document.getElementById('brightness');
     const pixelSmoothing = document.getElementById('pixelSmooth');
     const bgCol = document.getElementById('bg');
-
-    let beforeSkel, beforePixel, beforeBgVal;
+    const gaussianBlur = document.getElementById('gaussianBlur');
+    const roi = document.getElementById('roi');
+    
+    let beforeSkel, beforePixel, beforeBgVal, beforeBlur, beforeROI;
 
     function updateUIForFace() {
         bgCol.updateValue(beforeBgVal ?? 0)
         brightness.updateValue(beforeSkel ?? 25)
         pixelSmoothing.updateValue(beforePixel ?? .1)
-
+        gaussianBlur.updateValue(beforeBlur ?? 0)
+        roi.updateValue(beforeROI ?? 3)
     }
 
     function updateUIForSkeleton() {
@@ -26,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
         beforePixel = pixelSmoothing.value;
         pixelSmoothing.updateValue(1)
 
+        beforeBlur = gaussianBlur.value;
+        gaussianBlur.updateValue(11)
+
+        beforeROI = roi.value;
+        roi.updateValue(1.6)
         // skeletonBrightness.style.display = "block";
     }
 

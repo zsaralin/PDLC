@@ -52,8 +52,7 @@ export async function detectVideo() {
     calculateFPS(0)
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
-
-    // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)f
+    // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
     const poseDetections0 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI0, 0): await getPoseDetection(canvasWithOuterROI0, 0);
     currentFaces0 = processDetection(poseDetections0, 0);
 
@@ -116,6 +115,7 @@ async function setupCamera() {
             const streamPromises = targetCameras.map(async (camera, index) => {
                 const video = videoElements[index]; // Select the corresponding video element
                 await initializeVideoStream(camera.deviceId, video);
+
             });
 
             await Promise.all(streamPromises);
@@ -127,7 +127,11 @@ async function setupCamera() {
                     if (video.readyState >= 2) {
                         resolve(video);
                     } else {
+                        console.log('hi')
                         video.onloadeddata = () => resolve(video);
+                        console.log('hi')
+
+
                     }
                 });
             });
