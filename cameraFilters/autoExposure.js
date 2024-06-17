@@ -10,7 +10,10 @@ const brightnessRange = document.getElementById('brightnessRange')
 
 let isAuto = autoEV.checked
 exposureMode.style.display = isAuto ? 'none' : 'block';
-expoComp.style.display = !isAuto && (this.value === 'manual') ? 'block' : 'none';
+document.addEventListener('DOMContentLoaded', () => {
+    console.log(exposureModeSelect.value)
+    expoComp.style.display = !isAuto && (exposureModeSelect.value === 'manual') ? 'block' : 'none';
+})
 brightnessRange.style.display = isAuto ? 'block' : 'none';
 
 const minExposureTime = 50; 

@@ -21,12 +21,31 @@ export async function createBackgroundSegmenter() {
                 type: typeBP,
             };
             break;
+        case "BodyPix":
+            console.log('hey')
+
+            chosenModel = bodySegmentation.SupportedModels.BodyPix;
+            detectorConfig = {
+                architecture: 'ResNet50',
+                outputStride: parseFloat(16),
+                multiplier: parseFloat(1.0),
+                quantBytes: parseFloat(1)
+            };
+            break;
+
         default:
             console.error("Unsupported model:", model);
             return [];
     }
 
-    const poseDetector0 = await poseDetection.createDetector(chosenModel, detectorConfig);
-    const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
-    return [poseDetector0, poseDetector1];
+    if(model !== "BodyPix"){
+        const poseDetector0 = await poseDetection.createDetector(chosenModel, detectorConfig);
+        const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
+        return [poseDetector0, poseDetector1];
+    } else {
+        const poseDetector0 = await bodySegmentation.createSegmenter(chosenModel, detectorConfig);
+        const poseDetector1 = await bodySegmentation.createSegmenter(chosenModel, detectorConfig);
+        return [poseDetector0, poseDetector1];
+
+    }
 }

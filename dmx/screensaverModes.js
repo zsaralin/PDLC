@@ -156,31 +156,95 @@ function animateGradientBar() {
 }
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Canvas width, adjust as needed
-    const canvasHeight = imgRow * 1.5; // Canvas height, adjust as needed
+    const visibleCanvasHeight = imgRow * 1; // Canvas height, adjust as needed
+    const extendedCanvasHeight = visibleCanvasHeight * 4; // Extended height for longer transitions
 
     let gradientOffset = 0;  // Initialize gradient offset
+    let direction = 1;  // Initialize direction (1 for down, -1 for up)
+    let timeoutHandle = null; // Store the timeout handle to allow clearing
+    let delayCounter = 0; // Counter to introduce delay at fully black/white states
+    const delayFrames = 50; // Number of frames to delay
+
+    // Define the update function that uses setTimeout for dynamic intervals
+    const updateGradient = () => {
+        // Create a linear gradient from top to bottom
+        let gradient = pixelatedCtx.createLinearGradient(0, -extendedCanvasHeight / 2 + gradientOffset, 0, extendedCanvasHeight / 2 + gradientOffset);
+
+        // Add color stops from black to white
+        gradient.addColorStop(0, 'rgb(0, 0, 0)'); // Black at the start
+        gradient.addColorStop(1, 'rgb(255, 255, 255)'); // White at the end
+
+        // Apply the gradient as fill style and fill the canvas
+        pixelatedCtx.fillStyle = gradient;
+        pixelatedCtx.fillRect(0, 0, canvasWidth, visibleCanvasHeight);
+
+        // Update the gradient offset continuously
+        if (delayCounter > 0) {
+            delayCounter--;
+        } else {
+            gradientOffset += direction; // Update by a fixed small increment
+
+            // Change direction if gradientOffset reaches the extended canvas height bounds
+            if (gradientOffset >= extendedCanvasHeight / 1.8) {
+                direction = -1;  // Reverse the direction
+                delayCounter = delayFrames; // Introduce delay at fully white state
+            } else if (gradientOffset <= -extendedCanvasHeight / 2) {
+                direction = 1;  // Reverse the direction
+                delayCounter = delayFrames; // Introduce delay at fully black state
+            }
+        }
+
+        // Schedule the next update, using the value from the input field to determine the interval
+        timeoutHandle = setTimeout(updateGradient, parseFloat(document.getElementById('animSpeed').value));
+    };
+
+    // Start the first update
+    updateGradient();
+
+
+    // Return a function to stop the animation
+    return () => {
+        clearTimeout(timeoutHandle);
+        linearAnimationHandle = false;
+    };
+}
+
+function animateRadialGradientSweep() {
+    const canvasWidth = imgCol; // Canvas width, adjust as needed
+    const canvasHeight = imgRow * 1; // Canvas height, adjust as needed
+    const maxRadius = Math.sqrt(canvasWidth ** 2 + canvasHeight ** 2); // Maximum radius to cover the canvas
+
+    let gradientOffset = 0;  // Initialize gradient offset
+    let direction = 1;  // Initialize direction (1 for expanding, -1 for contracting)
     let timeoutHandle = null; // Store the timeout handle to allow clearing
 
     // Define the update function that uses setTimeout for dynamic intervals
     const updateGradient = () => {
-        // Create a linear gradient
-        let gradient = pixelatedCtx.createLinearGradient(0, 0, 0, canvasHeight);
+        // Clear the canvas
+        // pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        // Ensure the gradient offsets cycle correctly from 0 to canvasHeight and back
-        let colorStopPosition = Math.abs((gradientOffset % (canvasHeight * 2)) - canvasHeight) / canvasHeight;
+        // Create a radial gradient
+        let gradient = pixelatedCtx.createRadialGradient(
+            canvasWidth / 2, canvasHeight / 2, 0, // Inner circle (center)
+            canvasWidth / 2, canvasHeight / 2, gradientOffset // Outer circle (expanding/contracting)
+        );
 
-        // Configure the gradient to have a seamless transition
-        gradient.addColorStop(colorStopPosition, 'rgb(255, 255, 255)'); // White transitions through the middle
-        gradient.addColorStop(Math.max(0, colorStopPosition - 0.7), 'rgb(0, 0, 0)'); // Black fills the rest
+        // Add color stops from black to white
+        gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Black at the center
+        gradient.addColorStop(1, 'rgb(0, 0, 0)'); // White at the outer edge
 
         // Apply the gradient as fill style and fill the canvas
         pixelatedCtx.fillStyle = gradient;
         pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Update the gradient offset continuously
-        gradientOffset += 0.3; // Update by a fixed small increment
-        if (gradientOffset >= canvasHeight * 2) {  // When it reaches double the height, it resets
-            gradientOffset = 0;  // Reset to loop seamlessly
+        gradientOffset += direction * 1; // Update by a fixed small increment
+
+        // Change direction if gradientOffset reaches the bounds
+        if (gradientOffset >= maxRadius) {
+            direction = -1;  // Reverse the direction
+        } else if (gradientOffset <= 0) {
+            direction = 1;  // Reverse the direction
         }
 
         // Schedule the next update, using the value from the input field to determine the interval
@@ -193,10 +257,9 @@ function animateGradientSweep() {
     // Return a function to stop the animation
     return () => {
         clearTimeout(timeoutHandle);
-        animationHandle = false;
+        radialAnimationHandle = false;
     };
 }
-
 
 function drawSmileyFace() {
     const canvasWidth = imgCol; // Adjust as needed
@@ -287,23 +350,32 @@ function handleKeyPress(event) {
 
 const blackCheckbox = document.getElementById('blackScreen')
 const whiteCheckbox = document.getElementById('whiteScreen')
+const linearGrad = document.getElementById('linearGrad')
 
-let testDrawn = false;
-let animationHandle;    // Handle for the animation to control its lifecycle
-
+let linearAnimationHandle;    // Handle for the animation to control its lifecycle
+let radialAnimationHandle;
 export function drawDMXTest() {
     // Check for black or white checkbox states
     if (blackCheckbox.checked) {
-        if(animationHandle) animationHandle()
+        if(linearAnimationHandle) linearAnimationHandle()
+        if (radialAnimationHandle) radialAnimationHandle()
         fillCanvasWithBlack();
     } else if (whiteCheckbox.checked) {
-        if(animationHandle) animationHandle()
+        if (linearAnimationHandle) linearAnimationHandle()
+        if (radialAnimationHandle) radialAnimationHandle()
         fillCanvasWithWhite();
-    } else {
-        if (!animationHandle) {
-
+    } else if(linearGrad.checked){
+        if (radialAnimationHandle) radialAnimationHandle()
+        if (!linearAnimationHandle) {
             // Start the gradient animation if no boxes are checked
-            animationHandle = animateGradientSweep();
+            linearAnimationHandle = animateGradientSweep();
+            return;  // Skip the rest of the function if starting an animation
+        }
+    } else {
+        if (linearAnimationHandle) linearAnimationHandle()
+        if (!radialAnimationHandle) {
+            // Start the gradient animation if no boxes are checked
+            radialAnimationHandle = animateRadialGradientSweep();
             return;  // Skip the rest of the function if starting an animation
         }
     }
