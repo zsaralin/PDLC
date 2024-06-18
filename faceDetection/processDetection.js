@@ -36,7 +36,7 @@ export function processDetection(data, i) {
             let closestDistance = Number.POSITIVE_INFINITY;
             let closestPerson = activeFaces[i] || data[0]; // Default to first person if activeFaces is null
             for (const person of data) {
-                const distance = calculateKeyPointsDistance(activeFaces[i]?.keypoints || [], person.keypoints);
+                const distance = calculateKeyPointsDistance(activeFaces[i]?.pose.keypoints || [], person.pose.keypoints);
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestPerson = person;
@@ -107,8 +107,8 @@ function calculateKeyPointsDistance(keypoints1, keypoints2) {
         const point2 = keypoints2[index];
         if(!point1 || !point2) return;        // Ensure the keypoint names match to compare corresponding points
         if (point1.score > 0.3 && point2.score > 0.3) {
-            const deltaX = point1.x - point2.x;
-            const deltaY = point1.y - point2.y;
+            const deltaX = point1.position.x - point2.position.x;
+            const deltaY = point1.position.y - point2.position.y;
             const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             totalDistance += distance;
             validPointsCount++;

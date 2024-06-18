@@ -54,6 +54,7 @@ export async function detectVideo() {
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
     const poseDetections0 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI0, 0): await getPoseDetection(canvasWithOuterROI0, 0);
+    // console.log(poseDetections0[0])
     currentFaces0 = processDetection(poseDetections0, 0);
 
     // await drawSegmentation()
@@ -62,7 +63,8 @@ export async function detectVideo() {
         document.getElementById('video-container2').style.display = "block"
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
         copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1);
-        const poseDetections1 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI1, 1): await getPoseDetection(canvasWithOuterROI1, 1);
+        const poseDetections1 = appVersion.value === 'skeleton' ? await getSegmentation(video0, 1): await getPoseDetection(canvasWithOuterROI1, 1)
+
         currentFaces1 = processDetection(poseDetections1, 1);
     }
     if (currentFaces0) {
@@ -234,7 +236,7 @@ async function main() {
     // ctx1.fillStyle = 'white';
     // ctx1.globalAlpha = 0.9;
     // [poseDetector0, poseDetector1] = await createPoseDetector();
-    await initBgSegmenters()
+    // await initBgSegmenters()
     await setupCamera();
 }
 window.onload = main;

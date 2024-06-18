@@ -208,20 +208,20 @@ function animateGradientSweep() {
         linearAnimationHandle = false;
     };
 }
-
 function animateRadialGradientSweep() {
     const canvasWidth = imgCol; // Canvas width, adjust as needed
     const canvasHeight = imgRow * 1; // Canvas height, adjust as needed
-    const maxRadius = Math.sqrt(canvasWidth ** 2 + canvasHeight ** 2); // Maximum radius to cover the canvas
+    const maxRadius = Math.sqrt(canvasWidth ** 2.2 + canvasHeight ** 2.2); // Maximum radius to cover the canvas
 
     let gradientOffset = 0;  // Initialize gradient offset
     let direction = 1;  // Initialize direction (1 for expanding, -1 for contracting)
     let timeoutHandle = null; // Store the timeout handle to allow clearing
+    let isBlackToWhite = true;  // Flag to switch between black-to-white and white-to-black
 
     // Define the update function that uses setTimeout for dynamic intervals
     const updateGradient = () => {
         // Clear the canvas
-        // pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+        pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         // Create a radial gradient
         let gradient = pixelatedCtx.createRadialGradient(
@@ -229,9 +229,14 @@ function animateRadialGradientSweep() {
             canvasWidth / 2, canvasHeight / 2, gradientOffset // Outer circle (expanding/contracting)
         );
 
-        // Add color stops from black to white
-        gradient.addColorStop(0, 'rgb(255, 255, 255)'); // Black at the center
-        gradient.addColorStop(1, 'rgb(0, 0, 0)'); // White at the outer edge
+        // Add color stops based on the current color direction
+        if (isBlackToWhite) {
+            gradient.addColorStop(0, 'rgb(0, 0, 0)'); // Black at the center
+            gradient.addColorStop(1, 'rgb(255, 255, 255)'); // White at the outer edge
+        } else {
+            gradient.addColorStop(0, 'rgb(255, 255, 255)'); // White at the center
+            gradient.addColorStop(1, 'rgb(0, 0, 0)'); // Black at the outer edge
+        }
 
         // Apply the gradient as fill style and fill the canvas
         pixelatedCtx.fillStyle = gradient;
@@ -245,6 +250,14 @@ function animateRadialGradientSweep() {
             direction = -1;  // Reverse the direction
         } else if (gradientOffset <= 0) {
             direction = 1;  // Reverse the direction
+            isBlackToWhite = !isBlackToWhite; // Toggle color direction
+
+            // Fill the canvas with the final color during the pause
+            pixelatedCtx.fillStyle = isBlackToWhite ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)';
+            pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            setTimeout(updateGradient, 1000); // Pause for 1 second when radius is 0
+            return;
         }
 
         // Schedule the next update, using the value from the input field to determine the interval

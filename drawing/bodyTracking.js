@@ -32,7 +32,6 @@ function callbackForVideo(video, i, canvas, ctx, person) {
 
     ctx.restore();
     drawOuterRoi(canvas);
-
     if(person) {
         computeROI(video, canvas, ctx, person, i);
         // ctx.save();

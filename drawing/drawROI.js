@@ -66,26 +66,26 @@ export function setOffsetChanged(){
 }
 
 export async function computeROI(video, canvas, ctx, person, i) {
+    let timestamp = Date.now();
+    console.log(person);
 
-    let timestamp = Date.now()
+    const bbWidth = person.pose.keypoints[16].score > .3 ? Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y) : Math.abs(canvas.height - person.pose.keypoints[0].position.y);
 
-    const bbWidth = appVersion.value === 'face' ? Math.abs(person.keypoints[4].x - person.keypoints[3].x) : person.keypoints[27].score > .3 ? Math.abs(person.keypoints[27].y - person.keypoints[0].y): Math.abs(canvas.height - person.keypoints[0].y);
-
-    const currCenterX = person.keypoints[0].x
-    const currCenterY = appVersion.value === 'face' ? person.keypoints[0].y : person.keypoints[11].score > .3 ? person.keypoints[11].y : person.keypoints[0].y
+    const currCenterX = person.pose.keypoints[0].position.x;
+    const currCenterY = person.pose.keypoints[0].position.y;
 
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
-    const {roiW, roiH} = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
-    
-    let deltaThreshold = centeringLeeway.value * bbWidth
+    const { roiW, roiH } = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
+
+    let deltaThreshold = centeringLeeway.value * bbWidth;
 
     if (!animating[i] && ((Math.abs(currCenterX - adjustedCenterX[i]) > deltaThreshold || Math.abs(currCenterY - adjustedCenterY[i]) > deltaThreshold) || offsetChanged)) {
-        offsetChanged = offsetChanged === true ? false : offsetChanged;  
+        offsetChanged = offsetChanged === true ? false : offsetChanged;
         animatePosition(i, bbWidth, currCenterX, currCenterY, roiW, roiH, canvas);
     }
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
 
-    const can = await drawSegmentation(canvas, ctx, i)
+    const can = await drawSegmentation(canvas, ctx, person, i);
     if(can) filterCtxs[i].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[i].width, filterCanvases[i].height);
 
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
@@ -93,7 +93,6 @@ export async function computeROI(video, canvas, ctx, person, i) {
     // applyFilters(filterCanvases[i], filterCtxs[i], i)
     // applyFilters(off, off.getContext('2d'), person, i)
     updatePixelatedCanvas(filterCanvases[i], filterCtxs[i], i);
-
 }
 
 function setTopLeft(i, roiW, roiH, canvas){

@@ -1,6 +1,8 @@
 import {createBackgroundSegmenter} from "../faceDetection/backgroundSegmenter.js";
 const bgSeg = document.getElementById('bgSeg')
 const bg = document.getElementById('bg')
+const fg = document.getElementById('fg')
+
 import {angle, mirror} from "../UIElements/videoOrientation.js";
 import {appVersion} from "../UIElements/appVersionHandler.js";
 import {adjustSkeletonBrightness} from "../filters/skeletonBrightness.js";
@@ -14,59 +16,47 @@ export async function initBgSegmenters() {
 
 export async function getSegmentation(canvas, i){
     if(!bgSegmenters) await initBgSegmenters()
-    return bgSegmenters[i].estimatePoses(canvas)
+    return bgSegmenters[i].segmentMultiPerson(canvas, {
+        flipHorizontal: false,
+        internalResolution: 'high',
+        maxDetections: 5,
+        refineSteps: 10
+    });
 }
 
 export let segmentationBrightness = 128 ;
-export async function drawSegmentation(canvas, ctx, i) {
+export async function drawSegmentation(canvas, ctx, person, i) {
     if (bgSeg.checked) {
         const radians = angle * Math.PI / 180;
+        if (!person) return;
 
-        let person = await bgSegmenters[i].estimatePoses(canvas);
-        if (!person || !person[0]) return;
-        person = person[0];
-
-        // Create off-screen canvas for segmentation mask processing
         let offscreenCanvas = document.createElement('canvas');
         offscreenCanvas.width = canvas.width;
         offscreenCanvas.height = canvas.height;
         const offscreenCtx = offscreenCanvas.getContext('2d');
 
-        offscreenCtx.drawImage(canvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
-        // if (appVersion === 'skeleton') {
-        //     segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
-        // }
-        // segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
-
-
-        await applyFilters(offscreenCanvas, offscreenCtx, i);
-
         adjustSkeletonBrightness();
         segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
 
         offscreenCtx.globalCompositeOperation = 'destination-in';
-        offscreenCtx.drawImage(person.segmentation.mask.mask, 0, 0, canvas.width, canvas.height);
+        const foregroundColor = fg.value < 0
+            ? {r: 255, g: 255, b: 255, a: Math.abs(fg.value * 255)}
+            : {r: 0, g: 0, b: 0, a: fg.value * 255};
+        const backgroundColor = bg.value < 0
+            ? {r: 255, g: 255, b: 255, a: Math.abs(bg.value * 255)}
+            : {r: 0, g: 0, b: 0, a: bg.value * 255};
+        const backgroundDarkeningMask = bodyPix.toMask(person, foregroundColor, backgroundColor);
+        bodyPix.drawMask(offscreenCanvas, offscreenCanvas, backgroundDarkeningMask, 1, 0, false);
 
-        // if (appVersion === 'skeleton') {
-        // adjustSkeletonBrightness(offscreenCanvas);
-        // }
-
-        // Create a new canvas for the final output
         let outputCanvas = document.createElement('canvas');
         outputCanvas.width = canvas.width;
         outputCanvas.height = canvas.height;
         const outputCtx = outputCanvas.getContext('2d');
-
-        outputCtx.fillStyle = bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
-        outputCtx.fillRect(0, 0, canvas.width, canvas.height);
+        outputCtx.drawImage(canvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
         outputCtx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
-        // segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
 
-        // Draw the final output on the original context
-        // ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
 
-        // Return the final output canvas
         return outputCanvas;
     }
 }

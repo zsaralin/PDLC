@@ -1,12 +1,12 @@
 const UVCControl = require('uvc-control');
 let cameras = [
-    // new UVCControl(0x0BDA, 0x3035, {
-    // processingUnitId: 0x02,
-    // camNum : 0,}),
-    // new UVCControl(0x0BDA, 0x3035, {
-    // processingUnitId: 0x02,
-    // camNum : 1,
-// })
+    new UVCControl(0x0BDA, 0x3035, {
+    processingUnitId: 0x02,
+    camNum : 0,}),
+    new UVCControl(0x0BDA, 0x3035, {
+    processingUnitId: 0x02,
+    camNum : 1,
+})
 ]
 
 

@@ -18,6 +18,9 @@
     "webpack": "^5.90.1",
     "webpack-cli": "^5.1.4"
   },
+  "resolutions": {
+    "tfjs-image-recognition-base/@tensorflow/tfjs-core": "<=1.2.9"
+  },
   "devDependencies": {
     "electron": "^13.2.3"
   },

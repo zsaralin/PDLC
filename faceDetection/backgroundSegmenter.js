@@ -1,5 +1,5 @@
 let typeBP = "lite"; // lite, full, heavy
-export let model = "BlazePose"; // MoveNet, BlazePose
+export let model = "BodyPix"; // MoveNet, BlazePose
 
 export async function createBackgroundSegmenter() {
     let detectorConfig = {};
@@ -22,14 +22,14 @@ export async function createBackgroundSegmenter() {
             };
             break;
         case "BodyPix":
-            console.log('hey')
-
             chosenModel = bodySegmentation.SupportedModels.BodyPix;
             detectorConfig = {
                 architecture: 'ResNet50',
-                outputStride: parseFloat(16),
-                multiplier: parseFloat(1.0),
-                quantBytes: parseFloat(1)
+                // outputStride: parseFloat(16),
+                // multiplier: parseFloat(1.0),
+                // quantBytes: parseFloat(1),
+                runtime: 'tfjs',
+                modelType: 'general'
             };
             break;
 
@@ -43,8 +43,18 @@ export async function createBackgroundSegmenter() {
         const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
         return [poseDetector0, poseDetector1];
     } else {
-        const poseDetector0 = await bodySegmentation.createSegmenter(chosenModel, detectorConfig);
-        const poseDetector1 = await bodySegmentation.createSegmenter(chosenModel, detectorConfig);
+        const poseDetector0 = await bodyPix.load(
+            {
+                architecture: 'ResNet50',
+                outputStride: 32,
+                quantBytes: 2
+            }
+        )//bodySegmentation.createSegmenter(chosenModel, detectorConfig);
+        const poseDetector1 = await bodyPix.load({
+            architecture: 'ResNet50',
+            outputStride: 32,
+            quantBytes: 2
+        })//bodySegmentation.createSegmenter(chosenModel, detectorConfig);
         return [poseDetector0, poseDetector1];
 
     }
