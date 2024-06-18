@@ -18,12 +18,10 @@ export async function getSegmentation(canvas, i){
     if(!bgSegmenters) await initBgSegmenters()
     return bgSegmenters[i].segmentMultiPerson(canvas, {
         flipHorizontal: false,
-        internalResolution: 'full',
+        internalResolution: 'high',
         maxDetections: 5,
         refineSteps: 10,
-        segmentationThreshold: .5,
-        quantBytes: 4,
-        outputStride: 32,
+        segmentationThreshold: .7,
     });
 }
 
@@ -45,17 +43,18 @@ export async function drawSegmentation(canvas, ctx, person, i) {
         const foregroundColor = fg.value < 0
             ? {r: 255, g: 255, b: 255, a: Math.abs(fg.value * 255)}
             : {r: 0, g: 0, b: 0, a: fg.value * 255};
-        const backgroundColor = bg.value < 0
-            ? {r: 255, g: 255, b: 255, a: Math.abs(bg.value * 255)}
-            : {r: 0, g: 0, b: 0, a: bg.value * 255};
+        const backgroundColor = {
+            r : 0, g: 0, b: 0, a : 0
+        }
         const backgroundDarkeningMask = bodyPix.toMask(person, foregroundColor, backgroundColor);
+
         bodyPix.drawMask(offscreenCanvas, offscreenCanvas, backgroundDarkeningMask, 1, 0, false);
 
         let outputCanvas = document.createElement('canvas');
         outputCanvas.width = canvas.width;
         outputCanvas.height = canvas.height;
         const outputCtx = outputCanvas.getContext('2d');
-        outputCtx.drawImage(canvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+        // outputCtx.drawImage(canvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
         outputCtx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
 
         ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);

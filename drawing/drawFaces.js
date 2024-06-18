@@ -6,7 +6,6 @@ const topCtxs = [topCanvases[0].getContext('2d', { willReadFrequently: true }),
                 topCanvases[1].getContext('2d', { willReadFrequently: true })]
 
 export function drawFaces(canvas, ctx, person, video, i) {
-
     const topCtx = topCtxs[i];
     const topCanvas = topCanvases[i];
 
@@ -17,8 +16,8 @@ function drawBB(canvas, ctx, person){
 
     const isSkeleton = appVersion.value === 'skeleton';
     ctx.beginPath();
-    const leftEar = !isSkeleton ? person.keypoints[8] : person.keypoints[4]
-    const rightEar = !isSkeleton ? person.keypoints[7] : person.keypoints[3]
+    const leftEar = !isSkeleton ? person.keypoints[4] : person.keypoints[4]
+    const rightEar = !isSkeleton ? person.keypoints[3] : person.keypoints[3]
     const nose = person.keypoints[0]
     const faceWidth = Math.abs(leftEar.position.x - rightEar.position.x);
     const midPointY = nose.position.y

@@ -65,9 +65,9 @@ export function setOffsetChanged(){
     offsetChanged = true; 
 }
 
+const bg = document.getElementById('bg')
 export async function computeROI(video, canvas, ctx, person, i) {
     let timestamp = Date.now();
-    console.log(person);
 
     const bbWidth = person.pose.keypoints[16].score > .3 ? Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y) : Math.abs(canvas.height - person.pose.keypoints[0].position.y);
 
@@ -86,15 +86,21 @@ export async function computeROI(video, canvas, ctx, person, i) {
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
 
     const can = await drawSegmentation(canvas, ctx, person, i);
-    if(can) filterCtxs[i].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[i].width, filterCanvases[i].height);
+    if(can) {
+        filterCtxs[0].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
+    }
 
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
 
     // applyFilters(filterCanvases[i], filterCtxs[i], i)
     // applyFilters(off, off.getContext('2d'), person, i)
-    updatePixelatedCanvas(filterCanvases[i], filterCtxs[i], i);
+    updatePixelatedCanvas(filterCanvases[0], filterCtxs[0], 0);
 }
 
+export function clearFilterCnv(){
+    filterCtxs[0].fillStyle =  bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
+    filterCtxs[0].fillRect(0,0,filterCanvases[0].width, filterCanvases[0].height)
+}
 function setTopLeft(i, roiW, roiH, canvas){
     topLeftX[i] = adjustedCenterX[i] - roiW / 2;
     topLeftY[i] =  adjustedCenterY[i] - roiH / 2;

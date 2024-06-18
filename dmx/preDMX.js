@@ -3,6 +3,7 @@ import { updateCanvas } from "../drawing/updateCanvas.js";
 import { getPixelImageData } from "../drawing/pixelCanvasUtils.js";
 import {fadeToScreensaver} from "./fadeToScreensaver.js";
 import {resetGradientSweep} from "./screensaverModes.js";
+import {drawSegmentation} from "../drawing/drawSegmentation.js";
 
 export let fade_dur = 1000;
 let switch_dur = 8000;
@@ -29,78 +30,90 @@ let fadingBlack = false;
 let isSwitching = false; 
 
 
-export function preDMX() {
-    if(offPixelCanvases.length === 0) return
-    if (cam0 && !cam1) {
-        if (isSwitching && currentCamIndex !== 0) {
-            fadeCanvasToBlackAndBack(currentCamIndex)
-            isSwitching = false;
-            setTimeout(() => {
-                if (intervalId !== null) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                currentCamIndex = 0;
-                setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-            }, fade_dur);
-        } else {
-            if(!fadingBlack){
-            if (intervalId !== null) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            currentCamIndex = 0;
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-        } }
-        isBlack = false;
-        
+export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
+    if (cam0 && cam1) {
+        setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam0 && cam1) {
-        if (isSwitching && currentCamIndex !== 0) {
-            fadeCanvasToBlackAndBack(currentCamIndex)
-            isSwitching = false;
-            setTimeout(() => {
-                if (intervalId !== null) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                currentCamIndex = 1;
-                setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-            }, fade_dur);
-        } else {
-            if(!fadingBlack){
-            if (intervalId !== null) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            currentCamIndex = 1;
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-        }
-    }
-        isBlack = false;
-        
-    } else if (cam0 && cam1) {
-        isBlack = false;
-        isSwitching = true;
-        if (!fadingBlack) {
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
-        }
-        if (intervalId === null) {
-            switchCameras(); // Immediately call to ensure we start with the latest data
-            intervalId = setInterval(switchCameras, switch_dur); // Switch every 15 seconds
-        }
+        setDMXFromPixelCanvas(getPixelImageData(0));
+
+    } else if (!cam1 && cam0) {
+        setDMXFromPixelCanvas(getPixelImageData(0));
     } else {
-        if(!isBlack){
-            fadeCanvasToBlack(currentCamIndex)
-            resetGradientSweep()
-            if (intervalId !== null) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-        }
-        else{
-            fadeToScreensaver()
-        }
+        fadeToScreensaver()
     }
+    // if(offPixelCanvases.length === 0) return
+    // if (cam0 && !cam1) {
+    //     if (isSwitching && currentCamIndex !== 0) {
+    //         fadeCanvasToBlackAndBack(currentCamIndex)
+    //         isSwitching = false;
+    //         setTimeout(() => {
+    //             if (intervalId !== null) {
+    //                 clearInterval(intervalId);
+    //                 intervalId = null;
+    //             }
+    //             currentCamIndex = 0;
+    //             setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
+    //         }, fade_dur);
+    //     } else {
+    //         if(!fadingBlack){
+    //         if (intervalId !== null) {
+    //             clearInterval(intervalId);
+    //             intervalId = null;
+    //         }
+    //         currentCamIndex = 0;
+    //         setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
+    //     } }
+    //     isBlack = false;
+    //
+    // } else if (!cam0 && cam1) {
+    //     if (isSwitching && currentCamIndex !== 0) {
+    //         fadeCanvasToBlackAndBack(currentCamIndex)
+    //         isSwitching = false;
+    //         setTimeout(() => {
+    //             if (intervalId !== null) {
+    //                 clearInterval(intervalId);
+    //                 intervalId = null;
+    //             }
+    //             currentCamIndex = 1;
+    //             setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
+    //         }, fade_dur);
+    //     } else {
+    //         if(!fadingBlack){
+    //         if (intervalId !== null) {
+    //             clearInterval(intervalId);
+    //             intervalId = null;
+    //         }
+    //         currentCamIndex = 1;
+    //         setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
+    //     }
+    // }
+    //     isBlack = false;
+    //
+    // } else if (cam0 && cam1) {
+    //     isBlack = false;
+    //     isSwitching = true;
+    //     if (!fadingBlack) {
+    //         setDMXFromPixelCanvas(getPixelImageData(currentCamIndex));
+    //     }
+    //     if (intervalId === null) {
+    //         switchCameras(); // Immediately call to ensure we start with the latest data
+    //         intervalId = setInterval(switchCameras, switch_dur); // Switch every 15 seconds
+    //     }
+    // } else {
+    //     if(!isBlack){
+    //         fadeCanvasToBlack(currentCamIndex)
+    //         resetGradientSweep()
+    //         if (intervalId !== null) {
+    //             clearInterval(intervalId);
+    //             intervalId = null;
+    //         }
+    //     }
+    //     else{
+    //         fadeToScreensaver()
+    //     }
+    // }
+    // setDMXFromPixelCanvas(getPixelImageData(0));
+
 }
 
 function switchCameras() {
