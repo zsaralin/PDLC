@@ -18,9 +18,12 @@ export async function getSegmentation(canvas, i){
     if(!bgSegmenters) await initBgSegmenters()
     return bgSegmenters[i].segmentMultiPerson(canvas, {
         flipHorizontal: false,
-        internalResolution: 'high',
+        internalResolution: 'full',
         maxDetections: 5,
-        refineSteps: 10
+        refineSteps: 10,
+        segmentationThreshold: .5,
+        quantBytes: 4,
+        outputStride: 32,
     });
 }
 
