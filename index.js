@@ -18,7 +18,8 @@ import {setScreensaverStatus} from './dmx/fadeToScreensaver.js';
 import {createBackgroundSegmenter} from "./faceDetection/backgroundSegmenter.js";
 import {drawSegmentation, getSegmentation, initBgSegmenters} from "./drawing/drawSegmentation.js";
 import {appVersion} from "./UIElements/appVersionHandler.js";
-import {clearFilterCnv} from "./drawing/drawROI.js";
+import {clearFilterCnv, getFilterCtx} from "./drawing/drawROI.js";
+import {updatePixelatedCanvas} from "./drawing/pixelCanvasUtils.js";
 
 let currentFaces0 = null; // Global variable to hold the latest face detection results
 let currentFaces1 = null;
@@ -49,6 +50,7 @@ let numCameras;
 
 const screensaverMode = document.getElementById('screensaver');
 let screensaverInterval;
+const gaussianBlur = document.getElementById('gaussianBlur');
 
 export async function detectVideo() {
     if (screensaverMode.checked) {
@@ -99,7 +101,10 @@ export async function detectVideo() {
         topCtx1.clearRect(0, 0, canvas1.width, canvas1.height);
         setCam1(false);
     }
+    const filterCtx = getFilterCtx()
+    filterCtx.filter = `blur(${gaussianBlur.value}px)`;
 
+    // updatePixelatedCanvas(fcanv, fctx, 0);
 preDMX(currentFaces0, currentFaces1, canvas0, ctx0)
 requestAnimationFrame(() => detectVideo());
 }
@@ -113,6 +118,7 @@ async function setupCamera() {
 
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        console.log(videoInputs)
         const targetCameras = findTargetCameras(videoInputs); // Assuming findTargetCameras returns an array or false
         numCameras = targetCameras.length
         if (targetCameras) {
@@ -120,6 +126,7 @@ async function setupCamera() {
             const videoElements = numCameras === 1 ? [video0] : [video0, video1]; // Ensure video0 and video1 are defined and accessible here
             const streamPromises = targetCameras.map(async (camera, index) => {
                 const video = videoElements[index]; // Select the corresponding video element
+                console.log(camera.deviceId)
                 await initializeVideoStream(camera.deviceId, video);
 
             });
@@ -157,8 +164,7 @@ function findTargetCameras(videoInputs) {
     console.log('finding target caameras')
     // const usbCameras = videoInputs.filter(device => device.label.includes('Usb'));
     console.log(videoInputs)
-    const usbCameras0 = videoInputs[1];
-    return [usbCameras0, videoInputs[0]];
+    return videoInputs
 }
 
 async function initializeVideoStream(deviceId, video) {

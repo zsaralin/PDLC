@@ -51,6 +51,9 @@ let lastCenterY = [];
 let currentAnimationId = [];
 const significantMovePercentage = 0.10; // 10% of the bounding box width
 
+export function getFilterCtx(){
+    return filterCtxs[0]
+}
 for (let i = 0; i < 2; i++) {
     animating[i] = false;
     adjustedCenterX[i] = 0; // Initial position, adjust as needed
@@ -64,6 +67,8 @@ let offsetChanged = false;
 export function setOffsetChanged(){
     offsetChanged = true; 
 }
+const gaussianBlur = document.getElementById('gaussianBlur')
+
 
 const bg = document.getElementById('bg')
 export async function computeROI(video, canvas, ctx, person, i) {
@@ -86,10 +91,10 @@ export async function computeROI(video, canvas, ctx, person, i) {
     setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
 
     const can = await drawSegmentation(canvas, ctx, person, i);
+
     if(can) {
         filterCtxs[0].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
     }
-
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
 
     // applyFilters(filterCanvases[i], filterCtxs[i], i)
