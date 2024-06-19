@@ -152,12 +152,12 @@ app.post('/set-camera-control', (req, res) => {
         return res.status(400).send('Missing control name or value');
     }
 
-    setCameraControl(controlName, value, camIndex, (err) => {
-        if (err) {
-            console.error(`Error setting ${controlName}:`, err);
-            return res.status(500).send(`Error setting ${controlName}`);
-        } else {
-            return res.send(`${controlName} set to ${value}`);
-        }
-    });
+    // setCameraControl(controlName, value, camIndex, (err) => {
+    //     if (err) {
+    //         console.error(`Error setting ${controlName}:`, err);
+    //         return res.status(500).send(`Error setting ${controlName}`);
+    //     } else {
+    //         return res.send(`${controlName} set to ${value}`);
+    //     }
+    // });
 });

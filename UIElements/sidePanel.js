@@ -76,7 +76,7 @@ export function setupSidePanel() {
     createRangeSliderComponent('contrastEnh', handleSliderChange);
 
     initClahe();
-    initCamFilters();
+    // initCamFilters();
 
     function toggleSidePanel(event) {
         if (event.key === 'g') {
