@@ -1,4 +1,4 @@
-import { angle , mirror} from "../UIElements/videoOrientation.js";
+import { angle , mirror0, mirror1} from "../UIElements/videoOrientation.js";
 let roi;
 let showOuterRoi = false;
 const outerRoiCheckbox = document.getElementById('outerRoi');
@@ -36,7 +36,7 @@ export function updateOuterRoi() {
     };
 }
 
-export function copyVideoToCanvas(ctx, video, canvas) {
+export function copyVideoToCanvas(ctx, video, canvas, i) {
     const radians = angle * Math.PI / 180; // Convert to radians
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save(); // Save the current context state
@@ -47,7 +47,7 @@ export function copyVideoToCanvas(ctx, video, canvas) {
     // Rotate the canvas
     ctx.rotate(radians);
     // Apply mirroring if needed
-    if (mirror) {
+    if (i === 0 && mirror0 || i === 1 && mirror1) {
         if (angle % 180 === 0) {
             ctx.scale(-1, 1)
         } else {

@@ -3,7 +3,7 @@ import OneEuroFilter from "./euroFilter.js";
 const lag = document.getElementById('lag');
 import {applyFilters} from "../filters/applyFilters.js";
 import {imgRatio} from "../dmx/imageRatio.js";
-import {mirror, angle} from "../UIElements/videoOrientation.js";
+import {angle} from "../UIElements/videoOrientation.js";
 import {appVersion} from "../UIElements/appVersionHandler.js";
 import {createBackgroundSegmenter} from "../faceDetection/backgroundSegmenter.js";
 import { drawSegmentation } from "./drawSegmentation.js";

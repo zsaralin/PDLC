@@ -157,21 +157,23 @@ function animateGradientBar() {
 function animateGradientSweep() {
     const canvasWidth = imgCol; // Canvas width, adjust as needed
     const visibleCanvasHeight = imgRow * 1; // Canvas height, adjust as needed
-    const extendedCanvasHeight = visibleCanvasHeight * 4; // Extended height for longer transitions
+    const extendedCanvasHeight = visibleCanvasHeight * 2; // Extended height for longer transitions
 
     let gradientOffset = 0;  // Initialize gradient offset
     let direction = 1;  // Initialize direction (1 for down, -1 for up)
     let timeoutHandle = null; // Store the timeout handle to allow clearing
     let delayCounter = 0; // Counter to introduce delay at fully black/white states
-    const delayFrames = 50; // Number of frames to delay
+    const delayFrames = 10; // Number of frames to delay
 
     // Define the update function that uses setTimeout for dynamic intervals
     const updateGradient = () => {
         // Create a linear gradient from top to bottom
         let gradient = pixelatedCtx.createLinearGradient(0, -extendedCanvasHeight / 2 + gradientOffset, 0, extendedCanvasHeight / 2 + gradientOffset);
 
-        // Add color stops from black to white
+        // Add color stops to create a sharp transition
         gradient.addColorStop(0, 'rgb(0, 0, 0)'); // Black at the start
+        gradient.addColorStop(0.35, 'rgb(0, 0, 0)'); // Black close to the middle
+        gradient.addColorStop(0.65, 'rgb(255, 255, 255)'); // White close to the middle
         gradient.addColorStop(1, 'rgb(255, 255, 255)'); // White at the end
 
         // Apply the gradient as fill style and fill the canvas
@@ -200,7 +202,6 @@ function animateGradientSweep() {
 
     // Start the first update
     updateGradient();
-
 
     // Return a function to stop the animation
     return () => {
@@ -391,6 +392,8 @@ const linearGrad = document.getElementById('linearGrad')
 let linearAnimationHandle;    // Handle for the animation to control its lifecycle
 let radialAnimationHandle;
 export function drawDMXTest() {
+
+
     // Check for black or white checkbox states
     if (blackCheckbox.checked) {
         if(linearAnimationHandle) linearAnimationHandle()

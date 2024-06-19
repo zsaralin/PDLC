@@ -27,18 +27,26 @@ let intervalId = null;
 
 
 let fadingBlack = false; 
-let isSwitching = false; 
+let isSwitching = false;
 
+const pixelSmoothing = document.getElementById('pixelSmooth')
 
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     if (cam0 && cam1) {
+        pixelSmoothing.updateValue(.9)
+
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam0 && cam1) {
+        pixelSmoothing.updateValue(.9)
+
         setDMXFromPixelCanvas(getPixelImageData(0));
 
     } else if (!cam1 && cam0) {
+        pixelSmoothing.updateValue(.9)
+
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else {
+        pixelSmoothing.updateValue(.2)
         fadeToScreensaver()
     }
     // if(offPixelCanvases.length === 0) return

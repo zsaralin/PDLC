@@ -52,6 +52,30 @@ const screensaverMode = document.getElementById('screensaver');
 let screensaverInterval;
 const gaussianBlur = document.getElementById('gaussianBlur');
 
+async function getCameraNativeResolution(deviceId) {
+    const constraints = {
+        video: { deviceId: { exact: deviceId } },
+        audio: false
+    };
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const track = stream.getVideoTracks()[0];
+        const settings = track.getSettings();
+
+        // Stop the stream as we only need the settings
+        track.stop();
+
+        return {
+            width: settings.width,
+            height: settings.height
+        };
+    } catch (error) {
+        console.error('Error accessing the camera: ', error);
+        return null;
+    }
+}
+
 export async function detectVideo() {
     if (screensaverMode.checked) {
         drawDMXTest()
@@ -62,7 +86,7 @@ export async function detectVideo() {
         || (numCameras === 2 && (!video0 || video0.paused || !video1 || video1.paused))) return Promise.resolve(false);
     calculateFPS(0)
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
-    copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0)
+    copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0, 0)
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
     const poseDetections0 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI0, 0) : await getPoseDetection(canvasWithOuterROI0, 0);
     // console.log(poseDetections0[0])
@@ -73,7 +97,7 @@ export async function detectVideo() {
         calculateFPS(1)
         document.getElementById('video-container2').style.display = "block"
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
-        copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1);
+        copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1, 1);
         const poseDetections1 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI1, 1) : await getPoseDetection(canvasWithOuterROI1, 1)
 
         currentFaces1 = processDetection(poseDetections1, 1);
@@ -122,7 +146,12 @@ async function setupCamera() {
         const targetCameras = findTargetCameras(videoInputs); // Assuming findTargetCameras returns an array or false
         numCameras = targetCameras.length
         if (targetCameras) {
-            console.log(numCameras)
+            const [camera1, camera2] = targetCameras;
+
+            const resolution1 = await getCameraNativeResolution(camera1.deviceId);
+            const resolution2 = await getCameraNativeResolution(camera2.deviceId);
+
+            console.log(resolution1)
             const videoElements = numCameras === 1 ? [video0] : [video0, video1]; // Ensure video0 and video1 are defined and accessible here
             const streamPromises = targetCameras.map(async (camera, index) => {
                 const video = videoElements[index]; // Select the corresponding video element
@@ -140,9 +169,7 @@ async function setupCamera() {
                     if (video.readyState >= 2) {
                         resolve(video);
                     } else {
-                        console.log('hi')
                         video.onloadeddata = () => resolve(video);
-                        console.log('hi')
 
 
                     }
@@ -171,8 +198,8 @@ async function initializeVideoStream(deviceId, video) {
     const constraints = {
         video: {
             audio: false, deviceId: {exact: deviceId},
-            width: {ideal: 1920 / 5},  // Requesting a high width
-            height: {ideal: 1080 / 5}
+            width: { exact: 640 /2},  // Exact width
+            height: { exact: 480/2 }, // Exact height to maintain aspect ratio 16:9
         }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);

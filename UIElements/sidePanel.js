@@ -20,10 +20,13 @@ export function setupSidePanel() {
 
     const closePanelButton = document.getElementById("closePanelButton");
     const video = document.getElementById("videoAngle");
-    const mirrorCheckbox = document.getElementById("mirrorCheckbox");
+    const mirrorCheckbox0 = document.getElementById("mirrorCheckbox0");
+    const mirrorCheckbox1 = document.getElementById("mirrorCheckbox1");
 
     closePanelButton.addEventListener("click", toggleSidePanel);
-    mirrorCheckbox.addEventListener("change", handleVideoChange);
+    mirrorCheckbox0.addEventListener("change", handleVideoChange);
+    mirrorCheckbox1.addEventListener("change", handleVideoChange);
+
     video.addEventListener("change", handleVideoChange);
 
     createSliderComponent('targetBrightness');

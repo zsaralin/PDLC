@@ -1,5 +1,5 @@
 import { drawFaces } from "./drawFaces.js";
-import { angle, mirror} from "../UIElements/videoOrientation.js";
+import { angle, mirror0, mirror1} from "../UIElements/videoOrientation.js";
 import { computeROI } from "./drawROI.js";
 import {drawOuterRoi} from "./outerRoi.js";
 
@@ -20,7 +20,7 @@ function callbackForVideo(video, i, canvas, ctx, person) {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(radians);
 
-    if (mirror) {
+    if (i === 0 && mirror0 || i ===1 && mirror1) {
             if (angle % 180 === 0) {
                 ctx.scale(-1, 1)
             } else {

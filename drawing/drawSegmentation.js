@@ -3,7 +3,7 @@ const bgSeg = document.getElementById('bgSeg')
 const bg = document.getElementById('bg')
 const fg = document.getElementById('fg')
 
-import {angle, mirror} from "../UIElements/videoOrientation.js";
+import {angle} from "../UIElements/videoOrientation.js";
 import {appVersion} from "../UIElements/appVersionHandler.js";
 import {adjustSkeletonBrightness} from "../filters/skeletonBrightness.js";
 import { largerCanvases } from "./drawROI.js";
@@ -56,12 +56,12 @@ export async function drawSegmentation(canvas, ctx, person, i) {
         const outputCtx = outputCanvas.getContext('2d');
 
         outputCtx.save();
-        if(i===0){
-        outputCtx.scale(-1, 1);
-        outputCtx.drawImage(offscreenCanvas, -canvas.width, 0, canvas.width, canvas.height);
-        } else{
+        // if(i===0){
+        // outputCtx.scale(-1, 1);
+        // outputCtx.drawImage(offscreenCanvas, -canvas.width, 0, canvas.width, canvas.height);
+        // } else{
                     outputCtx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
-        }
+        // }
         // outputCtx.drawImage(canvas, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
         ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
 
