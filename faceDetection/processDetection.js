@@ -5,11 +5,14 @@ export let activeFaces = []
 let detectionState = []; // Array of objects to track state and counter for each index
 const resetIntervalSlider = document.getElementById('resetInterval')
 export function processDetection(data, i) {
-    const resetInterval = resetIntervalSlider.value * 60 * 1000; // 5 minutes in milliseconds
+    const resetInterval = resetIntervalSlider.value * 60 * 1000; // Reset interval in milliseconds
+    const thresholdToNotNull = 15; // Threshold for switching from null to not null
+    const thresholdToNull = 50; // Threshold for switching from not null to null
+
     if (!detectionState[i]) {
         detectionState[i] = { counter: 0, lastStatus: null, lastChanged: Date.now() };
     }
-    const threshold = 15; // Threshold for switching from null to not null and vice versa
+
     let currentState = data.length > 0 ? 'DATA' : 'NODATA';
 
     if (currentState === 'DATA' && !additionalChecks(data)) {
@@ -23,7 +26,7 @@ export function processDetection(data, i) {
             detectionState[i].lastStatus = 'NODATA';
             detectionState[i].lastChanged = Date.now();  // Reset the timer
             detectionState[i].counter = 0;
-            activeFaces[i] = getLargestFace(data)
+            activeFaces[i] = getLargestFace(data);
         }
     } else {
         detectionState[i].counter = 1;
@@ -32,7 +35,7 @@ export function processDetection(data, i) {
     }
 
     if (currentState === 'DATA') {
-        if (detectionState[i].counter >= threshold || activeFaces[i] !== null) {
+        if (detectionState[i].counter >= thresholdToNotNull || activeFaces[i] !== null) {
             let closestDistance = Number.POSITIVE_INFINITY;
             let closestPerson = activeFaces[i] || data[0]; // Default to first person if activeFaces is null
             for (const person of data) {
@@ -42,10 +45,11 @@ export function processDetection(data, i) {
                     closestPerson = person;
                 }
             }
-            if(closestDistance === Number.POSITIVE_INFINITY ||  closestDistance < 50){
-            activeFaces[i] = closestPerson;}
+            if (closestDistance === Number.POSITIVE_INFINITY || closestDistance < 50) {
+                activeFaces[i] = closestPerson;
+            }
         }
-    } else if (currentState === 'NODATA' && detectionState[i].counter >= threshold) {
+    } else if (currentState === 'NODATA' && detectionState[i].counter >= thresholdToNull) {
         activeFaces[i] = null;
     }
 

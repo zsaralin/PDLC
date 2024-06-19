@@ -31,24 +31,31 @@ let isSwitching = false;
 
 const pixelSmoothing = document.getElementById('pixelSmooth')
 
+const delaytime = 4000
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
-    if (cam0 && cam1) {
-        pixelSmoothing.updateValue(.9)
+    const updateValueWithDelay = (value, delay) => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                pixelSmoothing.updateValue(value);
+                resolve();
+            }, delay);
+        });
+    };
 
+    if (cam0 && cam1) {
+        await updateValueWithDelay(0.9, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam0 && cam1) {
-        pixelSmoothing.updateValue(.9)
-
+        await updateValueWithDelay(0.9, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
-
     } else if (!cam1 && cam0) {
-        pixelSmoothing.updateValue(.9)
-
+        await updateValueWithDelay(0.9, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else {
-        pixelSmoothing.updateValue(.2)
-        fadeToScreensaver()
+        await updateValueWithDelay(0.2, delaytime);
+        fadeToScreensaver();
     }
+
     // if(offPixelCanvases.length === 0) return
     // if (cam0 && !cam1) {
     //     if (isSwitching && currentCamIndex !== 0) {
