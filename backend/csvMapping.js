@@ -28,7 +28,7 @@ function parseCsvFile(filePath) {
 
 // Function to create CSV mappings for both file paths
 function createCsvMapping() {
-    const filePaths = ['./layout1.csv', './layout1.csv','./layout1.csv'];
+    const filePaths = ['./layout0.csv', './layout1.csv','./layout1.csv'];
     return Promise.all(filePaths.map(filePath => parseCsvFile(filePath)));
 }
 
