@@ -16,7 +16,7 @@ export function processDetection(data, i) {
     let currentState = data.length > 0 ? 'DATA' : 'NODATA';
 
     if (currentState === 'DATA' && !additionalChecks(data)) {
-        currentState = 'NODATA'; // Set to NODATA when additional checks fail
+        currentState = 'NODATA';  // Set to NODATA when additional checks fail
     }
 
     if (currentState === detectionState[i].lastStatus) {
@@ -24,21 +24,14 @@ export function processDetection(data, i) {
         if (currentState === 'DATA' && (Date.now() - detectionState[i].lastChanged) > resetInterval) {
             currentState = 'NODATA';
             detectionState[i].lastStatus = 'NODATA';
-            detectionState[i].lastChanged = Date.now(); // Reset the timer
+            detectionState[i].lastChanged = Date.now();  // Reset the timer
             detectionState[i].counter = 0;
-            activeFaces[i] = getClosestPerson(data);
+            activeFaces[i] = getLargestFace(data);
         }
     } else {
         detectionState[i].counter = 1;
         detectionState[i].lastStatus = currentState;
-        detectionState[i].lastChanged = Date.now(); // Reset the timer on state change
-
-        // Dispatch custom events on state change
-        if (currentState === 'NODATA') {
-            document.dispatchEvent(new CustomEvent('stateChange', { detail: { index: i, state: 'NULL' } }));
-        } else if (currentState === 'DATA') {
-            document.dispatchEvent(new CustomEvent('stateChange', { detail: { index: i, state: 'NOT_NULL' } }));
-        }
+        detectionState[i].lastChanged = Date.now();  // Reset the timer on state change
     }
 
     if (currentState === 'DATA') {
@@ -52,9 +45,7 @@ export function processDetection(data, i) {
                     closestPerson = person;
                 }
             }
-            if (closestDistance === Number.POSITIVE_INFINITY || closestDistance < 50) {
-                activeFaces[i] = closestPerson;
-            }
+            activeFaces[i] = closestPerson;
         }
     } else if (currentState === 'NODATA' && detectionState[i].counter >= thresholdToNull) {
         activeFaces[i] = null;
