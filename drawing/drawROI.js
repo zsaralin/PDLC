@@ -116,7 +116,7 @@ function setTopLeft(i, roiW, roiH, canvas, bbWidth) {
 }
 
 function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
-    let roiW = smoothedWidth * roiValue * imgRatio;
+    let roiW = smoothedWidth * roiValue * imgRatio * 2;
     let roiH = smoothedWidth * roiValue;
 
     // Adjust dimensions based on aspect ratio
@@ -125,7 +125,7 @@ function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
 
     if (roiAspectRatio > canvasAspectRatio) {
         roiW = Math.min(roiW, canvas.width);
-        roiH = roiW / imgRatio;
+        // roiH = roiW / imgRatio;
     } else {
         roiH = Math.min(roiH, canvas.height);
         roiW = roiH * imgRatio;
