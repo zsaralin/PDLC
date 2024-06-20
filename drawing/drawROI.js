@@ -107,8 +107,10 @@ export function clearFilterCnv(){
     filterCtxs[0].fillRect(0,0,filterCanvases[0].width, filterCanvases[0].height)
 }
 function setTopLeft(i, roiW, roiH, canvas){
-    topLeftX[i] = adjustedCenterX[i] - roiW / 2;
-    topLeftY[i] =  adjustedCenterY[i] - roiH / 2;
+    topLeftX[i] = (canvas.width - roiW) / 2; // Center X in the canvas
+    topLeftY[i] = adjustedCenterY[i] - roiH / 2;
+    // topLeftX[i] = adjustedCenterX[i] - roiW / 2;
+    // topLeftY[i] =  adjustedCenterY[i] - roiH / 2;
     const width = angle % 90 === 0 ? canvas.height: canvas.width;
     const height = angle % 90 === 0 ? canvas.width: canvas.height;
 
