@@ -16,7 +16,7 @@ export function processDetection(data, i) {
     let currentState = data.length > 0 ? 'DATA' : 'NODATA';
 
     if (currentState === 'DATA' && !additionalChecks(data)) {
-        currentState = 'NODATA';  // Set to NODATA when additional checks fail
+        currentState = 'NODATA'; // Set to NODATA when additional checks fail
     }
 
     if (currentState === detectionState[i].lastStatus) {
@@ -24,14 +24,21 @@ export function processDetection(data, i) {
         if (currentState === 'DATA' && (Date.now() - detectionState[i].lastChanged) > resetInterval) {
             currentState = 'NODATA';
             detectionState[i].lastStatus = 'NODATA';
-            detectionState[i].lastChanged = Date.now();  // Reset the timer
+            detectionState[i].lastChanged = Date.now(); // Reset the timer
             detectionState[i].counter = 0;
-            activeFaces[i] = getLargestFace(data);
+            activeFaces[i] = getClosestPerson(data);
         }
     } else {
         detectionState[i].counter = 1;
         detectionState[i].lastStatus = currentState;
-        detectionState[i].lastChanged = Date.now();  // Reset the timer on state change
+        detectionState[i].lastChanged = Date.now(); // Reset the timer on state change
+
+        // Dispatch custom events on state change
+        if (currentState === 'NODATA') {
+            document.dispatchEvent(new CustomEvent('stateChange', { detail: { index: i, state: 'NULL' } }));
+        } else if (currentState === 'DATA') {
+            document.dispatchEvent(new CustomEvent('stateChange', { detail: { index: i, state: 'NOT_NULL' } }));
+        }
     }
 
     if (currentState === 'DATA') {
@@ -87,21 +94,40 @@ function calculateOKS(activeKeypoints, personKeypoints, scale) {
 }
 
 function getLargestFace(data) {
-    let largestPerson = null;
-    let maxDistance = -1;
+    let closestPerson = null;
+    let minDistance = Number.POSITIVE_INFINITY;
 
-    // Iterate over each person to calculate the face width and find the largest
     for (const person of data) {
-        if (person.keypoints[3] && person.keypoints[4]) {
-            const distance = Math.abs(person.keypoints[4].x - person.keypoints[3].x);
-            if (distance > maxDistance) {
-                maxDistance = distance;
-                largestPerson = person;
-            }
+        // Check for the presence of keypoints: leftEar (3), rightEar (4), nose (0), and midHip (11)
+        const leftEar = person.keypoints[3];
+        const rightEar = person.keypoints[4];
+        const nose = person.keypoints[0];
+        const midHip = person.keypoints[11];
+
+        // Calculate the horizontal distance between ears
+        const earDistance = (leftEar.score > 0.3 && rightEar.score > 0.3) ? Math.abs(leftEar.x - rightEar.x) : null;
+
+        // Calculate the vertical distance between the nose and midHip
+        const verticalDistance = (nose.score > 0.3 && midHip.score > 0.3) ? Math.abs(nose.y - midHip.y) : null;
+
+        // Use the larger of the two distances as a measure of closeness
+        let distance = null;
+        if (earDistance !== null && verticalDistance !== null) {
+            distance = Math.max(earDistance, verticalDistance);
+        } else if (earDistance !== null) {
+            distance = earDistance;
+        } else if (verticalDistance !== null) {
+            distance = verticalDistance;
+        }
+
+        // Update the closest person if a valid distance is found and it's the smallest so far
+        if (distance !== null && distance < minDistance) {
+            minDistance = distance;
+            closestPerson = person;
         }
     }
 
-    return largestPerson;
+    return closestPerson;
 }
 function calculateKeyPointsDistance(keypoints1, keypoints2) {
     let totalDistance = 0;

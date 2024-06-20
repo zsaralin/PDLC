@@ -34,18 +34,18 @@ let keypoint_thres = .11
 function drawSkeleton(canvas, ctx, person) {
     const isSkeleton = appVersion.value === 'skeleton';
     ctx.beginPath();
-    const leftShoulder = !isSkeleton ? person.keypoints[12] : person.keypoints[5];
-    const rightShoulder = !isSkeleton ? person.keypoints[11] : person.keypoints[6];
-    const leftElbow = !isSkeleton ? person.keypoints[14] : person.keypoints[7];
-    const rightElbow = !isSkeleton ? person.keypoints[13] : person.keypoints[8];
-    const leftWrist = !isSkeleton ? person.keypoints[16] : person.keypoints[9];
-    const rightWrist = !isSkeleton ? person.keypoints[15] : person.keypoints[10];
-    const leftHip = !isSkeleton ? person.keypoints[24] : person.keypoints[11];
-    const rightHip = !isSkeleton ? person.keypoints[23] : person.keypoints[12];
-    const leftKnee = !isSkeleton ? person.keypoints[26] : person.keypoints[13];
-    const rightKnee = !isSkeleton ? person.keypoints[25] : person.keypoints[14];
-    const leftAnkle = !isSkeleton ? person.keypoints[28] : person.keypoints[15];
-    const rightAnkle = !isSkeleton ? person.keypoints[27] : person.keypoints[16];
+    const leftShoulder = person.keypoints[5];
+    const rightShoulder = person.keypoints[6];
+    const leftElbow = person.keypoints[7];
+    const rightElbow = person.keypoints[8];
+    const leftWrist = person.keypoints[9];
+    const rightWrist = person.keypoints[10];
+    const leftHip = person.keypoints[11];
+    const rightHip = person.keypoints[12];
+    const leftKnee = person.keypoints[13];
+    const rightKnee = person.keypoints[14];
+    const leftAnkle = person.keypoints[15];
+    const rightAnkle = person.keypoints[16];
 
     ctx.moveTo(leftShoulder.position.x, leftShoulder.position.y);
 

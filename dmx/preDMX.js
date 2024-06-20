@@ -31,7 +31,7 @@ let isSwitching = false;
 
 const pixelSmoothing = document.getElementById('pixelSmooth')
 
-const delaytime = 10
+const delaytime = 0
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     const updateValueWithDelay = (value, delay) => {
         return new Promise((resolve) => {
