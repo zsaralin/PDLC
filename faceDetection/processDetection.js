@@ -6,8 +6,8 @@ let detectionState = []; // Array of objects to track state and counter for each
 const resetIntervalSlider = document.getElementById('resetInterval')
 export function processDetection(data, i) {
     const resetInterval = resetIntervalSlider.value * 60 * 1000; // Reset interval in milliseconds
-    const thresholdToNotNull = 15; // Threshold for switching from null to not null
-    const thresholdToNull = 50; // Threshold for switching from not null to null
+    const thresholdToNotNull = 5; // Threshold for switching from null to not null
+    const thresholdToNull = 5; // Threshold for switching from not null to null
 
     if (!detectionState[i]) {
         detectionState[i] = { counter: 0, lastStatus: null, lastChanged: Date.now() };

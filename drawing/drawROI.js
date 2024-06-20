@@ -74,10 +74,10 @@ const bg = document.getElementById('bg')
 export async function computeROI(video, canvas, ctx, person, i) {
     let timestamp = Date.now();
 
-    const bbWidth = person.pose.keypoints[16].score > .3 ? Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y) : Math.abs(canvas.height - person.pose.keypoints[0].position.y);
+    const bbWidth = Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y) 
 
     const currCenterX = person.pose.keypoints[0].position.x;
-    const currCenterY = person.pose.keypoints[0].position.y;
+    const currCenterY = person.pose.keypoints[11].position.y;
 
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
     const { roiW, roiH } = calculateROIDimensions(canvas, smoothedWidth, roi.value, imgRatio);
