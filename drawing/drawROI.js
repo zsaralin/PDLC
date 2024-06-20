@@ -106,7 +106,7 @@ export function clearFilterCnv(){
     filterCtxs[0].fillRect(0,0,filterCanvases[0].width, filterCanvases[0].height)
 }
 function setTopLeft(i, roiW, roiH, canvas, bbWidth) {
-    let offsetX = parseFloat(roiXOffset.value) * bbWidth;
+    let offsetX = parseFloat(i===0?-roiXOffset.value:roiXOffset.value) * bbWidth;
     let offsetY = parseFloat(roiYOffset.value) * bbWidth;
     topLeftX[i] = (canvas.width - roiW) / 2 + offsetX; // Center X in the canvas with offset
     topLeftY[i] = adjustedCenterY[i] - roiH / 2 + offsetY;
@@ -116,7 +116,7 @@ function setTopLeft(i, roiW, roiH, canvas, bbWidth) {
 }
 
 function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
-    let roiW = smoothedWidth * roiValue * imgRatio * 2;
+    let roiW = smoothedWidth * roiValue * imgRatio;
     let roiH = smoothedWidth * roiValue;
 
     // Adjust dimensions based on aspect ratio
@@ -124,7 +124,7 @@ function calculateROIDimensions(canvas, smoothedWidth, roiValue, imgRatio) {
     let roiAspectRatio = roiW / roiH;
 
     if (roiAspectRatio > canvasAspectRatio) {
-        roiW = Math.min(roiW, canvas.width);
+        roiW = Math.min(roiW, canvas.width*.8);
         // roiH = roiW / imgRatio;
     } else {
         roiH = Math.min(roiH, canvas.height);
