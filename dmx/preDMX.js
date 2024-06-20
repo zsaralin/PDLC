@@ -2,7 +2,7 @@ import { setDMXFromPixelCanvas } from "./dmx.js";
 import { updateCanvas } from "../drawing/updateCanvas.js";
 import { getPixelImageData } from "../drawing/pixelCanvasUtils.js";
 import {fadeToScreensaver} from "./fadeToScreensaver.js";
-import {resetGradientSweep} from "./screensaverModes.js";
+import {fillCanvasWithBlack, resetGradientSweep} from "./screensaverModes.js";
 import {drawSegmentation} from "../drawing/drawSegmentation.js";
 
 export let fade_dur = 1000;
@@ -43,18 +43,20 @@ export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     };
 
     if (cam0 && cam1) {
-        await updateValueWithDelay(0.9, delaytime);
+        await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam0 && cam1) {
-        await updateValueWithDelay(0.9, delaytime);
+        await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam1 && cam0) {
-        await updateValueWithDelay(0.9, delaytime);
+        await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else {
         await updateValueWithDelay(0.2, delaytime);
-        fadeToScreensaver();
-    }
+        fillCanvasWithBlack()
+        setTimeout(() => {
+            fadeToScreensaver();
+        }, 4000);    }
 
     // if(offPixelCanvases.length === 0) return
     // if (cam0 && !cam1) {

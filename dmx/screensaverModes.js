@@ -210,6 +210,7 @@ function animateGradientSweep() {
     };
 }
 function animateRadialGradientSweep() {
+    console.log('ANIMATE GRADIENT SWEEP"')
     const canvasWidth = imgCol; // Canvas width, adjust as needed
     const canvasHeight = imgRow * 1; // Canvas height, adjust as needed
     const maxRadius = Math.sqrt(canvasWidth ** 2.2 + canvasHeight ** 2.2); // Maximum radius to cover the canvas
@@ -217,9 +218,6 @@ function animateRadialGradientSweep() {
     let gradientOffset = 0;  // Initialize gradient offset
     let direction = 1;  // Initialize direction (1 for expanding, -1 for contracting)
     let timeoutHandle = null; // Store the timeout handle to allow clearing
-    let isBlackToWhite = true;  // Flag to switch between black-to-white and white-to-black
-    let isFading = true; // Flag to indicate fading phase
-    let fadeValue = 0;  // Value for fading between 0 and 255
 
     // Function to get random center coordinates
     const getRandomCenter = () => {
@@ -236,53 +234,29 @@ function animateRadialGradientSweep() {
         // Clear the canvas
         pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        if (isFading) {
-            // Create a fade effect by filling the canvas with varying RGB values
-            const colorValue = isBlackToWhite ? fadeValue : 255 - fadeValue;
-            pixelatedCtx.fillStyle = `rgb(${colorValue}, ${colorValue}, ${colorValue})`;
-            pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+        // Create a radial gradient with the random center
+        let gradient = pixelatedCtx.createRadialGradient(
+            center.x, center.y, 0, // Inner circle (center)
+            center.x, center.y, gradientOffset // Outer circle (expanding/contracting)
+        );
 
-            // Update the fade value
-            fadeValue += 5; // Adjust the increment for desired fading speed
+        // Add color stops for black background and white circle
+        gradient.addColorStop(0, 'rgb(255, 255, 255)'); // White at the center
+        gradient.addColorStop(1, 'rgb(0, 0, 0)'); // Black at the outer edge
 
-            // Check if fading is complete
-            if (fadeValue >= 255) {
-                fadeValue = 255;
-                isFading = false; // End fading phase
-            }
-        } else {
-            // Create a radial gradient with the random center
-            let gradient = pixelatedCtx.createRadialGradient(
-                center.x, center.y, 0, // Inner circle (center)
-                center.x, center.y, gradientOffset // Outer circle (expanding/contracting)
-            );
+        // Apply the gradient as fill style and fill the canvas
+        pixelatedCtx.fillStyle = gradient;
+        pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-            // Add color stops based on the current color direction
-            if (isBlackToWhite) {
-                gradient.addColorStop(0, 'rgb(0, 0, 0)'); // Black at the center
-                gradient.addColorStop(1, 'rgb(255, 255, 255)'); // White at the outer edge
-            } else {
-                gradient.addColorStop(0, 'rgb(255, 255, 255)'); // White at the center
-                gradient.addColorStop(1, 'rgb(0, 0, 0)'); // Black at the outer edge
-            }
+        // Update the gradient offset continuously
+        gradientOffset += direction * 1; // Update by a fixed small increment
 
-            // Apply the gradient as fill style and fill the canvas
-            pixelatedCtx.fillStyle = gradient;
-            pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-            // Update the gradient offset continuously
-            gradientOffset += direction * 1; // Update by a fixed small increment
-
-            // Change direction if gradientOffset reaches the bounds
-            if (gradientOffset >= maxRadius) {
-                direction = -1;  // Reverse the direction
-            } else if (gradientOffset <= 0) {
-                direction = 1;  // Reverse the direction
-                isBlackToWhite = !isBlackToWhite; // Toggle color direction
-                isFading = true; // Start fading phase again
-                fadeValue = 0; // Reset fade value
-                center = getRandomCenter(); // Get new random center
-            }
+        // Change direction if gradientOffset reaches the bounds
+        if (gradientOffset >= maxRadius) {
+            direction = -1;  // Reverse the direction
+        } else if (gradientOffset <= 0) {
+            direction = 1;  // Reverse the direction
+            center = getRandomCenter(); // Get new random center
         }
 
         // Schedule the next update, using the value from the input field to determine the interval
@@ -360,7 +334,7 @@ function sweepRight() {
 let greyValue = 0; // Initial grey value
 document.addEventListener('keydown', handleKeyPress);
 
-function fillCanvasWithBlack() {
+export function fillCanvasWithBlack() {
     // Clear the canvas or fill it with grey
     pixelatedCtx.fillStyle = `rgb(${0}, ${0}, ${0})`;
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
