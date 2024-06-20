@@ -74,7 +74,7 @@ const bg = document.getElementById('bg')
 export async function computeROI(video, canvas, ctx, person, i) {
     let timestamp = Date.now();
 
-    const bbWidth = Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y) 
+    const bbWidth = Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y);
 
     const currCenterX = person.pose.keypoints[0].position.x;
     const currCenterY = person.pose.keypoints[11].position.y;
@@ -88,35 +88,29 @@ export async function computeROI(video, canvas, ctx, person, i) {
         offsetChanged = offsetChanged === true ? false : offsetChanged;
         animatePosition(i, bbWidth, currCenterX, currCenterY, roiW, roiH, canvas);
     }
-    setTopLeft(i, roiW, roiH, canvas);  // update every time to account for changes in roiW
+    setTopLeft(i, roiW, roiH, canvas, bbWidth);  // update every time to account for changes in roiW
 
     const can = await drawSegmentation(canvas, ctx, person, i);
-    
-    if(can) {
+
+    if (can) {
         filterCtxs[0].drawImage(can, topLeftX[i], topLeftY[i], roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
     }
     drawROI(topLeftX[i], topLeftY[i], canvas, ctx, i, roiW, roiH);
 
-    // applyFilters(filterCanvases[i], filterCtxs[i], i)
-    // applyFilters(off, off.getContext('2d'), person, i)
     updatePixelatedCanvas(filterCanvases[0], filterCtxs[0], 0);
 }
+
 
 export function clearFilterCnv(){
     filterCtxs[0].fillStyle =  bg.value < 0 ? `rgba(255, 255, 255, ${-bg.value})` : `rgba(0, 0, 0, ${bg.value})`;
     filterCtxs[0].fillRect(0,0,filterCanvases[0].width, filterCanvases[0].height)
 }
-function setTopLeft(i, roiW, roiH, canvas){
-    topLeftX[i] = (canvas.width - roiW) / 2; // Center X in the canvas
-    topLeftY[i] = adjustedCenterY[i] - roiH / 2;
-    // topLeftX[i] = adjustedCenterX[i] - roiW / 2;
-    // topLeftY[i] =  adjustedCenterY[i] - roiH / 2;
-    const width = angle % 90 === 0 ? canvas.height: canvas.width;
-    const height = angle % 90 === 0 ? canvas.width: canvas.height;
+function setTopLeft(i, roiW, roiH, canvas, bbWidth) {
+    let offsetX = parseFloat(roiXOffset.value) * bbWidth;
+    let offsetY = parseFloat(roiYOffset.value) * bbWidth;
+    topLeftX[i] = (canvas.width - roiW) / 2 + offsetX; // Center X in the canvas with offset
+    topLeftY[i] = adjustedCenterY[i] - roiH / 2 + offsetY;
 
-    // if (mirror) {
-    //     topLeftX[i] = canvas.width - (topLeftX[i] + roiW);  // Calculate mirrored position
-    // }
     topLeftX[i] = Math.max(0, Math.min(topLeftX[i], canvas.width - roiW));
     topLeftY[i] = Math.max(0, Math.min(topLeftY[i], canvas.height - roiH));
 }
