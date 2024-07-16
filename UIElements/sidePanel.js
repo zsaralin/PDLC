@@ -52,6 +52,8 @@ export function setupSidePanel() {
     createSliderComponent('fadeDur');
     createSliderComponent('switchDur');
     createSliderComponent('pauseDur');
+    createSliderComponent('grayShade');
+
     createSliderComponent('clipLimit');
     createSliderComponent('tileSize');
     createSliderComponent('contrast', handleSliderChange);

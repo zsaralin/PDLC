@@ -32,6 +32,8 @@ let isSwitching = false;
 const pixelSmoothing = document.getElementById('pixelSmooth')
 
 const delaytime = 0
+let isScreensaver= false; 
+let isAnim = false; 
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     const updateValueWithDelay = (value, delay) => {
         return new Promise((resolve) => {
@@ -43,20 +45,35 @@ export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     };
 
     if (cam0 && cam1) {
+        isScreensaver = false
         await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam0 && cam1) {
+        isScreensaver = false
+
         await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else if (!cam1 && cam0) {
+        isScreensaver = false
+
         await updateValueWithDelay(0.6, delaytime);
         setDMXFromPixelCanvas(getPixelImageData(0));
     } else {
         await updateValueWithDelay(0.2, delaytime);
-        fillCanvasWithBlack()
+        if(!isScreensaver && !isAnim){
+            isAnim = true;
+        const black = document.getElementById('blackScreen')
+        black.checked = true; 
         setTimeout(() => {
+            black.checked = false; 
+            isScreensaver = true;
+            isAnim = false;
+        }, 4000);    
+    }
+        // } else if(isScreensaver && !isAnim)
+    
             fadeToScreensaver();
-        }, 4000);    }
+    }
 
     // if(offPixelCanvases.length === 0) return
     // if (cam0 && !cam1) {

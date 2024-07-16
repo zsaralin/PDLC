@@ -22,7 +22,8 @@
     "tfjs-image-recognition-base/@tensorflow/tfjs-core": "<=1.2.9"
   },
   "devDependencies": {
-    "electron": "^13.2.3"
+    "electron": "^13.6.9",
+    "electron-packager": "^17.1.2"
   },
   "keywords": [],
   "author": "",

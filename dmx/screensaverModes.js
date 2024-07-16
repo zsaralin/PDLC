@@ -347,6 +347,15 @@ function fillCanvasWithWhite() {
     pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
 }
 
+function fillCanvasWithGrey() {
+    let shade = parseFloat(document.getElementById('grayShade').value); // Speed of animation from the input
+
+    // Clear the canvas or fill it with grey
+    pixelatedCtx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
+    pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
+}
+
+
 function handleKeyPress(event) {
     if (event.key === 'ArrowUp') {
         // Increase grey value (make lighter)
@@ -361,6 +370,8 @@ function handleKeyPress(event) {
 
 const blackCheckbox = document.getElementById('blackScreen')
 const whiteCheckbox = document.getElementById('whiteScreen')
+const grayCheckbox = document.getElementById('grayScreen')
+
 const linearGrad = document.getElementById('linearGrad')
 
 let linearAnimationHandle;    // Handle for the animation to control its lifecycle
@@ -373,6 +384,10 @@ export function drawDMXTest() {
         if(linearAnimationHandle) linearAnimationHandle()
         if (radialAnimationHandle) radialAnimationHandle()
         fillCanvasWithBlack();
+    } else if (grayCheckbox.checked) {
+        if(linearAnimationHandle) linearAnimationHandle()
+        if (radialAnimationHandle) radialAnimationHandle()
+        fillCanvasWithGrey();
     } else if (whiteCheckbox.checked) {
         if (linearAnimationHandle) linearAnimationHandle()
         if (radialAnimationHandle) radialAnimationHandle()
