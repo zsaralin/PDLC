@@ -198,8 +198,8 @@ async function initializeVideoStream(deviceId, video) {
     const constraints = {
         video: {
             audio: false, deviceId: {exact: deviceId},
-            width: { exact: 640 /2},  // Exact width
-            height: { exact: 480/2 }, // Exact height to maintain aspect ratio 16:9
+            width: { ideal: 640 /2},  // Exact width
+            height: { ideal: 360/2 }, // Exact height to maintain aspect ratio 16:9
         }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);

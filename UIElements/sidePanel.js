@@ -33,6 +33,8 @@ export function setupSidePanel() {
 
     createSliderComponent('gap', handleGapChange);
     createSliderComponent('pixelSmooth');
+    createSliderComponent('radialSpeed');
+
     createSliderComponent('bg');
     createSliderComponent('fg');
 
@@ -45,8 +47,10 @@ export function setupSidePanel() {
     createSliderComponent('resetInterval');
 
     createSliderComponent('roi');
-    createSliderComponent('roiXOffset', setOffsetChanged);
-    createSliderComponent('roiYOffset', setOffsetChanged);
+    createSliderComponent('roiXOffset0', setOffsetChanged);
+    createSliderComponent('roiYOffset0', setOffsetChanged);
+    createSliderComponent('roiXOffset1', setOffsetChanged);
+    createSliderComponent('roiYOffset1', setOffsetChanged);
     createSliderComponent('outerROIWidth', updateOuterRoi);
     createSliderComponent('outerROIHeight', updateOuterRoi);
     createSliderComponent('fadeDur');
