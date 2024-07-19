@@ -2,6 +2,7 @@ import { createBackgroundSegmenter } from "../faceDetection/backgroundSegmenter.
 const bgSeg = document.getElementById('bgSeg');
 const bg = document.getElementById('bg');
 const fg = document.getElementById('fg');
+const radialEffect = document.getElementById('radialEffect')
 
 import { angle } from "../UIElements/videoOrientation.js";
 import { appVersion } from "../UIElements/appVersionHandler.js";
@@ -10,6 +11,9 @@ import { largerCanvases } from "./drawROI.js";
 import { applyFilters } from "../filters/applyFilters.js";
 
 const radialSpeed = document.getElementById('radialSpeed');
+const radialPause0 = document.getElementById('radialPause0');
+const radialPause1 = document.getElementById('radialPause1');
+
 let bgSegmenters;
 export async function initBgSegmenters() {
     bgSegmenters = await createBackgroundSegmenter();
@@ -87,7 +91,7 @@ export async function drawSegmentation(canvas, ctx, person, i) {
         ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
 
         // Draw the animated gradient circle
-        drawAnimatedGradientCircle(outputCtx, outputCanvas, person);
+        await drawAnimatedGradientCircle(outputCtx, outputCanvas, person);
 
         return outputCanvas;
     }
@@ -123,7 +127,8 @@ function calculateAverageBrightness(ctx, width, height) {
     return totalBrightness / count;
 }
 
-function drawAnimatedGradientCircle(ctx, canvas, person) {
+async function drawAnimatedGradientCircle(ctx, canvas, person) {
+    if (!radialEffect.checked) return;
     const { keypoints } = person.pose;
     const centerX = (keypoints[11].position.x + keypoints[12].position.x) / 2;
     const centerY = (keypoints[11].position.y + keypoints[12].position.y) / 2;
@@ -158,13 +163,15 @@ function drawAnimatedGradientCircle(ctx, canvas, person) {
             blackScreenTimeout = null; // Clear the black screen timeout
 
             delayTimeout = setTimeout(() => {
+                radius = 0; // Reset the radius for continuous animation
                 startTimeout = setTimeout(() => {
-                    radius = 0; // Reset the radius for continuous animation
                     startTimeout = null; // Clear the start delay timeout
-                }, 2000); // 2-second delay before restart
+                }, parseFloat(radialPause0.value) * 1000); // Custom delay before restart
                 delayTimeout = null; // Clear the delay timeout
-            }, 2000); // 2-second delay when fully black
-        }, 2000); // Keep the screen black for 2 seconds
+            }, parseFloat(radialPause1.value) * 1000); // Custom black screen delay
+        }, parseFloat(radialPause1.value) * 1000); // Keep the screen black for the custom delay
+    } else {
+        requestAnimationFrame(() => drawAnimatedGradientCircle(ctx, canvas, person));
     }
 }
 
@@ -186,5 +193,5 @@ function isCanvasMostlyBlack(ctx, canvas) {
     }
 
     const blackRatio = blackPixels / totalPixels;
-    return blackRatio > 0.99; // Return true if more than 75% of the canvas is black
+    return blackRatio > 0.99; // Return true if more than 99% of the canvas is black
 }

@@ -76,7 +76,7 @@ export async function computeROI(video, canvas, ctx, person, i) {
     let smoothedWidth = filter[i].filter(bbWidth, timestamp);
 
     const roiH = canvas.height * parseFloat(roi.value);
-    const roiW = (roiH / 28) * 35;
+    const roiW = (roiH / 28) * 70;
 
     const can = await drawSegmentation(canvas, ctx, person, i);
 
@@ -84,7 +84,7 @@ export async function computeROI(video, canvas, ctx, person, i) {
         const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value ) * bbWidth;
         const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value ) * bbWidth;
         const centerX = (canvas.width - roiW) / 2 + offsetX;
-        const centerY = (canvas.height - roiH) / 2 + offsetY;
+        const centerY = canvas.height - roiH + offsetY; // Align ROI to the bottom
 
         filterCtxs[0].drawImage(can, centerX, centerY, roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
     }
@@ -110,7 +110,7 @@ async function drawROI(canvas, ctx, index, width, height) {
     const offsetX = parseFloat(index === 0 ? roiXOffset0.value : roiXOffset1.value) * bbWidth;
     const offsetY = parseFloat(index === 0 ? roiYOffset0.value : roiYOffset1.value) * bbWidth;
     const centerX = (canvas.width - width) / 2 + offsetX;
-    const centerY = (canvas.height - height) / 2 + offsetY;
+    const centerY = canvas.height - height + offsetY; // Align ROI to the bottom
 
     topCtx.beginPath();
     topCtx.strokeStyle = "blue";

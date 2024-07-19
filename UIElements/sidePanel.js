@@ -34,6 +34,8 @@ export function setupSidePanel() {
     createSliderComponent('gap', handleGapChange);
     createSliderComponent('pixelSmooth');
     createSliderComponent('radialSpeed');
+    createSliderComponent('radialPause0');
+    createSliderComponent('radialPause1');
 
     createSliderComponent('bg');
     createSliderComponent('fg');

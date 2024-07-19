@@ -1,5 +1,6 @@
 const fs = require('fs');
-const {parse}  = require('csv-parse');
+const { parse } = require('csv-parse');
+
 // Function to parse a single CSV file and create a mapping object
 function parseCsvFile(filePath) {
     return new Promise((resolve, reject) => {
@@ -16,7 +17,8 @@ function parseCsvFile(filePath) {
                     const key = `${row}-${col}`;
                     acc[key] = {
                         dmxUniverse: parseInt(record['dmx universe'], 10),
-                        dmxChannel: parseInt(record['dmx channel'], 10)
+                        dmxChannel: parseInt(record['dmx channel'], 10),
+                        dimmerSpeed: parseFloat(record['dimmer_speed'])
                     };
                     return acc;
                 }, {});
@@ -28,7 +30,7 @@ function parseCsvFile(filePath) {
 
 // Function to create CSV mappings for both file paths
 function createCsvMapping() {
-    const filePaths = ['./layout0.csv', './layout1.csv','./layout1.csv'];
+    const filePaths = ['./layout0.csv', './layout1.csv', './layout2.csv'];
     return Promise.all(filePaths.map(filePath => parseCsvFile(filePath)));
 }
 

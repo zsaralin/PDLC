@@ -46,8 +46,8 @@
             </select>
         </label>
         <label >
-            <input type="checkbox" id="mirrorCheckbox0"> Mirror 0
-            <input type="checkbox" id="mirrorCheckbox1" checked> Mirror 1
+            <input type="checkbox" id="mirrorCheckbox0" checked> Mirror 0
+            <input type="checkbox" id="mirrorCheckbox1"> Mirror 1
 
         </label>
         <label class="checkbox-label"> Face vs Skeleton
@@ -60,8 +60,11 @@
         <div id="targetBrightness" min="0" max="255" step="1" value="0" label="Target Brightness"></div>
 
         <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
-        <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".4" label="Pixel Smoothing"></div>
-        <div id="radialSpeed" min="1" max="30" step="2" value="4" label="Radial Speed"></div>
+        <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".8" label="Pixel Smoothing"></div>
+        <div id="radialSpeed" min="1" max="60" step="1" value="6" label="Radial Speed"></div>
+        <input type="checkbox" id="radialEffect" checked> Radial Effect
+        <div id="radialPause0" min="0" max="30" step=".1" value="15" label="Radial Pause 0"></div>
+        <div id="radialPause1" min="0" max="5" step=".1" value="1" label="Radial Pause 1"></div>
 
         <label>
             <input type="checkbox" id="bgSeg" checked> Background Segmentation
@@ -97,7 +100,7 @@
             <div class="group">
             <div class="group-header">ROI <span class="toggle-button">+</span></div>
             <div class="group-content">
-                <div id="roi" min="0.1" max="10" step=".1" value="1" label="ROI"></div>
+                <div id="roi" min="0.1" max="10" step=".1" value=".7" label="ROI"></div>
                 <div id="roiXOffset0" min="-2" max="2" step=".01" value=".0" label="ROI X offset 0"></div>
                 <div id="roiYOffset0" min="-2" max="2" step=".01" value="0" label="ROI Y offset 0 "></div>
                 <div id="roiXOffset1" min="-2" max="2" step=".01" value=".0" label="ROI X offset 1"></div>
@@ -158,7 +161,7 @@
                 <div id="grayscaleExpoSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with expo)"></div>
                 <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo" ></div>
                 <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
-                <div id="gaussianBlur" min="0" max="20" step=".1" value = "7" label="Gaussian Blur"></div>
+                <div id="gaussianBlur" min="0" max="20" step=".1" value = "4" label="Gaussian Blur"></div>
 
         </label>
                     <label>Filter Order:</label>

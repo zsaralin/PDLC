@@ -169,13 +169,18 @@ async function setupCamera() {
                     if (video.readyState >= 2) {
                         resolve(video);
                     } else {
-                        video.onloadeddata = () => resolve(video);
-
-
+                        video.onloadeddata = () => {
+                            console.log('hiiiii done')
+                            resolve(
+                            video
+                        );
+                    }
                     }
                 });
             });
             await Promise.all(loadedPromises);
+            console.log('loaded data')
+
             initializeVideo();
         } else {
             console.log('No target cameras found or targetCamera is false');
@@ -203,6 +208,7 @@ async function initializeVideoStream(deviceId, video) {
         }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
+    console.log('completed the await')
 }
 
 function handleCameraError(err) {
