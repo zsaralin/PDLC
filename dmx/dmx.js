@@ -1,11 +1,10 @@
-import {updateDMXGrid} from "./dmxGrid.js";
-import {imgCol, imgRow} from "./imageRatio.js";
-import {SERVER_URL} from '../config.js'
+import { updateDMXGrid } from "./dmxGrid.js";
+import { imgCol, imgRow } from "./imageRatio.js";
+import { SERVER_URL } from '../config.js';
 
-let prevBrightnessValues = Array.from({length: imgRow}, () => Array(imgCol).fill(0));
-const smoothingFactor = document.getElementById('pixelSmooth')
+let prevBrightnessValues = Array.from({ length: imgRow }, () => Array(imgCol).fill(0));
 
-export function setDMXFromPixelCanvas(imageData) {
+export function setDMXFromPixelCanvas(imageData, pixelSmoothing) {
     let brightnessValues = [];
     const data = imageData.data;
     const imageWidth = imageData.width; // Actual width of the imageData
@@ -20,28 +19,27 @@ export function setDMXFromPixelCanvas(imageData) {
             const green = data[index + 1];
             const blue = data[index + 2];
             // Calculate current brightness
-            const currentBrightness = data[index]//0.299 * red + 0.587 * green + 0.114 * blue;
+            const currentBrightness = data[index]; // 0.299 * red + 0.587 * green + 0.114 * blue;
             // Retrieve previous brightness and calculate smoothed value
             const prevBrightness = prevBrightnessValues[row][col];
-            const smoothedBrightness = prevBrightness + smoothingFactor.value * (currentBrightness - prevBrightness);
+            const smoothedBrightness = prevBrightness + pixelSmoothing * (currentBrightness - prevBrightness);
             rowBrightness.push(smoothedBrightness);
             prevBrightnessValues[row][col] = smoothedBrightness;
         }
         brightnessValues.push(rowBrightness);
     }
-    
+
     updateDMXGrid(brightnessValues);
-        fetch(`${SERVER_URL}/set-dmx`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                dmxValues: brightnessValues // Your DMX values here
-            })
+
+    fetch(`${SERVER_URL}/set-dmx`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            dmxValues: brightnessValues // Your DMX values here
         })
-            .then(response => response.json())
-            .catch(error => console.error('Error:', error));
-
+    })
+        .then(response => response.json())
+        .catch(error => console.error('Error:', error));
 }
-

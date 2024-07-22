@@ -32,7 +32,9 @@ export function setupSidePanel() {
     createSliderComponent('targetBrightness');
 
     createSliderComponent('gap', handleGapChange);
-    createSliderComponent('pixelSmooth');
+    createSliderComponent('pixelSmoothPerson');
+    createSliderComponent('pixelSmoothScreensaver');
+
     createSliderComponent('radialSpeed');
     createSliderComponent('radialPause0');
     createSliderComponent('radialPause1');
@@ -72,6 +74,8 @@ export function setupSidePanel() {
     createSliderComponent('gaussianBlur');
     createSliderComponent('grayExpo');
     createSliderComponent('animSpeed');
+    createSliderComponent('fadeSpeed');
+
     createSliderComponent('camBrightness');
     createSliderComponent('camContrast');
     createSliderComponent('camSaturation');
@@ -85,6 +89,7 @@ export function setupSidePanel() {
     createRangeSliderComponent('grayscaleMapSlider', handleSliderChange);
     createRangeSliderComponent('grayscaleExpoSlider', handleSliderChange);
     createRangeSliderComponent('contrastEnh', handleSliderChange);
+    createRangeSliderComponent('speedRadial', handleSliderChange);
 
     initClahe();
     // initCamFilters();

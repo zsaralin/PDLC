@@ -28,22 +28,23 @@ let intervalId = null;
 let fadingBlack = false;
 let isSwitching = false;
 
-const pixelSmoothing = document.getElementById('pixelSmooth');
+const pixelSmoothPerson = document.getElementById('pixelSmoothPerson');
+const pixelSmoothScreensaver = document.getElementById('pixelSmoothScreensaver');
 
 const delaytime = 0;
 let isScreensaver = false;
 let isAnim = false;
 
-let previousNonZeroTwoValue = parseFloat(pixelSmoothing.value); // Initialize with the current value
+let previousNonZeroTwoValue = parseFloat(pixelSmoothPerson.value); // Initialize with the current value
 
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     const updateValueWithDelay = (value, delay) => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                if (value === 0.2) {
-                    previousNonZeroTwoValue = parseFloat(pixelSmoothing.value);
+                if (value === parseFloat(pixelSmoothScreensaver.value)) {
+                    previousNonZeroTwoValue = parseFloat(pixelSmoothPerson.value);
                 }
-                pixelSmoothing.value = (value === 0.2) ? 0.2 : previousNonZeroTwoValue;
+                pixelSmoothPerson.value = (value === parseFloat(pixelSmoothScreensaver.value)) ? pixelSmoothScreensaver.value : previousNonZeroTwoValue;
                 resolve();
             }, delay);
         });
@@ -52,17 +53,17 @@ export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     if (cam0 && cam1) {
         isScreensaver = false;
         await updateValueWithDelay(previousNonZeroTwoValue, delaytime);
-        setDMXFromPixelCanvas(getPixelImageData(0));
+        setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothPerson.value));
     } else if (!cam0 && cam1) {
         isScreensaver = false;
         await updateValueWithDelay(previousNonZeroTwoValue, delaytime);
-        setDMXFromPixelCanvas(getPixelImageData(0));
+        setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothPerson.value));
     } else if (!cam1 && cam0) {
         isScreensaver = false;
         await updateValueWithDelay(previousNonZeroTwoValue, delaytime);
-        setDMXFromPixelCanvas(getPixelImageData(0));
+        setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothPerson.value));
     } else {
-        await updateValueWithDelay(0.2, delaytime);
+        await updateValueWithDelay(parseFloat(pixelSmoothScreensaver.value), delaytime);
         if (!isScreensaver && !isAnim) {
             isAnim = true;
             const black = document.getElementById('blackScreen');
@@ -74,6 +75,7 @@ export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
             }, 4000);
         }
         fadeToScreensaver();
+        setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothScreensaver.value));
     }
 }
 
@@ -131,7 +133,7 @@ function fadeCanvasToBlackAndBack(canvasIndex, duration = fade_dur) {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             const dataURL = canvas.toDataURL('image/png');
             updateCanvas('pixel-canvas', dataURL, canvasIndex);
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), 1);
+            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), parseFloat(pixelSmoothPerson.value));
             currentFrame++;
             requestAnimationFrame(fadeStep);
         } else {
@@ -165,7 +167,7 @@ function fadeCanvasToBlack(canvasIndex, duration = fade_dur, callback) {
             const croppedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const dataURL = canvas.toDataURL('image/png');
             updateCanvas('pixel-canvas', dataURL, canvasIndex);
-            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), 1);
+            setDMXFromPixelCanvas(getPixelImageData(currentCamIndex), parseFloat(pixelSmoothPerson.value));
 
             if (opacity < 1) {
                 currentFrame++;

@@ -1,6 +1,8 @@
 import {updateCanvas} from "../drawing/updateCanvas.js";
 import {setDMXFromPixelCanvas} from "./dmx.js";
 import {imgCol, imgRow} from "./imageRatio.js";
+import {animateLinearGradientSweep} from "./animateLinearGradientSweep.js";
+import {animateRadialGradientSweep} from "./animateRadialGradientSweep.js";
 
 let sweepRow = 0; // This counter will track the current row for the sweep
 
@@ -209,69 +211,6 @@ function animateGradientSweep() {
         linearAnimationHandle = false;
     };
 }
-function animateRadialGradientSweep() {
-    console.log('ANIMATE GRADIENT SWEEP"')
-    const canvasWidth = imgCol; // Canvas width, adjust as needed
-    const canvasHeight = imgRow * 1; // Canvas height, adjust as needed
-    const maxRadius = Math.sqrt(canvasWidth ** 2.2 + canvasHeight ** 2.2); // Maximum radius to cover the canvas
-
-    let gradientOffset = 0;  // Initialize gradient offset
-    let direction = 1;  // Initialize direction (1 for expanding, -1 for contracting)
-    let timeoutHandle = null; // Store the timeout handle to allow clearing
-
-    // Function to get random center coordinates
-    const getRandomCenter = () => {
-        return {
-            x: Math.random() * canvasWidth,
-            y: Math.random() * canvasHeight
-        };
-    };
-
-    let center = getRandomCenter(); // Initialize with random center coordinates
-
-    // Define the update function that uses setTimeout for dynamic intervals
-    const updateGradient = () => {
-        // Clear the canvas
-        pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-        // Create a radial gradient with the random center
-        let gradient = pixelatedCtx.createRadialGradient(
-            center.x, center.y, 0, // Inner circle (center)
-            center.x, center.y, gradientOffset // Outer circle (expanding/contracting)
-        );
-
-        // Add color stops for black background and white circle
-        gradient.addColorStop(0, 'rgb(255, 255, 255)'); // White at the center
-        gradient.addColorStop(1, 'rgb(0, 0, 0)'); // Black at the outer edge
-
-        // Apply the gradient as fill style and fill the canvas
-        pixelatedCtx.fillStyle = gradient;
-        pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-        // Update the gradient offset continuously
-        gradientOffset += direction * 1; // Update by a fixed small increment
-
-        // Change direction if gradientOffset reaches the bounds
-        if (gradientOffset >= maxRadius) {
-            direction = -1;  // Reverse the direction
-        } else if (gradientOffset <= 0) {
-            direction = 1;  // Reverse the direction
-            center = getRandomCenter(); // Get new random center
-        }
-
-        // Schedule the next update, using the value from the input field to determine the interval
-        timeoutHandle = setTimeout(updateGradient, parseFloat(document.getElementById('animSpeed').value));
-    };
-
-    // Start the first update
-    updateGradient();
-
-    // Return a function to stop the animation
-    return () => {
-        clearTimeout(timeoutHandle);
-        radialAnimationHandle = false;
-    };
-}
 function drawSmileyFace() {
     const canvasWidth = imgCol; // Adjust as needed
     const canvasHeight = imgRow; // Adjust as needed
@@ -368,47 +307,132 @@ function handleKeyPress(event) {
     }
 }
 
-const blackCheckbox = document.getElementById('blackScreen')
-const whiteCheckbox = document.getElementById('whiteScreen')
-const grayCheckbox = document.getElementById('grayScreen')
+const blackCheckbox = document.getElementById('blackScreen');
+const whiteCheckbox = document.getElementById('whiteScreen');
+const grayCheckbox = document.getElementById('grayScreen');
+const linearGrad = document.getElementById('linearGrad');
+const pixelMoverCheckbox = document.getElementById('pixelMover');
+const fadeScreenCheckbox = document.getElementById('fadeScreen');
 
-const linearGrad = document.getElementById('linearGrad')
 
 let linearAnimationHandle;    // Handle for the animation to control its lifecycle
 let radialAnimationHandle;
+let fadeAnimationHandle;
+function animateFadeScreen() {
+    let fadeValue = 0;
+    let fadeDirection = 1; // 1 for fading to white, -1 for fading to black
+    let timeoutHandle = null; // Store the timeout handle to allow clearing
+
+    const fade = () => {
+        const animSpeedSlider = document.getElementById('fadeSpeed');
+        const fadeSpeed = parseFloat(animSpeedSlider.value) / 1000; // Slowed down by factor of 10
+
+        fadeValue += fadeDirection * fadeSpeed;
+
+        if (fadeValue >= 1) {
+            fadeValue = 1;
+            fadeDirection = -1;
+        } else if (fadeValue <= 0) {
+            fadeValue = 0;
+            fadeDirection = 1;
+        }
+
+        const color = Math.round(fadeValue * 255);
+        pixelatedCtx.fillStyle = `rgb(${color}, ${color}, ${color})`;
+        pixelatedCtx.fillRect(0, 0, imgCol, imgRow);
+
+        const croppedImageData = pixelatedCanvas.toDataURL('image/png');
+        updateCanvas('pixel-canvas', croppedImageData, 0);
+        const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
+        setDMXFromPixelCanvas(imageData);
+
+        // Schedule the next update
+        timeoutHandle = setTimeout(fade, 20);
+    };
+
+    // Start the first update
+    fade();
+
+    // Return a function to stop the animation
+    return () => {
+        clearTimeout(timeoutHandle);
+    };
+}
+
+let pixelX = 0;
+let pixelY = 0;
+function drawPixelMover() {
+    fillCanvasWithBlack();
+    pixelatedCtx.fillStyle = 'rgb(255, 255, 255)';
+    pixelatedCtx.fillRect(pixelX, pixelY, 1, 1);
+
+    const croppedImageData = pixelatedCanvas.toDataURL('image/png');
+    updateCanvas('pixel-canvas', croppedImageData, 0);
+    const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
+    setDMXFromPixelCanvas(imageData);
+}
+
 export function drawDMXTest() {
-
-
-    // Check for black or white checkbox states
-    if (blackCheckbox.checked) {
-        if(linearAnimationHandle) linearAnimationHandle()
-        if (radialAnimationHandle) radialAnimationHandle()
+    if (fadeScreenCheckbox.checked) {
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (!fadeAnimationHandle) {
+            fadeAnimationHandle = animateFadeScreen();
+        }
+    } else if (pixelMoverCheckbox.checked) {
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
+        drawPixelMover();
+    } else if (blackCheckbox.checked) {
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
         fillCanvasWithBlack();
     } else if (grayCheckbox.checked) {
-        if(linearAnimationHandle) linearAnimationHandle()
-        if (radialAnimationHandle) radialAnimationHandle()
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
         fillCanvasWithGrey();
     } else if (whiteCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle()
-        if (radialAnimationHandle) radialAnimationHandle()
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
         fillCanvasWithWhite();
-    } else if(linearGrad.checked){
-        if (radialAnimationHandle) radialAnimationHandle()
+    } else if (linearGrad.checked) {
+        if (radialAnimationHandle) radialAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
         if (!linearAnimationHandle) {
-            // Start the gradient animation if no boxes are checked
-            linearAnimationHandle = animateGradientSweep();
-            return;  // Skip the rest of the function if starting an animation
+            linearAnimationHandle = animateLinearGradientSweep(pixelatedCtx);
+            return;
         }
     } else {
-        if (linearAnimationHandle) linearAnimationHandle()
+        if (linearAnimationHandle) linearAnimationHandle();
+        if (fadeAnimationHandle) {
+            fadeAnimationHandle();
+            fadeAnimationHandle = null;
+        }
         if (!radialAnimationHandle) {
-            // Start the gradient animation if no boxes are checked
-            radialAnimationHandle = animateRadialGradientSweep();
-            return;  // Skip the rest of the function if starting an animation
+            radialAnimationHandle = animateRadialGradientSweep(pixelatedCtx);
+            return;
         }
     }
 
-    // Common operations for black or white canvas
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);

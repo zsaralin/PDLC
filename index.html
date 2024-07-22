@@ -60,7 +60,9 @@
         <div id="targetBrightness" min="0" max="255" step="1" value="0" label="Target Brightness"></div>
 
         <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
-        <div id="pixelSmooth" min="0.1" max="1" step=".1" value=".8" label="Pixel Smoothing"></div>
+        <div id="pixelSmoothPerson" min="0.01" max="1" step=".01" value=".8" label="Pixel Smooth Person"></div>
+        <div id="pixelSmoothScreensaver" min="0.01" max="1" step=".01" value=".1" label="Pixel Smooth Screensaver"></div>
+
         <div id="radialSpeed" min="1" max="60" step="1" value="6" label="Radial Speed"></div>
         <input type="checkbox" id="radialEffect" checked> Radial Effect
         <div id="radialPause0" min="0" max="30" step=".1" value="15" label="Radial Pause 0"></div>
@@ -161,7 +163,7 @@
                 <div id="grayscaleExpoSlider" min="0" max="255" step="1" lowValue="0" highValue="255" label="GR (with expo)"></div>
                 <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo" ></div>
                 <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
-                <div id="gaussianBlur" min="0" max="20" step=".1" value = "4" label="Gaussian Blur"></div>
+                <div id="gaussianBlur" min="0" max="20" step=".1" value = "0" label="Gaussian Blur"></div>
 
         </label>
                     <label>Filter Order:</label>
@@ -190,13 +192,17 @@
                 <div class="group-header">DMX Tests <span class="toggle-button">+</span></div>
                 <div class="group-content">
                     <label><input type="checkbox" id="screensaver">Screensaver</label>
-                    <div id="animSpeed" min="5" max="200" step="5" value="90" label="Animation Speed (ms)"></div>
+                    <div id="speedRadial" min=".1" max="5" step=".1" lowValue=".1" highValue=".5" label="Radial Speed"></div>
                     <label><input type="checkbox" id="blackScreen">Black Screen</label>
                     <label><input type="checkbox" id="whiteScreen">White Screen</label>
                     <label><input type="checkbox" id="grayScreen">Gray Screen</label>
+                    <label><input type="checkbox" id="fadeScreen">Fade Screen</label>
+                    <div id="fadeSpeed" min="0" max="100" step="1" value="5" label="Fade Speed"></div>
                     <div id="grayShade" min="0" max="255" step="1" value="255" label="Shade"></div>
-
                     <label><input type="checkbox" id="linearGrad">Linear Gradient</label>
+                    <div id="animSpeed" min="5" max="200" step="5" value="90" label="Linear Speed (ms)"></div>
+                    <label><input type="checkbox" id="pixelMover">Pixel Mover</label>
+
                 </div>
             </div>
             <div class="group">
