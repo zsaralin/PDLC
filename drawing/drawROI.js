@@ -76,13 +76,13 @@ export async function computeROI(video, canvas, ctx, person, i) {
     //let smoothedWidth = filter[i].filter(bbWidth, timestamp);
 
     const roiH = canvas.height * parseFloat(roi.value);
-    const roiW = (roiH / 28) * 70;
+    const roiW = (roiH / 28) * 100;
 
     const can = await drawSegmentation(canvas, ctx, person, i);
 
     if (can) {
-        const offsetX = 0//parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value ) * bbWidth;
-        const offsetY = 0//parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value ) * bbWidth;
+        const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value ) * roiH
+        const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value ) * roiH
         const centerX = (canvas.width - roiW) / 2 + offsetX;
         const centerY = canvas.height - roiH + offsetY; // Align ROI to the bottom
 

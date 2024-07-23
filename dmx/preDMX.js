@@ -75,7 +75,7 @@ export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
             }, 4000);
         }
         fadeToScreensaver();
-        setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothScreensaver.value));
+        // setDMXFromPixelCanvas(getPixelImageData(0), parseFloat(pixelSmoothScreensaver.value));
     }
 }
 

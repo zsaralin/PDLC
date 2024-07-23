@@ -436,5 +436,6 @@ export function drawDMXTest() {
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-    setDMXFromPixelCanvas(imageData);
+    const pixelSmoothScreensaver = document.getElementById('pixelSmoothScreensaver')
+    setDMXFromPixelCanvas(imageData , parseFloat(pixelSmoothScreensaver.value));
 }
