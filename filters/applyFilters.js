@@ -106,7 +106,7 @@ export async function applyFilters(filterCanvas, filterCtx, i) {
                 }
             }
         }
-    filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
+    // filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
     }
 
     // const croppedGrayscale = filterCanvas.toDataURL('image/png');

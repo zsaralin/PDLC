@@ -50,7 +50,10 @@ export function setupSidePanel() {
     createSliderComponent('cellSize', updateCellSize);
     createSliderComponent('resetInterval');
 
-    createSliderComponent('roi');
+    createSliderComponent('roiX');
+    createSliderComponent('roiY');
+    createSliderComponent('stretchX');
+    createSliderComponent('stretchY');
     createSliderComponent('roiXOffset0', setOffsetChanged);
     createSliderComponent('roiYOffset0', setOffsetChanged);
     createSliderComponent('roiXOffset1', setOffsetChanged);

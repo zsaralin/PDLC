@@ -1,5 +1,4 @@
 import { imgCol, imgRow } from "./imageRatio.js";
-
 export function animateRadialGradientSweep(pixelatedCtx) {
     const canvasWidth = imgCol;
     const canvasHeight = imgRow * 1;
@@ -68,13 +67,28 @@ export function animateRadialGradientSweep(pixelatedCtx) {
                 gradientOffsets.splice(i, 1);
                 directions.splice(i, 1);
 
-                const newCircleCount = Math.random() < 0.02 ? 2 : 1;
-                for (let j = 0; j < newCircleCount; j++) {
+                const newCircleCount = Math.random() < 0.01 ? 2 : 1;
+                if (newCircleCount === 1) {
                     if (centers.length < 3) {
                         centers.push(getRandomCenter());
                         speeds.push(getRandomSpeed());
                         gradientOffsets.push(0);
                         directions.push(1);
+                    }
+                } else {
+                    if (centers.length < 3) {
+                        centers.push(getRandomCenter());
+                        speeds.push(getRandomSpeed());
+                        gradientOffsets.push(0);
+                        directions.push(1);
+                        setTimeout(() => {
+                            if (centers.length < 3) {
+                                centers.push(getRandomCenter());
+                                speeds.push(getRandomSpeed());
+                                gradientOffsets.push(0);
+                                directions.push(1);
+                            }
+                        }, 1000); // 1 second delay for the second circle
                     }
                 }
             }

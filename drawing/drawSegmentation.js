@@ -23,10 +23,10 @@ export async function getSegmentation(canvas, i) {
     if (!bgSegmenters) await initBgSegmenters();
     return bgSegmenters[i].segmentPeople(canvas, {
         flipHorizontal: false,
-        internalResolution: 'high',
+        internalResolution: 'full',
         segmentBodyParts: false,        // maxDetections: 5,
         // refineSteps: 10,
-        segmentationThreshold: .1,
+        segmentationThreshold: .2,
 
         multiSegmentation: true,
     });
@@ -42,8 +42,12 @@ let radius = 0;
 let delayTimeout = null; // Timeout ID for delay
 let startTimeout = null; // Timeout ID for start delay
 let blackScreenTimeout = null; // Timeout ID for black screen delay
-
 export async function drawSegmentation(canvas, ctx, person) {
+    const stretchXElement = document.getElementById('stretchX');
+    const stretchYElement = document.getElementById('stretchY');
+    const stretchX = parseFloat(stretchXElement.value);
+    const stretchY = parseFloat(stretchYElement.value);
+
     // Helper function to convert value to color
     function valueToColor(value) {
         if (value <= -1) {
@@ -62,7 +66,7 @@ export async function drawSegmentation(canvas, ctx, person) {
     }
 
     const foregroundColor = valueToColor(fg.value);
-    const backgroundColor = { r: 0, g: 0, b: 0, a: 0 } // valueToColor(bg.value);
+    const backgroundColor = { r: 0, g: 0, b: 0, a: 0 }; // Transparent background
 
     // Create a binary mask
     const mask = await bodySegmentation.toBinaryMask(person, foregroundColor, backgroundColor);
@@ -74,12 +78,22 @@ export async function drawSegmentation(canvas, ctx, person) {
     const offscreenCtx = offscreenCanvas.getContext('2d');
     offscreenCtx.putImageData(new ImageData(new Uint8ClampedArray(mask.data), mask.width, mask.height), 0, 0);
 
-    // Draw the resized mask on the main canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
-    ctx.globalAlpha = 1.0; // Use full opacity since fg.value and bg.value include opacity
-    ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
-    return canvas
+    // Calculate the stretched dimensions
+    const stretchedWidth = mask.width * stretchX;
+    const stretchedHeight = mask.height * stretchY;
+
+    // Clear the main canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the resized black mask on the main canvas
+    const maskCenterX = (canvas.width - stretchedWidth) / 2;
+    const maskCenterY = (canvas.height - stretchedHeight) / 2;
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(offscreenCanvas, 0, 0, mask.width, mask.height, maskCenterX, maskCenterY, stretchedWidth, stretchedHeight);
+    return canvas;
 }
+
+
 // export async function drawSegmentation(canvas, ctx, person, i) {
 //     if (bgSeg.checked && person) {
 //         console.log(person);

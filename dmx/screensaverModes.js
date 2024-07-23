@@ -373,65 +373,76 @@ function drawPixelMover() {
 }
 
 export function drawDMXTest() {
-    if (fadeScreenCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (!fadeAnimationHandle) {
-            fadeAnimationHandle = animateFadeScreen();
-        }
-    } else if (pixelMoverCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        drawPixelMover();
-    } else if (blackCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        fillCanvasWithBlack();
-    } else if (grayCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        fillCanvasWithGrey();
-    } else if (whiteCheckbox.checked) {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        fillCanvasWithWhite();
-    } else if (linearGrad.checked) {
-        if (radialAnimationHandle) radialAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        if (!linearAnimationHandle) {
-            linearAnimationHandle = animateLinearGradientSweep(pixelatedCtx);
-            return;
-        }
-    } else {
-        if (linearAnimationHandle) linearAnimationHandle();
-        if (fadeAnimationHandle) {
-            fadeAnimationHandle();
-            fadeAnimationHandle = null;
-        }
-        if (!radialAnimationHandle) {
-            radialAnimationHandle = animateRadialGradientSweep(pixelatedCtx);
-            return;
-        }
+    console.log('h i u are doing test ')
+    if (linearAnimationHandle) linearAnimationHandle();
+    if (fadeAnimationHandle) {
+        fadeAnimationHandle();
+        fadeAnimationHandle = null;
     }
+    if (!radialAnimationHandle) {
+        radialAnimationHandle = animateRadialGradientSweep(pixelatedCtx);
+        return;
+    }
+    // if (fadeScreenCheckbox.checked) {
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (!fadeAnimationHandle) {
+    //         fadeAnimationHandle = animateFadeScreen();
+    //     }
+    // } else if (pixelMoverCheckbox.checked) {
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     drawPixelMover();
+    // } else if (blackCheckbox.checked) {
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     fillCanvasWithBlack();
+    // } else if (grayCheckbox.checked) {
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     fillCanvasWithGrey();
+    // } else if (whiteCheckbox.checked) {
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     fillCanvasWithWhite();
+    // } else if (linearGrad.checked) {
+    //     if (radialAnimationHandle) radialAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     if (!linearAnimationHandle) {
+    //         linearAnimationHandle = animateLinearGradientSweep(pixelatedCtx);
+    //         return;
+    //     }
+    // } else {
+    //     console.log('hi im')
+    //     if (linearAnimationHandle) linearAnimationHandle();
+    //     if (fadeAnimationHandle) {
+    //         fadeAnimationHandle();
+    //         fadeAnimationHandle = null;
+    //     }
+    //     if (!radialAnimationHandle) {
+    //         radialAnimationHandle = animateRadialGradientSweep(pixelatedCtx);
+    //         return;
+    //     }
+    // }
 
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
     updateCanvas('pixel-canvas', croppedImageData, 0);

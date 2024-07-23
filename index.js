@@ -126,7 +126,7 @@ export async function detectVideo() {
         setCam1(false);
     }
     const filterCtx = getFilterCtx()
-    filterCtx.filter = `blur(${gaussianBlur.value}px)`;
+    // filterCtx.filter = `blur(${gaussianBlur.value}px)`;
 
     // updatePixelatedCanvas(fcanv, fctx, 0);
 preDMX(currentFaces0, currentFaces1, canvas0, ctx0)
