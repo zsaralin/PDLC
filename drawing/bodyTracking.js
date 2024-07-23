@@ -38,7 +38,7 @@ function callbackForVideo(video, i, canvas, ctx, person) {
         // ctx.translate(canvas.width / 2, canvas.height / 2);
         // if (mirror) ctx.scale(-1, 1);
         // ctx.translate(-canvas.width / 2, -canvas.height / 2);
-        drawFaces(canvas, ctx, person, video, i);
+        // drawFaces(canvas, ctx, person, video, i);
         // ctx.restore();
     }
 

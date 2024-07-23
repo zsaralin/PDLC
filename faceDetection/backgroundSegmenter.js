@@ -43,14 +43,15 @@ export async function createBackgroundSegmenter() {
         const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
         return [poseDetector0, poseDetector1];
     } else {
-        const poseDetector0 = await bodyPix.load(
+        const poseDetector0 = await bodySegmentation.createSegmenter(model,
             {
                 architecture: 'ResNet50',
                 outputStride: 32,
                 quantBytes: 2
             }
         )//bodySegmentation.createSegmenter(chosenModel, detectorConfig);
-        const poseDetector1 = await bodyPix.load({
+        const poseDetector1 = await bodySegmentation.createSegmenter(model,
+            {
             architecture: 'ResNet50',
             outputStride: 32,
             quantBytes: 2

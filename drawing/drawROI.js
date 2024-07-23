@@ -68,12 +68,12 @@ const bg = document.getElementById('bg');
 export async function computeROI(video, canvas, ctx, person, i) {
     let timestamp = Date.now();
 
-    const bbWidth = Math.abs(person.pose.keypoints[16].position.y - person.pose.keypoints[0].position.y);
+    // const bbWidth = Math.abs(person[0].pose.keypoints[16].position.y - person[0].pose.keypoints[0].position.y);
 
-    const currCenterX = person.pose.keypoints[0].position.x;
-    const currCenterY = person.pose.keypoints[11].position.y;
+   // const currCenterX = person[0].pose.keypoints[0].position.x;
+    //const currCenterY = person[0].pose.keypoints[11].position.y;
 
-    let smoothedWidth = filter[i].filter(bbWidth, timestamp);
+    //let smoothedWidth = filter[i].filter(bbWidth, timestamp);
 
     const roiH = canvas.height * parseFloat(roi.value);
     const roiW = (roiH / 28) * 70;
@@ -81,8 +81,8 @@ export async function computeROI(video, canvas, ctx, person, i) {
     const can = await drawSegmentation(canvas, ctx, person, i);
 
     if (can) {
-        const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value ) * bbWidth;
-        const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value ) * bbWidth;
+        const offsetX = 0//parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value ) * bbWidth;
+        const offsetY = 0//parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value ) * bbWidth;
         const centerX = (canvas.width - roiW) / 2 + offsetX;
         const centerY = canvas.height - roiH + offsetY; // Align ROI to the bottom
 

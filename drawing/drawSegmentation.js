@@ -21,12 +21,13 @@ export async function initBgSegmenters() {
 
 export async function getSegmentation(canvas, i) {
     if (!bgSegmenters) await initBgSegmenters();
-    return bgSegmenters[i].segmentMultiPerson(canvas, {
+    return bgSegmenters[i].segmentPeople(canvas, {
         flipHorizontal: false,
         internalResolution: 'high',
-        maxDetections: 5,
-        refineSteps: 10,
-        segmentationThreshold: .7,
+        segmentBodyParts: false,        // maxDetections: 5,
+        // refineSteps: 10,
+        segmentationThreshold: .1,
+        multiSegmentation: false,
     });
 }
 
@@ -41,61 +42,100 @@ let delayTimeout = null; // Timeout ID for delay
 let startTimeout = null; // Timeout ID for start delay
 let blackScreenTimeout = null; // Timeout ID for black screen delay
 
-export async function drawSegmentation(canvas, ctx, person, i) {
-    if (bgSeg.checked) {
-        const radians = angle * Math.PI / 180;
-        if (!person) return;
-
-        let offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = canvas.width;
-        offscreenCanvas.height = canvas.height;
-        const offscreenCtx = offscreenCanvas.getContext('2d');
-
-        adjustSkeletonBrightness();
-        segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
-
-        offscreenCtx.globalCompositeOperation = 'destination-in';
-
-        let foregroundColor;
-        if (currState[i]) {
-            // Calculate the current color based on transition progress
-            const transitionStep = 0.05; // Adjust this value for faster/slower transitions
-            const colorValue = Math.max(0, 255 - Math.floor(255 * transitionProgress[i]));
-
-            foregroundColor = { r: colorValue, g: colorValue, b: colorValue, a: 255 };
-
-            // Update transition progress
-            transitionProgress[i] += transitionStep;
-            if (transitionProgress[i] >= 1) {
-                currState[i] = false;
-                transitionProgress[i] = 0;
-            }
+export async function drawSegmentation(canvas, ctx, person) {
+    // Helper function to convert value to color
+    function valueToColor(value) {
+        if (value <= -1) {
+            return { r: 255, g: 255, b: 255, a: 255 }; // Opaque white
+        } else if (value >= 1) {
+            return { r: 0, g: 0, b: 0, a: 255 }; // Opaque black
         } else {
-            foregroundColor = fg.value < 0
-                ? { r: 255, g: 255, b: 255, a: Math.abs(fg.value * 255) }
-                : { r: 0, g: 0, b: 0, a: fg.value * 255 };
+            const intensity = Math.abs(value) * 255;
+            const alpha = Math.abs(value) * 255;
+            if (value > 0) {
+                return { r: 0, g: 0, b: 0, a: alpha }; // Black with variable transparency
+            } else {
+                return { r: 255, g: 255, b: 255, a: alpha }; // White with variable transparency
+            }
         }
-
-        const backgroundColor = { r: 0, g: 0, b: 0, a: 0 };
-        const backgroundDarkeningMask = bodyPix.toMask(person, foregroundColor, backgroundColor);
-
-        bodyPix.drawMask(offscreenCanvas, offscreenCanvas, backgroundDarkeningMask, 1, 0, false);
-
-        let outputCanvas = document.createElement('canvas');
-        outputCanvas.width = canvas.width;
-        outputCanvas.height = canvas.height;
-        const outputCtx = outputCanvas.getContext('2d');
-
-        outputCtx.save();
-        outputCtx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
-        ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
-
-        // Draw the animated gradient circle
-        await drawAnimatedGradientCircle(outputCtx, outputCanvas, person);
-
-        return outputCanvas;
     }
+
+    const foregroundColor = valueToColor(fg.value);
+    const backgroundColor = { r: 0, g: 0, b: 0, a: 0 } // valueToColor(bg.value);
+
+    // Create a binary mask
+    const mask = await bodySegmentation.toBinaryMask(person, foregroundColor, backgroundColor);
+
+    // Create an offscreen canvas for resizing the mask
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = mask.width;
+    offscreenCanvas.height = mask.height;
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    offscreenCtx.putImageData(new ImageData(new Uint8ClampedArray(mask.data), mask.width, mask.height), 0, 0);
+
+    // Draw the resized mask on the main canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+    ctx.globalAlpha = 1.0; // Use full opacity since fg.value and bg.value include opacity
+    ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+    return canvas
 }
+// export async function drawSegmentation(canvas, ctx, person, i) {
+//     if (bgSeg.checked && person) {
+//         console.log(person);
+//         const radians = angle * Math.PI / 180;
+//         if (!person) return;
+//
+//         let offscreenCanvas = document.createElement('canvas');
+//         offscreenCanvas.width = canvas.width;
+//         offscreenCanvas.height = canvas.height;
+//         const offscreenCtx = offscreenCanvas.getContext('2d');
+//
+//         adjustSkeletonBrightness();
+//         segmentationBrightness = calculateAverageBrightness(offscreenCtx, canvas.width, canvas.height);
+//
+//         offscreenCtx.globalCompositeOperation = 'destination-in';
+//
+//         let foregroundColor;
+//         if (currState[i]) {
+//             // Calculate the current color based on transition progress
+//             const transitionStep = 0.05; // Adjust this value for faster/slower transitions
+//             const colorValue = Math.max(0, 255 - Math.floor(255 * transitionProgress[i]));
+//
+//             foregroundColor = { r: colorValue, g: colorValue, b: colorValue, a: 255 };
+//
+//             // Update transition progress
+//             transitionProgress[i] += transitionStep;
+//             if (transitionProgress[i] >= 1) {
+//                 currState[i] = false;
+//                 transitionProgress[i] = 0;
+//             }
+//         } else {
+//             foregroundColor = fg.value < 0
+//                 ? { r: 255, g: 255, b: 255, a: Math.abs(fg.value * 255) }
+//                 : { r: 0, g: 0, b: 0, a: fg.value * 255 };
+//         }
+//
+//         const backgroundColor = { r: 0, g: 0, b: 0, a: 0 };
+//
+//         let outputCanvas = document.createElement('canvas');
+//         outputCanvas.width = canvas.width;
+//         outputCanvas.height = canvas.height;
+//         const outputCtx = outputCanvas.getContext('2d');
+//
+//         const maskImage = await bodySegmentation.toBinaryMask(person);
+//
+//         bodySegmentation.drawMask(
+//             outputCanvas, canvas, maskImage, 0.7, 0, false
+//         );
+//
+//         ctx.drawImage(outputCanvas, 0, 0, canvas.width, canvas.height);
+//
+//         // Draw the animated gradient circle
+//         await drawAnimatedGradientCircle(outputCtx, outputCanvas, person);
+//
+//         return outputCanvas;
+//     }
+// }
 
 document.addEventListener('stateChange', (event) => {
     const { index, state } = event.detail;

@@ -37,15 +37,15 @@ export function processDetection(data, i) {
     if (currentState === 'DATA') {
         if (detectionState[i].counter >= thresholdToNotNull || activeFaces[i] !== null) {
             let closestDistance = Number.POSITIVE_INFINITY;
-            let closestPerson = activeFaces[i] || data[0]; // Default to first person if activeFaces is null
-            for (const person of data) {
-                const distance = calculateKeyPointsDistance(activeFaces[i]?.pose.keypoints || [], person.pose.keypoints);
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPerson = person;
-                }
-            }
-            activeFaces[i] = closestPerson;
+            let closestPerson = activeFaces[i] || data; // Default to first person if activeFaces is null
+            // for (const person of data) {
+            //     const distance = calculateKeyPointsDistance(activeFaces[i]?.pose.keypoints || [], person.pose.keypoints);
+            //     if (distance < closestDistance) {
+            //         closestDistance = distance;
+            //         closestPerson = person;
+            //     }
+            // }
+            activeFaces[i] = data // closestPerson;
         }
     } else if (currentState === 'NODATA' && detectionState[i].counter >= thresholdToNull) {
         activeFaces[i] = null;
