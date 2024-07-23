@@ -81,8 +81,12 @@ export async function computeROI(video, canvas, ctx, person, i) {
         const centerY = canvas.height - roiH + offsetY; // Align ROI to the bottom
 
         filterCtxs[0].drawImage(can, centerX, centerY, roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
+        filterCtxs[0].filter = `blur(${gaussianBlur.value}px)`;
+        filterCtxs[0].drawImage(can, centerX, centerY, roiW, roiH, 0, 0, filterCanvases[0].width, filterCanvases[0].height);
+
     }
     drawROI(canvas, ctx, i, roiW, roiH);
+
     updatePixelatedCanvas(filterCanvases[0], filterCtxs[0], 0);
 }
 
