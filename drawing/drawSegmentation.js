@@ -27,7 +27,8 @@ export async function getSegmentation(canvas, i) {
         segmentBodyParts: false,        // maxDetections: 5,
         // refineSteps: 10,
         segmentationThreshold: .1,
-        multiSegmentation: false,
+
+        multiSegmentation: true,
     });
 }
 

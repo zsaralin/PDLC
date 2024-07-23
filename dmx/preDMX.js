@@ -39,15 +39,15 @@ let previousNonZeroTwoValue = parseFloat(pixelSmoothPerson.value); // Initialize
 
 export async function preDMX(currFaces0, currFaces1, canvas, ctx) {
     const updateValueWithDelay = (value, delay) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                if (value === parseFloat(pixelSmoothScreensaver.value)) {
-                    previousNonZeroTwoValue = parseFloat(pixelSmoothPerson.value);
-                }
-                pixelSmoothPerson.value = (value === parseFloat(pixelSmoothScreensaver.value)) ? pixelSmoothScreensaver.value : previousNonZeroTwoValue;
-                resolve();
-            }, delay);
-        });
+        // return new Promise((resolve) => {
+        //     setTimeout(() => {
+        //         if (value === parseFloat(pixelSmoothScreensaver.value)) {
+        //             previousNonZeroTwoValue = parseFloat(pixelSmoothPerson.value);
+        //         }
+        //         // pixelSmoothPerson.value = (value === parseFloat(pixelSmoothScreensaver.value)) ? pixelSmoothScreensaver.value : previousNonZeroTwoValue;
+        //         resolve();
+        //     }, delay);
+        // });
     };
 
     if (cam0 && cam1) {
