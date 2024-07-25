@@ -26,7 +26,6 @@ const gammaSlider = document.getElementById('gamma');
 const brightnessSlider = document.getElementById('brightness');
 
 const histo = document.getElementById('histogramEqCheckbox')
-const gaussianBlur = document.getElementById('gaussianBlur')
 
 const sliders = [
     contrastSlider,
@@ -109,8 +108,6 @@ export async function applyFilters(filterCanvas, filterCtx, i) {
     // filterCtx.filter = `blur(${gaussianBlur.value}px)`; // Apply a Gaussian blur with a 5-pixel radius
     }
 
-    // const croppedGrayscale = filterCanvas.toDataURL('image/png');
-    // updateCanvas('gray-canvas', croppedGrayscale, i);
     const listItems = functionOrderList.children;
 
     for (const listItem of listItems) {
@@ -135,8 +132,5 @@ export async function applyFilters(filterCanvas, filterCtx, i) {
                 break;
         }
     }
-
-    // const croppedImageData = filterCanvas.toDataURL('image/png');
-    // updateCanvas('cropped-canvas', croppedImageData, i);
     updatePixelatedCanvas(filterCanvas, filterCtx, i);
 }

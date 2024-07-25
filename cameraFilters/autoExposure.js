@@ -1,4 +1,4 @@
-import {activeFaces} from "../faceDetection/processDetection.js";
+import {activeFaces} from "../detection/processDetection.js";
 import { SERVER_URL } from '../config.js';
 
 // Get the grayscale values display element

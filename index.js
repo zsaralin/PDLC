@@ -1,21 +1,15 @@
 import {clearCanvas, drawFaces} from './drawing/drawFaces.js'
-import {processDetection} from "./faceDetection/processDetection.js";
+import {processDetection} from "./detection/processDetection.js";
 import {setupSidePanel} from "./UIElements/sidePanel.js";
 import {changeOrientation} from "./UIElements/videoOrientation.js";
 import {monitorBrightness} from './cameraFilters/autoExposure.js'
 import {drawOuterRoi, initOuterRoi, copyVideoToCanvas} from "./drawing/outerRoi.js";
 import {drawDMXTest} from "./dmx/screensaverModes.js";
-import {setupFaceAPI} from './faceDetection/faceDetection.js';
 import {calculateFPS} from './UIElements/fps.js';
 import {setupPause} from './UIElements/pauseButton.js';
-import {setCam0, setCam1, preDMX, currentCamIndex} from './dmx/preDMX.js'
-import {createPoseDetector, getPoseDetection} from './faceDetection/poseDetection.js';
+import {setCam0, setCam1, preDMX,} from './dmx/preDMX.js'
 import {predictWebcamB} from './drawing/bodyTracking.js';
-import {faceInFrame} from './faceDetection/poseDetectionChecks.js';
 import {angle} from './UIElements/videoOrientation.js';
-import {fadeToScreensaver, isScreensaver, fadeToFace} from './dmx/fadeToScreensaver.js';
-import {setScreensaverStatus} from './dmx/fadeToScreensaver.js';
-import {createBackgroundSegmenter} from "./faceDetection/backgroundSegmenter.js";
 import {drawSegmentation, getSegmentation, initBgSegmenters} from "./drawing/drawSegmentation.js";
 import {appVersion} from "./UIElements/appVersionHandler.js";
 import {clearFilterCnv, getFilterCtx} from "./drawing/drawROI.js";
@@ -88,7 +82,7 @@ export async function detectVideo() {
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0, 0)
     // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
-    const poseDetections0 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI0, 0) : await getPoseDetection(canvasWithOuterROI0, 0);
+    const poseDetections0 = await getSegmentation(canvasWithOuterROI0, 0)
     // console.log(poseDetections0[0])
     currentFaces0 = processDetection(poseDetections0, 0);
 
@@ -98,7 +92,7 @@ export async function detectVideo() {
         document.getElementById('video-container2').style.display = "block"
         // const detections1 =  faceDetector1.detectForVideo(processingCanvas1, startTimeMs).detections
         copyVideoToCanvas(ctxWithOuterROI1, video1, canvas1, 1);
-        const poseDetections1 = appVersion.value === 'skeleton' ? await getSegmentation(canvasWithOuterROI1, 1) : await getPoseDetection(canvasWithOuterROI1, 1)
+        const poseDetections1 = await getSegmentation(canvasWithOuterROI1, 1)
 
         currentFaces1 = processDetection(poseDetections1, 1);
     }
@@ -129,8 +123,8 @@ export async function detectVideo() {
     // filterCtx.filter = `blur(${gaussianBlur.value}px)`;
 
     // updatePixelatedCanvas(fcanv, fctx, 0);
-preDMX(currentFaces0, currentFaces1, canvas0, ctx0)
-requestAnimationFrame(() => detectVideo());
+    preDMX(currentFaces0, currentFaces1, canvas0, ctx0)
+    requestAnimationFrame(() => detectVideo());
 }
 
 async function setupCamera() {
@@ -172,9 +166,9 @@ async function setupCamera() {
                         video.onloadeddata = () => {
                             console.log('hiiiii done')
                             resolve(
-                            video
-                        );
-                    }
+                                video
+                            );
+                        }
                     }
                 });
             });

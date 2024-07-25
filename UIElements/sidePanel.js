@@ -95,6 +95,14 @@ export function setupSidePanel() {
     createRangeSliderComponent('speedRadial', handleSliderChange);
 
     initClahe();
+
+    const functionOrderList = document.getElementById('functionOrderList');
+    Sortable.create(functionOrderList, {
+        animation: 150,
+        onEnd: () => {
+            console.log('List order updated');
+        }
+    });
     // initCamFilters();
 
     function toggleSidePanel(event) {

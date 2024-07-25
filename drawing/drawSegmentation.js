@@ -1,4 +1,4 @@
-import { createBackgroundSegmenter } from "../faceDetection/backgroundSegmenter.js";
+import { createBackgroundSegmenter } from "../detection/backgroundSegmenter.js";
 const bgSeg = document.getElementById('bgSeg');
 const bg = document.getElementById('bg');
 const fg = document.getElementById('fg');

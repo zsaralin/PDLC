@@ -1,6 +1,5 @@
 import { updateCanvas } from "./updateCanvas.js";
 import {imgCol, imgRow} from "../dmx/imageRatio.js";
-import { sendPixelCanvas } from "../dmx/preDMX.js";
 import {drawSegmentation} from "./drawSegmentation.js";
 const pixelatedCanvases = [];
 const pixelatedCtxs = [];
@@ -18,8 +17,6 @@ function createPixelCanv() {
         pixelatedCanvases.push(pixelatedCanvas);
         pixelatedCtxs.push(pixelatedCtx);
     }
-
-    sendPixelCanvas(pixelatedCanvases);
 }
 
 export async function updatePixelatedCanvas(filterCanvas, filterCtx, i) {
