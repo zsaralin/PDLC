@@ -1,12 +1,27 @@
 export let sobel = false;
-const sobelEdgeStrength = document.getElementById('sobEdgeStrength')
-const sobelEl = document.getElementById('sobel')
-sobelEdgeStrength.style.display = sobelEl.checked ? 'block' : 'none';
+let initialized = false;
 
-sobelEl.addEventListener('change', () => {
-    sobel = sobelEl.checked;
-    sobelEdgeStrength.style.display = sobel ? 'block' : 'none';
-})
+let sobelEdgeStrength;
+let sobelEl;
+
+function initializeElements() {
+    if (initialized) return;
+
+    sobelEdgeStrength = document.getElementById('sobEdgeStrength');
+    sobelEl = document.getElementById('sobel');
+    sobelEdgeStrength.style.display = sobelEl.checked ? 'block' : 'none';
+
+    sobelEl.addEventListener('change', () => {
+        sobel = sobelEl.checked;
+        sobelEdgeStrength.style.display = sobel ? 'block' : 'none';
+    });
+
+    sobelEdgeStrength.addEventListener("input", function() {
+        document.getElementById("sobEdgeStrengthVal").textContent = this.value;
+    });
+
+    initialized = true;
+}
 
 // Apply edge enhancement filter with Sobel operator
 const sobelHorizontalKernel = [
@@ -22,6 +37,8 @@ const sobelVerticalKernel = [
 ];
 
 export function sobelED(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     // Get the image data
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -47,9 +64,6 @@ export function sobelED(canvas) {
                 // Adjust the brightness of the pixel based on the gradient magnitude
                 const adjustedBrightness = data[(y * width + x) * 4 + c] - sobelEdgeStrength.value * gradientMagnitude;
                 data[(y * width + x) * 4 + c] = Math.max(0, Math.min(255, adjustedBrightness));
-            
-        
-    
             }
         }
     }

@@ -1,9 +1,21 @@
 const RANGE = 50;
+let initialized = false;
 
-const grayExpo = document.getElementById("grayExpo");
-const slider = document.getElementById('grayscaleExpoSlider');
+let grayExpo;
+let slider;
+
+function initializeElements() {
+    if (initialized) return;
+
+    grayExpo = document.getElementById("grayExpo");
+    slider = document.getElementById('grayscaleExpoSlider');
+
+    initialized = true;
+}
 
 export function adjustGrayscaleWithExpo(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -18,7 +30,7 @@ export function adjustGrayscaleWithExpo(canvas) {
 
     for (let i = 0; i < imageData.data.length; i += 4) {
         let average = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
-        if (grayExpo.value === 1) { // Ensure comparison as string if necessary
+        if (grayExpo.value === "1") { // Ensure comparison as string if necessary
             if (average < sliderLowValue) {
                 for (let j = 0; j < 3; j++) { // Loop for red, green, and blue channels
                     imageData.data[i + j] = (average / sliderLowValue) * RANGE + minPixelValue;

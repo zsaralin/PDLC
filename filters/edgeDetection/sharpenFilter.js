@@ -1,19 +1,33 @@
-
 export let edge = false;
 export let useEdge = true;
+let initialized = false;
 
-const edgeStrength  = document.getElementById('edgeStrength')
-const edgeEl = document.getElementById('edge')
-edgeStrength.style.display = edgeEl.checked ? 'block' : 'none';
+let edgeStrength;
+let edgeEl;
 
-edgeEl.addEventListener('change', () => {
-    edge = edgeEl.checked;
-    edgeStrength.style.display = edge ? 'block' : 'none';
-})
+function initializeElements() {
+    if (initialized) return;
+
+    edgeStrength = document.getElementById('edgeStrength');
+    edgeEl = document.getElementById('edge');
+    edgeStrength.style.display = edgeEl.checked ? 'block' : 'none';
+
+    edgeEl.addEventListener('change', () => {
+        edge = edgeEl.checked;
+        edgeStrength.style.display = edge ? 'block' : 'none';
+    });
+
+    edgeStrength.addEventListener("input", function() {
+        document.getElementById("edgeStrengthVal").textContent = this.value;
+    });
+
+    initialized = true;
+}
 
 export function sharpeningFilter(canvas) {
-    console.log()
-   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    initializeElements();
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     // Get the image data
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -49,4 +63,3 @@ export function sharpeningFilter(canvas) {
     // Update the canvas with the enhanced image data
     ctx.putImageData(imageData, 0, 0);
 }
-

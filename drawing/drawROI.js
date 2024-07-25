@@ -58,10 +58,6 @@ for (let i = 0; i < 2; i++) {
     adjustedCenterY[i] = 0; // Initial position, adjust as needed
 }
 
-let offsetChanged = false;
-export function setOffsetChanged() {
-    offsetChanged = true;
-}
 
 const gaussianBlur = document.getElementById('gaussianBlur');
 const bg = document.getElementById('bg');

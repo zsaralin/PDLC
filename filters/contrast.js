@@ -1,10 +1,22 @@
-const contrast = document.getElementById('contrast');
+let initialized = false;
+let contrast;
+
+function initializeElements() {
+    if (initialized) return;
+
+    contrast = document.getElementById('contrast');
+
+    initialized = true;
+}
+
 /**
  * Applies contrast adjustment to the given canvas based on the value from the contrast slider.
  * Contrast adjustment multiplies each pixel's RGB values by a factor to increase or decrease contrast.
  * @param {HTMLCanvasElement} canvas - The canvas element to apply contrast adjustment to.
  */
 export function applyContrast(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d');
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
@@ -27,4 +39,3 @@ export function applyContrast(canvas) {
     // Put the modified image data back on the canvas
     ctx.putImageData(imageData, 0, 0);
 }
-

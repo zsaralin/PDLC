@@ -1,19 +1,34 @@
 import { appVersion } from "../UIElements/appVersionHandler.js";
-import {segmentationBrightness} from "../drawing/drawSegmentation.js";
+import { segmentationBrightness } from "../drawing/drawSegmentation.js";
 
-const targetSlider = document.getElementById('targetBrightness')
+let initialized = false;
+let targetSlider, brightnessSlider;
+
+function initializeElements() {
+    if (initialized) return;
+
+    targetSlider = document.getElementById('targetBrightness');
+    brightnessSlider = document.getElementById('brightness');
+
+    initialized = true;
+}
+function updateBrightnessSlider(newValue) {
+    brightnessSlider.value = newValue;
+}
+
 export function adjustSkeletonBrightness() {
-    const averageLuminance = segmentationBrightness; // Assuming this imports a function or variable
+    initializeElements();
 
-    const brightnessSlider = document.getElementById('brightness');
+    const averageLuminance = segmentationBrightness;
+    const targetValue = parseInt(targetSlider.value, 10);
+    const currentBrightness = parseInt(brightnessSlider.value, 10);
 
-    let adjustment = 5
-    let lowVal = appVersion.value === "skeleton" ? -255: -254
-    if (averageLuminance < targetSlider.value - 10) {
-        const newSliderValue = Math.max(lowVal, Math.min(255, parseInt(brightnessSlider.value, 10) + adjustment));
-        brightnessSlider.updateValue(newSliderValue);
-    } else if (averageLuminance > targetSlider.value + 10) {
-        const newSliderValue = Math.max(lowVal, Math.min(255, parseInt(brightnessSlider.value, 10) - adjustment));
-        brightnessSlider.updateValue(newSliderValue); // If updateValue is a custom function
+    const adjustment = 5;
+    const lowVal = appVersion.value === "skeleton" ? -255 : -254;
+
+    if (averageLuminance < targetValue - 10) {
+        brightnessSlider.value = Math.max(lowVal, Math.min(255, parseInt(currentBrightness, 10) + adjustment));
+    } else if (averageLuminance > targetValue + 10) {
+        brightnessSlider.value =Math.max(lowVal, Math.min(255, parseInt(currentBrightness, 10) - adjustment));
     }
 }

@@ -81,7 +81,7 @@ export async function detectVideo() {
     calculateFPS(0)
     // const detections0 =  faceDetector0.detectForVideo(processingCanvas0, startTimeMs).detections
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0, 0)
-    // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)
+    // const rotatedCanvas = rotateCanvas(canvasWithOuterROI0)x
     const poseDetections0 = await getSegmentation(canvasWithOuterROI0, 0)
     // console.log(poseDetections0[0])
     currentFaces0 = processDetection(poseDetections0, 0);

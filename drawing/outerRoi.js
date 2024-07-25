@@ -19,10 +19,24 @@ export function initOuterRoi(v) {
     roiHeightInput.updateSliderProperties(h, 0 , h)
 
 
-    updateOuterRoi()
+    // updateOuterRoi()
 }
 
 export function updateOuterRoi() {
+    // const roiWidthInput = document.getElementById('outerROIWidth');
+    // const roiHeightInput = document.getElementById('outerROIHeight');
+    // const roiWidth = parseInt(roiWidthInput.value, 10);
+    // const roiHeight = parseInt(roiHeightInput.value, 10);
+    //
+    // roi = {
+    //     x: (video.videoWidth - roiWidth) / 2,
+    //     y: (video.videoHeight -roiHeight) / 2,
+    //     width: roiWidth,
+    //     height: roiHeight
+    // };
+}
+
+export function copyVideoToCanvas(ctx, video, canvas, i) {
     const roiWidthInput = document.getElementById('outerROIWidth');
     const roiHeightInput = document.getElementById('outerROIHeight');
     const roiWidth = parseInt(roiWidthInput.value, 10);
@@ -34,9 +48,7 @@ export function updateOuterRoi() {
         width: roiWidth,
         height: roiHeight
     };
-}
 
-export function copyVideoToCanvas(ctx, video, canvas, i) {
     const radians = angle * Math.PI / 180; // Convert to radians
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save(); // Save the current context state

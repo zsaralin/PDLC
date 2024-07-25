@@ -1,6 +1,17 @@
-const slider = document.getElementById('grayscaleMapSlider');
+let initialized = false;
+let slider;
+
+function initializeElements() {
+    if (initialized) return;
+
+    slider = document.getElementById('grayscaleMapSlider');
+
+    initialized = true;
+}
 
 export function remapGrayscaleLinear(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 

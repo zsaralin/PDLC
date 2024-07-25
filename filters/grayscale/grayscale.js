@@ -1,8 +1,20 @@
-const slider = document.getElementById('grayscaleSlider')
+let initialized = false;
+let slider;
+
+function initializeElements() {
+    if (initialized) return;
+
+    slider = document.getElementById('grayscaleSlider');
+
+    initialized = true;
+}
 
 export function grayscaleCanvas(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const lowValue = parseInt(slider.getAttribute('lowValue'), 10);
     const highValue = parseInt(slider.getAttribute('highValue'), 10);
 

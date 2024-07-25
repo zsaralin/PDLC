@@ -1,4 +1,13 @@
-const brightness = document.getElementById('brightness');
+let initialized = false;
+let brightness;
+
+function initializeElements() {
+    if (initialized) return;
+
+    brightness = document.getElementById('brightness');
+
+    initialized = true;
+}
 
 /**
  * Applies brightness adjustment to the given canvas based on the value from the brightness slider.
@@ -6,6 +15,8 @@ const brightness = document.getElementById('brightness');
  * @param {HTMLCanvasElement} canvas - The canvas element to apply brightness adjustment to.
  */
 export function applyBrightness(canvas) {
+    initializeElements();
+
     const ctx = canvas.getContext('2d',  { willReadFrequently: true });
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
