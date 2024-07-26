@@ -20,7 +20,7 @@ export function createRangeSliderComponent(containerId, onValueChange) {
 
     const sliderLabel = document.createElement('div');
     sliderLabel.className = 'slider-label';
-    sliderLabel.textContent = container.getAttribute('label') ;
+    sliderLabel.textContent = container.getAttribute('label');
     sliderTrack.appendChild(sliderLabel);
 
     const lowInput = document.createElement('input');
@@ -33,40 +33,40 @@ export function createRangeSliderComponent(containerId, onValueChange) {
     sliderContainer.appendChild(highInput);
     lowInput.value = formatNumber(lowValue);
     highInput.value = formatNumber(highValue);
-    
+
     updateValues(lowValue, highValue);
 
-    sliderTrack.addEventListener('mousedown', function(e) {
-        e.preventDefault();  // Prevent any native drag behavior
-    
+    sliderTrack.addEventListener('mousedown', function (e) {
+        e.preventDefault(); // Prevent any native drag behavior
+
         const trackRect = sliderTrack.getBoundingClientRect();
         const clickPos = e.clientX - trackRect.left; // Click position relative to the track
-        const clickValue = (((clickPos) / trackRect.width) * (max - min)) + min;
-    
+        const clickValue = snapToStep(((clickPos / trackRect.width) * (max - min)) + min);
+
         let isMovingLowHandle = Math.abs(clickValue - lowValue) < Math.abs(clickValue - highValue);
-    
+
         if (isMovingLowHandle) {
             updateValues(clickValue, highValue);
         } else {
             updateValues(lowValue, clickValue);
         }
-    
+
         function onMouseMove(event) {
             const newPos = event.clientX - trackRect.left; // New position relative to the track
-            const newValue = (((newPos) / trackRect.width) * (max - min)) + min;
-    
+            const newValue = snapToStep(((newPos / trackRect.width) * (max - min)) + min);
+
             if (isMovingLowHandle) {
                 updateValues(newValue, highValue);
             } else {
                 updateValues(lowValue, newValue);
             }
         }
-    
+
         function onMouseUp() {
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         }
-    
+
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     });
@@ -77,12 +77,11 @@ export function createRangeSliderComponent(containerId, onValueChange) {
 
         sliderRange.style.left = `${rangeStart}%`;
         sliderRange.style.width = `${rangeEnd - rangeStart}%`;
-
     }
 
     function updateValues(low, high) {
-        const newLowValue = Math.max(min, Math.min(high, parseFloat(low)));
-        const newHighValue = Math.max(newLowValue, Math.min(max, parseFloat(high)));
+        const newLowValue = Math.max(min, Math.min(high, snapToStep(parseFloat(low))));
+        const newHighValue = Math.max(newLowValue, Math.min(max, snapToStep(parseFloat(high))));
         lowValue = newLowValue;
         highValue = newHighValue;
 
@@ -90,14 +89,19 @@ export function createRangeSliderComponent(containerId, onValueChange) {
         container.setAttribute('highValue', newHighValue.toString());
 
         updateSliderVisuals();
-    
+
         // Update the input fields with the new values
         lowInput.value = formatNumber(lowValue);
         highInput.value = formatNumber(highValue);
-    
+
         if (onValueChange) {
             onValueChange(lowValue, highValue);
         }
+    }
+
+    function snapToStep(value) {
+        const snappedValue = Math.round(value / step) * step;
+        return parseFloat(snappedValue.toFixed(10)); // Ensure precision for floating-point arithmetic
     }
 
     lowInput.addEventListener('input', () => {

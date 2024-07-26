@@ -1,4 +1,3 @@
-import { appVersion } from "../UIElements/appVersionHandler.js";
 import { segmentationBrightness } from "../drawing/drawSegmentation.js";
 
 let initialized = false;
@@ -24,7 +23,7 @@ export function adjustSkeletonBrightness() {
     const currentBrightness = parseInt(brightnessSlider.value, 10);
 
     const adjustment = 5;
-    const lowVal = appVersion.value === "skeleton" ? -255 : -254;
+    const lowVal = -255
 
     if (averageLuminance < targetValue - 10) {
         brightnessSlider.value = Math.max(lowVal, Math.min(255, parseInt(currentBrightness, 10) + adjustment));

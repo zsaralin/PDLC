@@ -2,12 +2,30 @@ export let angle = 0;
 export let mirror0 = true;
 export let mirror1 = true;
 
-const mirrorEl0 = document.getElementById('mirrorCheckbox0')
-const mirrorEl1 = document.getElementById('mirrorCheckbox1')
+let mirrorEl0;
+let mirrorEl1;
+let videoAngle;
 
-export function changeOrientation(value ) {
-    mirror0 = mirrorEl0.checked;  // Ensure this is set before using in transformation
-    mirror1 = mirrorEl1.checked;  // Ensure this is set before using in transformation
+export function initializeOrientationControls() {
+    mirrorEl0 = document.getElementById('mirrorCheckbox0');
+    mirrorEl1 = document.getElementById('mirrorCheckbox1');
+    videoAngle = document.getElementById('videoAngle');
 
-    angle = parseInt(value); // Update global angle
+    if (mirrorEl0 && mirrorEl1 && videoAngle) {
+        // Event listeners for mirror checkboxes
+        mirrorEl0.addEventListener('change', () => {
+            mirror0 = mirrorEl0.checked;
+        });
+
+        mirrorEl1.addEventListener('change', () => {
+            mirror1 = mirrorEl1.checked;
+        });
+
+        // Event listener for video angle dropdown
+        videoAngle.addEventListener('change', () => {
+            angle = parseInt(videoAngle.value);
+        });
+    } else {
+        console.error('Orientation control elements not found');
+    }
 }

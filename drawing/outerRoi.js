@@ -1,15 +1,17 @@
 import { angle , mirror0, mirror1} from "../UIElements/videoOrientation.js";
 let roi;
 let showOuterRoi = false;
-const outerRoiCheckbox = document.getElementById('outerRoi');
-let video; 
-outerRoiCheckbox.addEventListener('change', function() {
-    showOuterRoi = this.checked;
-    console.log('Show Outer ROI:', showOuterRoi); // Logging the state for demonstration
-});
+let outerRoiCheckbox ;
+let video;
 
 export function initOuterRoi(v) {
-    video = v; 
+    outerRoiCheckbox = document.getElementById('outerRoi');
+    outerRoiCheckbox.addEventListener('change', function() {
+        showOuterRoi = this.checked;
+        console.log('Show Outer ROI:', showOuterRoi); // Logging the state for demonstration
+    });
+
+    video = v;
     const roiWidthInput = document.getElementById('outerROIWidth');
     const roiHeightInput = document.getElementById('outerROIHeight');
     const w = video.videoWidth;
@@ -19,21 +21,21 @@ export function initOuterRoi(v) {
     roiHeightInput.updateSliderProperties(h, 0 , h)
 
 
-    // updateOuterRoi()
+    updateOuterRoi()
 }
 
 export function updateOuterRoi() {
-    // const roiWidthInput = document.getElementById('outerROIWidth');
-    // const roiHeightInput = document.getElementById('outerROIHeight');
-    // const roiWidth = parseInt(roiWidthInput.value, 10);
-    // const roiHeight = parseInt(roiHeightInput.value, 10);
-    //
-    // roi = {
-    //     x: (video.videoWidth - roiWidth) / 2,
-    //     y: (video.videoHeight -roiHeight) / 2,
-    //     width: roiWidth,
-    //     height: roiHeight
-    // };
+    const roiWidthInput = document.getElementById('outerROIWidth');
+    const roiHeightInput = document.getElementById('outerROIHeight');
+    const roiWidth = parseInt(roiWidthInput.value, 10);
+    const roiHeight = parseInt(roiHeightInput.value, 10);
+
+    roi = {
+        x: (video.videoWidth - roiWidth) / 2,
+        y: (video.videoHeight -roiHeight) / 2,
+        width: roiWidth,
+        height: roiHeight
+    };
 }
 
 export function copyVideoToCanvas(ctx, video, canvas, i) {
@@ -50,7 +52,7 @@ export function copyVideoToCanvas(ctx, video, canvas, i) {
     };
 
     const radians = angle * Math.PI / 180; // Convert to radians
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save(); // Save the current context state
 
     // Adjust translation to the center of the canvas

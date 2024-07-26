@@ -1,38 +1,47 @@
-import {appVersion} from "../UIElements/appVersionHandler.js";
+let initialized = false;
+let topCanvases;
+let topCtxs;
 
-
-const topCanvases = document.querySelectorAll('.video-container .top-canvas');
-const topCtxs = [topCanvases[0].getContext('2d', { willReadFrequently: true }), 
-                topCanvases[1].getContext('2d', { willReadFrequently: true })]
+function initializeContexts() {
+    if (!initialized) {
+        topCanvases = document.querySelectorAll('.video-container .top-canvas');
+        topCtxs = [
+            topCanvases[0].getContext('2d', { willReadFrequently: true }),
+            topCanvases[1].getContext('2d', { willReadFrequently: true })
+        ];
+        initialized = true;
+    }
+}
 
 export function drawFaces(canvas, ctx, person, video, i) {
+    if (!initialized) {
+        initializeContexts();
+    }
+
     const topCtx = topCtxs[i];
     const topCanvas = topCanvases[i];
 
-    drawBB(topCanvas, topCtx, person.pose)
-    drawSkeleton(topCanvas,topCtx,person.pose)
+    drawBB(topCanvas, topCtx, person.pose);
+    drawSkeleton(topCanvas, topCtx, person.pose);
 }
-function drawBB(canvas, ctx, person){
 
-    const isSkeleton = appVersion.value === 'skeleton';
+function drawBB(canvas, ctx, person) {
     ctx.beginPath();
-    const leftEar = !isSkeleton ? person.keypoints[4] : person.keypoints[4]
-    const rightEar = !isSkeleton ? person.keypoints[3] : person.keypoints[3]
-    const nose = person.keypoints[0]
+    const leftEar = person.keypoints[4];
+    const rightEar = person.keypoints[3];
+    const nose = person.keypoints[0];
     const faceWidth = Math.abs(leftEar.position.x - rightEar.position.x);
-    const midPointY = nose.position.y
+    const midPointY = nose.position.y;
     const topLeftX = Math.min(rightEar.position.x, leftEar.position.x);
     const topLeftY = midPointY - faceWidth / 2;
     ctx.strokeRect(topLeftX, topLeftY, faceWidth, faceWidth);
     ctx.stroke();
-
     ctx.closePath();
 }
 
-let keypoint_thres = .11
+let keypoint_thres = 0.11;
 
 function drawSkeleton(canvas, ctx, person) {
-    const isSkeleton = appVersion.value === 'skeleton';
     ctx.beginPath();
     const leftShoulder = person.keypoints[5];
     const rightShoulder = person.keypoints[6];
@@ -93,6 +102,6 @@ function drawSkeleton(canvas, ctx, person) {
     ctx.closePath();
 }
 
-export function clearCanvas(canvas){
+export function clearCanvas(canvas) {
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 }

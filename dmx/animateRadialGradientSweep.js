@@ -1,101 +1,76 @@
 import { imgCol, imgRow } from "./imageRatio.js";
+
+const CANVAS_WIDTH = imgCol;
+const CANVAS_HEIGHT = imgRow * 1;
+const MAX_RADIUS = Math.sqrt(CANVAS_WIDTH ** 1.9 + CANVAS_HEIGHT ** 1.9);
+
+const CIRCLE_CHANGE_PROBABILITY = 0.01; // 1% chance each frame to change circle count
+const THREE_CIRCLE_PROBABILITY = 0.01;   // 20% chance for 3 circles when changing
+const TWO_CIRCLE_PROBABILITY = 0.05;     // 50% chance for 2 circles when changing
+
+const getRandomPosition = () => ({
+    x: Math.random() * CANVAS_WIDTH,
+    y: Math.random() * CANVAS_HEIGHT
+});
+
+const getRandomSpeed = (minSpeed, maxSpeed) =>
+    Math.random() * (maxSpeed - minSpeed) + minSpeed;
+
+const createCircle = (minSpeed, maxSpeed) => ({
+    center: getRandomPosition(),
+    speed: getRandomSpeed(minSpeed, maxSpeed),
+    gradientOffset: 0,
+    direction: 1,
+    isComplete: false
+});
+
 export function animateRadialGradientSweep(pixelatedCtx) {
-    const canvasWidth = imgCol;
-    const canvasHeight = imgRow * 1;
-    const maxRadius = Math.sqrt(canvasWidth ** 2.2 + canvasHeight ** 2.2);
-
-    let gradientOffsets = [];
-    let directions = [];
     let animationFrameId;
-
     const slider = document.getElementById('speedRadial');
-    const minSpeed = parseFloat(slider.getAttribute('lowValue')) || 0.5;
-    const maxSpeed = parseFloat(slider.getAttribute('highValue')) || 1.5;
+    const minSpeed = parseFloat(slider.getAttribute('lowValue')) / 100;
+    const maxSpeed = parseFloat(slider.getAttribute('highValue')) / 100;
 
-    const getRandomCenter = () => ({
-        x: Math.random() * canvasWidth,
-        y: Math.random() * canvasHeight
-    });
+    let circles = [createCircle(minSpeed, maxSpeed)];
 
-    const getRandomSpeed = () => Math.random() * (maxSpeed - minSpeed) + minSpeed;
-
-    let centers = [getRandomCenter()];
-    let speeds = [getRandomSpeed()];
-
-    centers.forEach(() => {
-        gradientOffsets.push(0);
-        directions.push(1);
-    });
-
-    let lastTime = 0;
-    const updateGradients = (currentTime) => {
-        if (!lastTime) lastTime = currentTime;
-        const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
-        lastTime = currentTime;
-
-        pixelatedCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-        pixelatedCtx.fillStyle = 'black';
-        pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-        for (let i = centers.length - 1; i >= 0; i--) {
-            let gradientOffset = gradientOffsets[i];
-            let direction = directions[i];
-
-            if (gradientOffset < 0) {
-                gradientOffset = 0;
-                direction = 1;
-            }
-
+    const updateCircle = (circle) => {
+        if (circle.direction === 1 && circle.gradientOffset >= MAX_RADIUS) {
+            circle.direction = -1;
+        }
+        if (circle.direction === -1 && circle.gradientOffset <= 0) {
+            circle.isComplete = true;
+        } else {
+            circle.gradientOffset += circle.direction * circle.speed;
             let gradient = pixelatedCtx.createRadialGradient(
-                centers[i].x, centers[i].y, 0,
-                centers[i].x, centers[i].y, Math.max(gradientOffset, 0)
+                circle.center.x, circle.center.y, 0,
+                circle.center.x, circle.center.y, Math.max(circle.gradientOffset, 0)
             );
-
             gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
             gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
             pixelatedCtx.fillStyle = gradient;
-            pixelatedCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-            gradientOffset += direction * speeds[i] * deltaTime * 60; // Adjust for consistent speed
-
-            if (gradientOffset >= maxRadius) {
-                direction = -1;
-            } else if (gradientOffset <= 0) {
-                centers.splice(i, 1);
-                speeds.splice(i, 1);
-                gradientOffsets.splice(i, 1);
-                directions.splice(i, 1);
-
-                const newCircleCount = Math.random() < 0.01 ? 2 : 1;
-                if (newCircleCount === 1) {
-                    if (centers.length < 3) {
-                        centers.push(getRandomCenter());
-                        speeds.push(getRandomSpeed());
-                        gradientOffsets.push(0);
-                        directions.push(1);
-                    }
-                } else {
-                    if (centers.length < 3) {
-                        centers.push(getRandomCenter());
-                        speeds.push(getRandomSpeed());
-                        gradientOffsets.push(0);
-                        directions.push(1);
-                        setTimeout(() => {
-                            if (centers.length < 3) {
-                                centers.push(getRandomCenter());
-                                speeds.push(getRandomSpeed());
-                                gradientOffsets.push(0);
-                                directions.push(1);
-                            }
-                        }, 1000); // 1 second delay for the second circle
-                    }
-                }
-            }
-
-            gradientOffsets[i] = gradientOffset;
-            directions[i] = direction;
+            pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         }
+    };
+
+    const manageCircleCount = () => {
+        if (Math.random() < CIRCLE_CHANGE_PROBABILITY) {
+            const rand = Math.random();
+            if (rand < THREE_CIRCLE_PROBABILITY && circles.length < 3) {
+                circles.push(createCircle(minSpeed, maxSpeed));
+                if (circles.length < 3) circles.push(createCircle(minSpeed, maxSpeed));
+            } else if (rand < THREE_CIRCLE_PROBABILITY + TWO_CIRCLE_PROBABILITY && circles.length < 2) {
+                circles.push(createCircle(minSpeed, maxSpeed));
+            }
+        }
+    };
+
+    const updateGradients = () => {
+        pixelatedCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        pixelatedCtx.fillStyle = 'black';
+        pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        circles = circles.filter(circle => !circle.isComplete);
+        circles.forEach(updateCircle);
+        manageCircleCount();
 
         animationFrameId = requestAnimationFrame(updateGradients);
     };

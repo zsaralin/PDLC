@@ -1,51 +1,67 @@
 let typeBP = "lite"; // lite, full, heavy
 export let model = "BodyPix"; // MoveNet, BlazePose
 
-export async function createBackgroundSegmenter() {
-    let detectorConfig = {};
-    let chosenModel;
-
+async function getDetectorConfig(model) {
     switch (model) {
         case "MoveNet":
-            chosenModel = poseDetection.SupportedModels.MoveNet;
-            detectorConfig = {
-                modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+            return {
+                chosenModel: poseDetection.SupportedModels.MoveNet,
+                detectorConfig: {
+                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+                }
             };
-            break;
         case "BlazePose":
-            chosenModel = poseDetection.SupportedModels.BlazePose;
-            detectorConfig = {
-                runtime: 'mediapipe',
-                enableSegmentation: true,
-                solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
-                type: typeBP,
+            return {
+                chosenModel: poseDetection.SupportedModels.BlazePose,
+                detectorConfig: {
+                    runtime: 'mediapipe',
+                    enableSegmentation: true,
+                    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/pose',
+                    type: typeBP,
+                }
             };
-            break;
         case "BodyPix":
-            chosenModel = bodySegmentation.SupportedModels.BodyPix;
-            detectorConfig = {
-                architecture: 'ResNet50',
-                runtime: 'tfjs',
-                modelType: 'general'
+            return {
+                chosenModel: bodySegmentation.SupportedModels.BodyPix,
+                detectorConfig: {
+                    architecture: 'ResNet50',
+                    runtime: 'tfjs',
+                    modelType: 'general'
+                }
             };
-            break;
         default:
-            console.error("Unsupported model:", model);
-            return [];
+            throw new Error("Unsupported model: " + model);
     }
+}
 
-    if (model !== "BodyPix") {
-        const poseDetector0 = await poseDetection.createDetector(chosenModel, detectorConfig);
-        const poseDetector1 = await poseDetection.createDetector(chosenModel, detectorConfig);
-        return [poseDetector0, poseDetector1];
-    } else {
-        const bodyPixConfig = {
-            architecture: 'MobileNetV1',
-            outputStride: 16,
-            quantBytes: 4
-        };
-        const poseDetector0 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
-        const poseDetector1 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
-        return [poseDetector0, poseDetector1];
+async function createPoseDetectors(model, detectorConfig) {
+    const poseDetector0 = await poseDetection.createDetector(model, detectorConfig);
+    const poseDetector1 = await poseDetection.createDetector(model, detectorConfig);
+    return [poseDetector0, poseDetector1];
+}
+
+async function createBodyPixDetectors() {
+    const bodyPixConfig = {
+        architecture: 'MobileNetV1',
+        outputStride: 16,
+        quantBytes: 4
+    };
+    const poseDetector0 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
+    const poseDetector1 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
+    return [poseDetector0, poseDetector1];
+}
+
+export async function createBackgroundSegmenter() {
+    try {
+        const { chosenModel, detectorConfig } = await getDetectorConfig(model);
+
+        if (model === "BodyPix") {
+            return await createBodyPixDetectors();
+        } else {
+            return await createPoseDetectors(chosenModel, detectorConfig);
+        }
+    } catch (error) {
+        console.error(error.message);
+        return [];
     }
 }

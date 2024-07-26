@@ -26,9 +26,6 @@ export function faceInFrame(person) {
     return false;
 }
 
-const prevDetection = []
-
-
 export function isFacingForward(person) {
     if (!person || !person.keypoints) {
         return false;

@@ -28,7 +28,7 @@ export async function updatePixelatedCanvas(filterCanvas, filterCtx, i) {
     pixelatedCtxs[i].drawImage(filterCanvas, 0, 0, pixelatedCanvases[i].width, pixelatedCanvases[i].height);
 
     const croppedImageData = pixelatedCanvases[i].toDataURL('image/png');
-    updateCanvas('pixel-canvas', croppedImageData, i);
+    updateCanvas(croppedImageData, i);
 }
 
 export function getPixelImageData(i){

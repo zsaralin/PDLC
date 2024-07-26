@@ -1,12 +1,64 @@
-import { changeOrientation } from "./videoOrientation.js";
 import { createRangeSliderComponent } from "./customSliders/rangeSlider.js";
 import { createSliderComponent } from "./customSliders/normalSlider.js";
 import { updateOuterRoi } from "../drawing/outerRoi.js";
 import { handleSliderChange } from "../filters/applyFilters.js";
 import { handleGapChange } from "../dmx/dmxGrid.js";
+import { FiltersGroup } from "../components/FiltersGroup.js";
+import { DMXTestsGroup } from "../components/DmxTestsGroup.js";
+import { ROIGroup } from "../components/ROIGroup.js";
+import { TwoCameraFadingGroup } from "../components/FadingGroup.js";
+import { CameraFiltersGroup } from "../components/CameraFiltersGroup.js";
+import { initializeOrientationControls } from "./videoOrientation.js";
 
 export function setupSidePanel() {
+    const sidePanelHTML = `
+        <div id="sidePanel" class="side-panel">
+            <button id="closePanelButton" class="panel-button close-button">&times;</button>
+            <label class="checkbox-label"> Camera Orientation
+                <select id="videoAngle">
+                    <option value="0">0</option>
+                    <option value="90">90°</option>
+                    <option value="180">180°</option>
+                    <option value="270">270°</option>
+                </select>
+            </label>
+            <label>
+                <input type="checkbox" id="mirrorCheckbox0" checked> Mirror 0
+                <input type="checkbox" id="mirrorCheckbox1"> Mirror 1
+            </label>
+            <div id="pixelSmoothPerson" min="0.01" max="1" step=".01" value=".4" label="Pixel Smooth Person"></div>
+            <div id="pixelSmoothScreensaver" min="0.01" max="1" step=".01" value=".03" label="Pixel Smooth Screensaver"></div>
+            <input type="checkbox" id="radialEffect"> Radial Effect
+            <div id="radialSpeed" min="1" max="60" step="1" value="6" label="Radial Speed"></div>
+            <div id="radialPause0" min="0" max="30" step=".1" value="15" label="Radial Pause 0"></div>
+            <div id="radialPause1" min="0" max="5" step=".1" value="1" label="Radial Pause 1"></div>
+            <div id="bg" min="-1" max="1" step=".1" value="-1" label="Background Col"></div>
+            <div id="fg" min="-1" max="1" step=".1" value="1" label="Foreground Col"></div>
+            <div id="minEyeDist" min="0" max="500" step="1" value="20" label="Min Eye Dist"></div>
+            <div id="cellSize" min="2" max="50" step="1" value="8" label="Pixel Cell Size"></div>
+            <div id="gap" min="0" max="10" step="2" value="2" label="Frame Gap"></div>
+            <div id="resetInterval" min="1" max="20" step="1" value="5" label="Reset Interval (min)"></div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', sidePanelHTML);
+
     const sidePanel = document.getElementById("sidePanel");
+
+    const dmxTestsGroup = new DMXTestsGroup();
+    dmxTestsGroup.appendTo(sidePanel);
+
+    const fadingGroup = new TwoCameraFadingGroup();
+    fadingGroup.appendTo(sidePanel);
+
+    const filtersGroup = new FiltersGroup();
+    filtersGroup.appendTo(sidePanel);
+
+    const cameraFiltersGroup = new CameraFiltersGroup();
+    cameraFiltersGroup.appendTo(sidePanel);
+
+    const roiGroup = new ROIGroup();
+    roiGroup.appendTo(sidePanel);
 
     function toggleSidePanelVisibility() {
         sidePanel.style.display = sidePanel.style.display === 'block' ? 'none' : 'block';
@@ -28,7 +80,7 @@ export function setupSidePanel() {
     }
 
     function handleVideoChange() {
-        changeOrientation(video.value);
+        // changeOrientation(video.value);
     }
 
     function updateCellSize() {
@@ -46,14 +98,6 @@ export function setupSidePanel() {
 
         const closePanelButton = document.getElementById("closePanelButton");
         closePanelButton.addEventListener("click", toggleSidePanelVisibility);
-
-        const video = document.getElementById("videoAngle");
-        video.addEventListener("change", handleVideoChange);
-
-        const mirrorCheckbox0 = document.getElementById("mirrorCheckbox0");
-        const mirrorCheckbox1 = document.getElementById("mirrorCheckbox1");
-        mirrorCheckbox0.addEventListener("change", handleVideoChange);
-        mirrorCheckbox1.addEventListener("change", handleVideoChange);
     }
 
     function initializeSliders() {
@@ -87,19 +131,9 @@ export function setupSidePanel() {
         });
     }
 
-    function initializeSortable() {
-        const functionOrderList = document.getElementById('functionOrderList');
-        Sortable.create(functionOrderList, {
-            animation: 150,
-            onEnd: () => {
-                console.log('List order updated');
-            }
-        });
-    }
-
     // Initialize the side panel
     toggleSidePanelVisibility();
     initializeEventListeners();
     initializeSliders();
-    initializeSortable();
+    initializeOrientationControls();
 }

@@ -1,36 +1,38 @@
-import {activeFaces} from "../detection/processDetection.js";
+import { activeFaces } from "../detection/processDetection.js";
 import { SERVER_URL } from '../config.js';
 
-// Get the grayscale values display element
-const autoEV = document.getElementById('autoEV')
-const exposureMode = document.getElementById('exposureModeWrapper')
-const exposureModeSelect = document.getElementById('exposureModeSelect')
-const expoComp = document.getElementById('exposureCompWrapper')
-const brightnessRange = document.getElementById('brightnessRange')
+let autoEV, exposureMode, exposureModeSelect, expoComp, brightnessRange;
 
-let isAuto = autoEV.checked
-exposureMode.style.display = isAuto ? 'none' : 'block';
-document.addEventListener('DOMContentLoaded', () => {
-    console.log(exposureModeSelect.value)
-    expoComp.style.display = !isAuto && (exposureModeSelect.value === 'manual') ? 'block' : 'none';
-})
-brightnessRange.style.display = isAuto ? 'block' : 'none';
+function initExposureControls() {
+    autoEV = document.getElementById('autoEV');
+    exposureMode = document.getElementById('exposureModeWrapper');
+    exposureModeSelect = document.getElementById('exposureModeSelect');
+    expoComp = document.getElementById('exposureCompWrapper');
+    brightnessRange = document.getElementById('brightnessRange');
 
-const minExposureTime = 50; 
-const maxExposureTime = 1250; 
-
-autoEV.addEventListener('change', function() {
-    const isAuto = this.checked; 
+    let isAuto = autoEV.checked;
     exposureMode.style.display = isAuto ? 'none' : 'block';
-    expoComp.style.display = !isAuto ? 'block' : 'none';
+    expoComp.style.display = !isAuto && (exposureModeSelect.value === 'manual') ? 'block' : 'none';
     brightnessRange.style.display = isAuto ? 'block' : 'none';
-});
+
+    autoEV.addEventListener('change', function() {
+        const isAuto = this.checked;
+        exposureMode.style.display = isAuto ? 'none' : 'block';
+        expoComp.style.display = !isAuto ? 'block' : 'none';
+        brightnessRange.style.display = isAuto ? 'block' : 'none';
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log(exposureModeSelect.value);
+        expoComp.style.display = !isAuto && (exposureModeSelect.value === 'manual') ? 'block' : 'none';
+    });
+}
 
 export async function monitorBrightness(video, camIndex) {
     const frameInterval = 1000; // Interval between brightness checks in milliseconds
     let exposureTime = 400; // Starting point for exposure time in microseconds
-    let step; let count; 
-    
+    let step, count;
+
     // Apply initial manual exposure mode constraint
     await fetch(`${SERVER_URL}/set-camera-control`, {
         method: 'POST',
@@ -42,11 +44,11 @@ export async function monitorBrightness(video, camIndex) {
             value: '1',
             camIndex: camIndex
         })
-    })       
+    })
 
     setInterval(async () => {
         if (!autoEV.checked || video.paused) return;
-    
+
         if (activeFaces) {
             count = 0;
             let currentBrightness = calculateBrightness(video, activeFaces[camIndex]);
@@ -54,7 +56,7 @@ export async function monitorBrightness(video, camIndex) {
             // Get the low and high values using getAttribute
             const lowValue = parseInt(brightnessRange.getAttribute('lowValue'), 10);
             const highValue = parseInt(brightnessRange.getAttribute('highValue'), 10);
-        
+
             if (currentBrightness < lowValue) {
                 distanceFromOptimal = lowValue - currentBrightness;
             } else if (currentBrightness > highValue) {
@@ -62,7 +64,7 @@ export async function monitorBrightness(video, camIndex) {
             } else {
                 distanceFromOptimal = 0; // Already within optimal range
             }
-            
+
             step = distanceFromOptimal * 2;
             await adjustExposureTime(currentBrightness, step);
         } else {
@@ -70,11 +72,11 @@ export async function monitorBrightness(video, camIndex) {
             await adjustExposureTimeNoFace(step);
         }
     }, frameInterval);
-    
+
     async function adjustExposureTime(brightness, step) {
         const lowValue = parseInt(brightnessRange.getAttribute('lowValue'), 10);
         const highValue = parseInt(brightnessRange.getAttribute('highValue'), 10);
-    
+
         if (brightness < lowValue && exposureTime + step <= maxExposureTime) {
             exposureTime = Math.min(exposureTime + step, maxExposureTime);
             setExposureTime();
@@ -96,21 +98,20 @@ export async function monitorBrightness(video, camIndex) {
 
     async function setExposureTime(){
         await fetch(`${SERVER_URL}/set-camera-control`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    controlName: 'absoluteExposureTime',
-                    value: exposureTime,
-                    camIndex: camIndex,
-                })
-            })      
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                controlName: 'absoluteExposureTime',
+                value: exposureTime,
+                camIndex: camIndex,
+            })
+        })
     }
 }
 const videoCanvas = document.createElement('canvas');
 const ctx = videoCanvas.getContext('2d',  { willReadFrequently: true });
-
 
 function calculateBrightness(video, person, sampleRate = 1) {
     if(person){
@@ -128,45 +129,19 @@ function calculateBrightness(video, person, sampleRate = 1) {
         const midPointY = nose.y
         const topLeftX = Math.min(rightEar.x, leftEar.x);
         const topLeftY = midPointY - faceWidth / 2;
-    
-    if(videoCanvas.width === 0) return
-    const imageData = ctx.getImageData(topLeftX, topLeftY, faceWidth, faceWidth).data;
-    let sum = 0;
-    let count = 0;
 
-    for (let i = 0; i < imageData.length; i += 4 * sampleRate) {
-        sum += 0.2126 * imageData[i] + 0.7152 * imageData[i + 1] + 0.0722 * imageData[i + 2];
-        count++;
-    }
-    return sum / count;
-}}
+        if(videoCanvas.width === 0) return
+        const imageData = ctx.getImageData(topLeftX, topLeftY, faceWidth, faceWidth).data;
+        let sum = 0;
+        let count = 0;
 
-// const contrastEnhSlider = document.getElementById("brightnessRangeSlider");
+        for (let i = 0; i < imageData.length; i += 4 * sampleRate) {
+            sum += 0.2126 * imageData[i] + 0.7152 * imageData[i + 1] + 0.0722 * imageData[i + 2];
+            count++;
+        }
+        return sum / count;
+    }}
 
-
-// // Add a 'slide' event listener to prevent thumbs from having the same value
-// contrastEnhSlider.noUiSlider.on('slide', function (values, handle) {
-//     // Convert slider values from string to number
-//     let val0 = Number(values[0]),
-//         val1 = Number(values[1]);
-
-//     // Check if the values are equal
-//     if (val0 === val1) {
-//         // If so, adjust the value of the thumb being moved to enforce a minimum difference
-//         if (handle === 0) { // If the first handle is moved
-//             // Prevent going below minimum
-//             contrastEnhSlider.noUiSlider.set([Math.max(val0 - 1, 0), null]);
-//         } else { // If the second handle is moved
-//             // Prevent going above maximum
-//             contrastEnhSlider.noUiSlider.set([null, Math.min(val1 + 1, 255)]);
-//         }
-//     }
-// });
-// // Update the grayscale values display when the slider changes
-// slider.on('update', function (values) {
-//     enhValues.textContent = values.join(' - ');
-//     let currentValues = slider.get();
-//     minValue = parseFloat(currentValues[0]);
-//     maxValue = parseFloat(currentValues[1]);
-
-// });
+export function initializeBrightnessMonitor() {
+    initExposureControls();
+}

@@ -1,8 +1,20 @@
-const fpsDisplays = document.querySelectorAll('.fps-display');
-let frameCount = [0,0]
-let lastFrameTime = [performance.now(), performance.now()]
+let initialized = false;
+let fpsDisplays, frameCount, lastFrameTime;
 
-export function calculateFPS(i){
+function initializeFPS() {
+    if (!initialized) {
+        fpsDisplays = document.querySelectorAll('.fps-display');
+        frameCount = [0, 0];
+        lastFrameTime = [performance.now(), performance.now()];
+        initialized = true;
+    }
+}
+
+export function calculateFPS(i) {
+    if (!initialized) {
+        initializeFPS();
+    }
+
     const currentTime = performance.now();
     const elapsedTime = currentTime - lastFrameTime[i];
     if (elapsedTime >= 1000) {
