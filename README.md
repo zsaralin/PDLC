@@ -82,4 +82,5 @@ Make sure USB camera is connected before starting server.
 
 **Create electron app**
 - npm exec electron-builder
+- npx electron-packager . pdlc --platform=darwin --arch=arm64 --out=dist --overwrite
 - app will be in dist folder
