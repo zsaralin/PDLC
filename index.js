@@ -69,6 +69,7 @@ function delay(ms) {
 }
 
 async function main() {
+    // await delay(15000)
     setupVideoContainers()
     setupSidePanel()
 
@@ -88,7 +89,7 @@ async function main() {
     topCtx0 = topCanvas0.getContext('2d', {willReadFrequently: true});
     topCtx1 = topCanvas1.getContext('2d', {willReadFrequently: true});
 
-    await delay(3000);
+    // await delay(3000);
 
     await setupCamera(video0, video1, canvas0, canvas1, topCanvas0, topCanvas1);
 }
