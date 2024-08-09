@@ -59,15 +59,24 @@ export async function drawSegmentation(canvas, ctx, person) {
     const stretchedWidth = canvas.width * stretchX;
     const stretchedHeight = canvas.height * stretchY;
 
-    // Clear the main canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Create a copy of the input canvas
+    const copyCanvas = document.createElement('canvas');
+    copyCanvas.width = canvas.width;
+    copyCanvas.height = canvas.height;
+    const copyCtx = copyCanvas.getContext('2d');
 
-    // Draw the resized black mask on the main canvas
+    // Draw the resized mask on the copy canvas
     const maskCenterX = (canvas.width - stretchedWidth) / 2;
     const maskCenterY = (canvas.height - stretchedHeight) / 2;
-    ctx.drawImage(offscreenCanvas, 0, 0, mask.width, mask.height, maskCenterX, maskCenterY, stretchedWidth, stretchedHeight);
+    copyCtx.drawImage(offscreenCanvas, 0, 0, mask.width, mask.height, maskCenterX, maskCenterY, stretchedWidth, stretchedHeight);
 
-    return canvas;
+    // Draw the mask on the original canvas with rgba(255, 255, 255, 0.2)
+    ctx.globalAlpha = 0.8
+    ctx.drawImage(offscreenCanvas, 0, 0, mask.width, mask.height, maskCenterX, maskCenterY, stretchedWidth, stretchedHeight);
+    ctx.globalAlpha = 1.0;
+
+    return copyCanvas;
 }
+
 
 export let segmentationBrightness = 128;

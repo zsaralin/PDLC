@@ -1,6 +1,6 @@
 // cameraSetup.js
 
-import {detectVideo} from "./index.js";
+import { detectVideo } from "./index.js";
 import { initOuterRoi } from "./drawing/outerRoi.js";
 import { monitorBrightness } from './cameraFilters/autoExposure.js';
 import { setupPause } from './UIElements/pauseButton.js';
@@ -35,19 +35,31 @@ export async function setupCamera(video0, video1, canvas0, canvas1, topCanvas0, 
     }
 
     try {
+        // Delay to ensure cameras are properly detected
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const targetCameras = devices.filter(device => device.kind === 'videoinput')
-        numCameras = targetCameras.length
-        if (targetCameras.length > 0) {
-            const [camera1, camera2] = targetCameras;
-            const resolution1 = await getCameraNativeResolution(camera1.deviceId);
-            const videoElements = numCameras === 1 ? [video0] : [video0, video1];
-            const streamPromises = targetCameras.map(async (camera, index) => {
-                const video = videoElements[index];
-                await initializeVideoStream(camera.deviceId, video);
+        const targetCameras = devices.filter(device => device.kind === 'videoinput');
+        console.log(targetCameras)
+        numCameras = targetCameras.length;
+
+        if (numCameras > 0) {
+            // Map cameras to the correct video elements based on deviceId
+            const cameraMapping = {
+                'a1af57548bee0a5b0268a05de63e1a6cf3eb2c50049ba5a71d9b684be83a0e6a': video0,
+                '5c8b5ebe5a7e2fe7b5ba220aac2292fd34a93b9ff50d3cca3495f31955d11a91': video1
+            };
+
+            const streamPromises = targetCameras.map(async (camera) => {
+                const video = cameraMapping[camera.deviceId];
+                if (video) {
+                    await initializeVideoStream(camera.deviceId, video);
+                }
             });
+
             await Promise.all(streamPromises);
 
+            const videoElements = [video0, video1].filter(Boolean);
             const loadedPromises = videoElements.map(video => {
                 return new Promise((resolve) => {
                     if (video.readyState >= 2) {
@@ -78,9 +90,9 @@ async function initializeVideoStream(deviceId, video) {
     const constraints = {
         video: {
             audio: false,
-            deviceId: {exact: deviceId},
-            width: { ideal: 640 /2},
-            height: { ideal: 360/2 },
+            deviceId: { exact: deviceId },
+            width: { ideal: 640 / 2 },
+            height: { ideal: 360 / 2 },
         }
     };
     video.srcObject = await navigator.mediaDevices.getUserMedia(constraints);
@@ -120,4 +132,3 @@ async function initializeVideo(video0, video1, canvas0, canvas1, topCanvas0, top
     setupPause(video0, video1);
     await detectVideo();
 }
-

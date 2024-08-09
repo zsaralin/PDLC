@@ -50,16 +50,22 @@ export async function detectVideo() {
         processFrame(video0, canvas0, ctx0, currentFaces0, 0)
         setCam0(true);
     } else {
+        processFrame(video0, canvas0, ctx0, currentFaces0, 0)
         setCam0(false);
     }
     if (currentFaces1) {
         processFrame(video1, canvas1, ctx1, currentFaces1, 1)
         setCam1(true);
     } else {
+        processFrame(video0, canvas0, ctx0, currentFaces0, 0)
         setCam1(false);
     }
     preDMX(currentFaces0, currentFaces1, canvas0, ctx0)
     requestAnimationFrame(() => detectVideo());
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function main() {
@@ -82,8 +88,10 @@ async function main() {
     topCtx0 = topCanvas0.getContext('2d', {willReadFrequently: true});
     topCtx1 = topCanvas1.getContext('2d', {willReadFrequently: true});
 
+    await delay(3000);
 
     await setupCamera(video0, video1, canvas0, canvas1, topCanvas0, topCanvas1);
 }
+
 
 window.onload = main;

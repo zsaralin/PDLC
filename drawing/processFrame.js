@@ -1,7 +1,7 @@
-import { drawOuterRoi } from "./outerRoi.js";
-import { drawSegmentation } from "./drawSegmentation.js";
-import { updatePixelatedCanvas } from "./pixelCanvasUtils.js";
-import { imgRatio } from "../dmx/imageRatio.js";
+import {drawOuterRoi} from "./outerRoi.js";
+import {drawSegmentation} from "./drawSegmentation.js";
+import {updatePixelatedCanvas} from "./pixelCanvasUtils.js";
+import {imgRatio} from "../dmx/imageRatio.js";
 
 let finalCanvas, finalCtx;
 let adjustedCenterX = [], adjustedCenterY = [];
@@ -15,15 +15,15 @@ function initializeVars() {
         finalCanvas = document.createElement('canvas');
         finalCanvas.width = 50;
         finalCanvas.height = finalCanvas.width * (1 / imgRatio);
-        finalCtx = finalCanvas.getContext('2d', { willReadFrequently: true });
+        finalCtx = finalCanvas.getContext('2d', {willReadFrequently: true});
 
         adjustedCenterX = [0, 0]; // Initial positions, adjust as needed
         adjustedCenterY = [0, 0]; // Initial positions, adjust as needed
 
         overlayCanvases = document.querySelectorAll('.video-container .top-canvas');
         overlayCtxs = [
-            overlayCanvases[0].getContext('2d', { willReadFrequently: true }),
-            overlayCanvases[1].getContext('2d', { willReadFrequently: true })
+            overlayCanvases[0].getContext('2d', {willReadFrequently: true}),
+            overlayCanvases[1].getContext('2d', {willReadFrequently: true})
         ];
 
         roiX = document.getElementById("roiX");
@@ -47,26 +47,16 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
     if (!video || video.paused) return;
 
     overlayCtx.drawImage(video, 0, 0, overlayCanvas.width, overlayCanvas.height);
-    drawOuterRoi(overlayCanvas);
 
-    if (!person) return;
-
-    const roiW = overlayCanvas.width * parseFloat(roiX.value);
-    const roiH = overlayCanvas.height * parseFloat(roiY.value);
-    const canvasDimension = overlayCanvas.width;
-    const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value) * canvasDimension;
-    const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value) * canvasDimension;
-    const centerX = (overlayCanvas.width - roiW) / 2 + offsetX;
-    const centerY = overlayCanvas.height - roiH + offsetY; // Align ROI to the bottom
-
-    // overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-    overlayCtx.beginPath();
-    overlayCtx.strokeStyle = "blue";
-    overlayCtx.rect(centerX, centerY, roiW, roiH);
-    overlayCtx.stroke();
-    overlayCtx.closePath();
-    //
     if (person) {
+        const roiW = overlayCanvas.width * parseFloat(roiX.value);
+        const roiH = overlayCanvas.height * parseFloat(roiY.value);
+        const canvasDimension = overlayCanvas.width;
+        const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value) * canvasDimension;
+        const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value) * canvasDimension;
+        const centerX = (overlayCanvas.width - roiW) / 2 + offsetX;
+        const centerY = overlayCanvas.height - roiH + offsetY; // Align ROI to the bottom
+
         const can = await drawSegmentation(overlayCanvas, overlayCtx, person, i);
         if (can) {
             finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
@@ -74,13 +64,14 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
             finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
         }
         updatePixelatedCanvas(finalCanvas, finalCtx, 0);
-    }
 
-    overlayCtx.beginPath();
-    overlayCtx.strokeStyle = "blue";
-    overlayCtx.rect(centerX, centerY, roiW, roiH);
-    overlayCtx.stroke();
-    overlayCtx.closePath();
+        overlayCtx.beginPath();
+        overlayCtx.strokeStyle = "blue";
+        overlayCtx.rect(centerX, centerY, roiW, roiH);
+        overlayCtx.stroke();
+        overlayCtx.closePath();
+    }
+    drawOuterRoi(overlayCanvas);
 }
 
 export function drawBGOnFinalCanvas() {
