@@ -8,7 +8,7 @@ import { setupPause } from './UIElements/pauseButton.js';
 export let numCameras;
 
 // Flag to determine whether to use camera mapping or auto-detect the first two cameras
-const useCameraMapping = false;  // Set to false to auto-detect
+const useCameraMapping = true;  // Set to false to auto-detect
 
 async function getCameraNativeResolution(deviceId) {
     const constraints = {
@@ -58,8 +58,8 @@ export async function setupCamera(video0, video1, canvas0, canvas1, topCanvas0, 
         if (useCameraMapping) {
             // Map cameras to the correct video elements based on deviceId
             const cameraMapping = {
-                'a1af57548bee0a5b0268a05de63e1a6cf3eb2c50049ba5a71d9b684be83a0e6a': video0,
-                '5c8b5ebe5a7e2fe7b5ba220aac2292fd34a93b9ff50d3cca3495f31955d11a91': video1
+                'd1f3254ca5f6abea2620625465b9ce4280409872f0ba59072995ce8b60792311': video0,
+                'f8d91483489c4589d662356847ecf3629f0f906b78cfd3784d16cf2471bd5668': video1
             };
 
             targetCameras.forEach((camera) => {

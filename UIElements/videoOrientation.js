@@ -1,6 +1,6 @@
 export let angle = 0;
 export let mirror0 = true;
-export let mirror1 = true;
+export let mirror1 = false;
 
 let mirrorEl0;
 let mirrorEl1;

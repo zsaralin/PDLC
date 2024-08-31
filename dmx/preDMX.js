@@ -34,10 +34,10 @@ export function setCam1(status) {
 let isScreensaver = false;
 let isAnim = false;
 
-const blackScreenDuration = 1000; // Duration for how long the screen fades to black in milliseconds
+const blackScreenDuration = 10000; // Duration for how long the screen fades to black in milliseconds
 
 function fadeToBlack() {
-    const black = document.getElementById('blackScreen');
+    const black = document.getElementById('whiteScreen');
     black.checked = true;
     setTimeout(() => {
         black.checked = false;
