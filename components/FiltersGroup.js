@@ -38,6 +38,8 @@ export class FiltersGroup {
                     <div id="grayExpo" min="1" max="3" step="1" value="1" label="Expo"></div>
                     <div id="contrastEnh" min="0" max="255" step="1" lowValue="0" highValue="255" label="Contrast Enhancement"></div>
                     <div id="gaussianBlur" min="0" max="10" step=".1" value="4" label="Gaussian Blur"></div>
+                    <div id="gaussianMultiple" min="0" max="10" step="1" value="2" label="Gaussian Multiple"></div>
+
                     </label>
 
                 <label>Filter Order:</label>

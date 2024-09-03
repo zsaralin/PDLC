@@ -28,8 +28,6 @@ export function setupSidePanel() {
             </label>
             <div id="pixelSmoothPerson" min="0.01" max="1" step=".01" value=".4" label="Pixel Smooth Person"></div>
             <div id="pixelSmoothScreensaver" min="0.01" max="1" step=".01" value=".03" label="Pixel Smooth Screensaver"></div>
-            <div id="radialPause0" min="0" max="30" step=".1" value="15" label="Radial Pause 0"></div>
-            <div id="radialPause1" min="0" max="5" step=".1" value="1" label="Radial Pause 1"></div>
             <div id="bg" min="-1" max="1" step=".1" value="-1" label="Background Col"></div>
             <div id="fg" min="-1" max="1" step=".1" value="1" label="Foreground Col"></div>
             <div id="minEyeDist" min="0" max="500" step="1" value="20" label="Min Eye Dist"></div>
