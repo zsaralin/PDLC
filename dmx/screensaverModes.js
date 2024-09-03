@@ -33,17 +33,47 @@ let fadeAnimationHandle = null;
 let pixelX = 0;
 let pixelY = 0;
 
+// Add event listener for keydown to move the pixel
+document.addEventListener('keydown', (event) => {
+    const key = event.key;
+    switch (key) {
+        case 'ArrowUp':
+            if (pixelY > 0) {
+                pixelY--;
+            }
+            break;
+        case 'ArrowDown':
+            if (pixelY < imgRow - 1) {
+                pixelY++;
+            }
+            break;
+        case 'ArrowLeft':
+            if (pixelX > 0) {
+                pixelX--;
+            }
+            break;
+        case 'ArrowRight':
+            if (pixelX < imgCol - 1) {
+                pixelX++;
+            }
+            break;
+    }
+    drawPixelMover(); // Redraw the pixel at the new position
+});
+
 function drawPixelMover() {
-    fillCanvasWithBlack();
+    fillCanvasWithBlack(); // Clear the canvas
     pixelatedCtx.fillStyle = 'rgb(255, 255, 255)';
-    pixelatedCtx.fillRect(pixelX, pixelY, 1, 1);
+    pixelatedCtx.fillRect(pixelX, pixelY, 1, 1); // Draw the pixel at the new position
 
     const croppedImageData = pixelatedCanvas.toDataURL('image/png');
-    updateCanvas( croppedImageData, 0);
+    updateCanvas(croppedImageData, 0);
     const imageData = pixelatedCtx.getImageData(0, 0, pixelatedCanvas.width, pixelatedCanvas.height);
-    setDMXFromPixelCanvas(imageData);
-}
 
+
+    const pixelSmoothScreensaver = document.getElementById('pixelSmoothScreensaver');
+    setDMXFromPixelCanvas(imageData, parseFloat(pixelSmoothScreensaver.value));
+}
 export function drawDMXTest() {
     const blackCheckbox = document.getElementById('blackScreen');
     const whiteCheckbox = document.getElementById('whiteScreen');
@@ -62,7 +92,8 @@ export function drawDMXTest() {
             radialAnimationHandle = null;
         }
         if (!fadeAnimationHandle) {
-            fadeAnimationHandle = animateFadeScreen(pixelatedCtx, imgCol, imgRow, updateCanvas, setDMXFromPixelCanvas);
+            fadeAnimationHandle = animateFadeScreen(pixelatedCtx)
+            return
         }
     } else if (pixelMoverCheckbox.checked) {
         if (linearAnimationHandle) {

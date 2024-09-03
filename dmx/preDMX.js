@@ -16,7 +16,7 @@ export async function preDMX() {
     } else {
         if (!isScreensaver && !isAnim) {
             isAnim = true;
-            fadeToBlack();
+            fadeToWhite();
         }
         requestAnimationFrame(drawDMXTest);
     }
@@ -32,16 +32,11 @@ export function setCam1(status) {
 
 
 let isScreensaver = false;
-let isAnim = false;
+let isAnim = false
 
-const blackScreenDuration = 10000; // Duration for how long the screen fades to black in milliseconds
 
-function fadeToBlack() {
-    const black = document.getElementById('whiteScreen');
-    black.checked = true;
-    setTimeout(() => {
-        black.checked = false;
-        isScreensaver = true;
-        isAnim = false;
-    }, blackScreenDuration);
+function fadeToWhite() {
+    const dur = document.getElementById('whiteScreenDuration').value;
+    const white = document.getElementById('whiteScreen');
+    white.checked = true
 }

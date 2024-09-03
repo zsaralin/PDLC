@@ -1,95 +1,80 @@
 import { imgCol, imgRow } from "./imageRatio.js";
 
 const CANVAS_WIDTH = imgCol;
-const CANVAS_HEIGHT = imgRow * 1;
-const MAX_RADIUS = Math.sqrt(CANVAS_WIDTH ** 1.9 + CANVAS_HEIGHT ** 1.9);
-
-const CIRCLE_CHANGE_PROBABILITY = 0.01; // 1% chance each frame to change circle count
-const THREE_CIRCLE_PROBABILITY = 0.005;   // 20% chance for 3 circles when changing
-const TWO_CIRCLE_PROBABILITY = 0.009;     // 50% chance for 2 circles when changing
-
-const FADE_DURATION = 2000; // Fade duration in milliseconds (2 seconds)
+const CANVAS_HEIGHT = imgRow;
+const MAX_RADIUS = Math.sqrt(CANVAS_WIDTH ** 2.4 + CANVAS_HEIGHT ** 2.4);
 
 const getRandomPosition = () => ({
     x: Math.random() * CANVAS_WIDTH,
     y: Math.random() * CANVAS_HEIGHT
 });
 
-const getRandomSpeed = (minSpeed, maxSpeed) =>
-    Math.random() * (maxSpeed - minSpeed) + minSpeed;
+const getRandomSpeed = () => {
+    const slider = document.getElementById('speedRadial');
+    const minSpeed = parseFloat(slider.getAttribute('lowValue')) / 100;
+    const maxSpeed = parseFloat(slider.getAttribute('highValue')) / 100;
+    return Math.random() * (maxSpeed - minSpeed) + minSpeed;
+};
 
-const createCircle = (minSpeed, maxSpeed) => ({
+const createCircle = (color) => ({
     center: getRandomPosition(),
-    speed: getRandomSpeed(minSpeed, maxSpeed),
-    gradientOffset: 0,
-    direction: 1,
-    isComplete: false
+    speed: getRandomSpeed(),
+    radius: 0,
+    color: color
 });
 
 export function animateRadialGradientSweep(pixelatedCtx) {
     let animationFrameId;
-    const slider = document.getElementById('speedRadial');
-    const minSpeed = parseFloat(slider.getAttribute('lowValue')) / 100;
-    const maxSpeed = parseFloat(slider.getAttribute('highValue')) / 100;
+    let isFading = false;
+    let fadeProgress = 0;
+    let currentColor = 'white'; // Start with a white circle
+    let circle = createCircle(currentColor);
 
-    let circles = [createCircle(minSpeed, maxSpeed)];
-
-    let startTime = null;
-
-    const updateCircle = (circle) => {
-        if (circle.direction === 1 && circle.gradientOffset >= MAX_RADIUS) {
-            circle.direction = -1;
-        }
-        if (circle.direction === -1 && circle.gradientOffset <= 0) {
-            circle.isComplete = true;
-        } else {
-            circle.gradientOffset += circle.direction * circle.speed;
-            let gradient = pixelatedCtx.createRadialGradient(
-                circle.center.x, circle.center.y, 0,
-                circle.center.x, circle.center.y, Math.max(circle.gradientOffset, 0)
-            );
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            pixelatedCtx.fillStyle = gradient;
-            pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        }
-    };
-
-    const manageCircleCount = () => {
-        if (circles.length === 0) {
-            circles.push(createCircle(minSpeed, maxSpeed));
-        }
-    
-        if (Math.random() < CIRCLE_CHANGE_PROBABILITY) {
-            const rand = Math.random();
-            if (rand < THREE_CIRCLE_PROBABILITY && circles.length < 3) {
-                circles.push(createCircle(minSpeed, maxSpeed));
-                if (circles.length < 3) circles.push(createCircle(minSpeed, maxSpeed));
-            } else if (rand < THREE_CIRCLE_PROBABILITY + TWO_CIRCLE_PROBABILITY && circles.length < 2) {
-                circles.push(createCircle(minSpeed, maxSpeed));
+    const updateCircle = () => {
+        if (!isFading) {
+            if (circle.radius < MAX_RADIUS) {
+                circle.radius += circle.speed; // Increase the radius gradually using the speed
+            } else {
+                isFading = true;
             }
         }
     };
-    
-    const updateGradients = (timestamp) => {
-        if (!startTime) startTime = timestamp;
-        const elapsedTime = timestamp - startTime;
 
-        if (elapsedTime < FADE_DURATION) {
-            const fadeFactor = elapsedTime / FADE_DURATION;
-            const grayValue = Math.floor(255 * (1 - fadeFactor));
-            const fadeColor = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-            pixelatedCtx.fillStyle = fadeColor;
-            pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        } else {
-            pixelatedCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            pixelatedCtx.fillStyle = 'black';
-            pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    const drawCircle = () => {
+        let innerRadius = Math.max(circle.radius - 20, 0); // Ensure non-negative inner radius
+        let gradient = pixelatedCtx.createRadialGradient(
+            circle.center.x, circle.center.y, innerRadius,
+            circle.center.x, circle.center.y, circle.radius
+        );
+        gradient.addColorStop(0, circle.color);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
-            circles = circles.filter(circle => !circle.isComplete);
-            circles.forEach(updateCircle);
-            manageCircleCount();
+        pixelatedCtx.fillStyle = gradient;
+        pixelatedCtx.beginPath();
+        pixelatedCtx.arc(circle.center.x, circle.center.y, circle.radius, 0, 2 * Math.PI);
+        pixelatedCtx.fill();
+    };
+
+    const updateFade = () => {
+        if (isFading) {
+            fadeProgress += 0.01; // Increment fade effect
+            if (fadeProgress >= 1) {
+                fadeProgress = 0;
+                isFading = false;
+                currentColor = currentColor === 'white' ? 'black' : 'white';
+                circle = createCircle(currentColor); // Create a new circle with the inverted color
+            }
         }
+    };
+
+    const updateGradients = () => {
+        pixelatedCtx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        pixelatedCtx.fillStyle = currentColor === 'white' ? 'black' : 'white';
+        pixelatedCtx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        drawCircle(); // Draw the current circle
+        updateCircle(); // Update the circle's size
+        updateFade(); // Handle the fading transition
 
         animationFrameId = requestAnimationFrame(updateGradients);
     };

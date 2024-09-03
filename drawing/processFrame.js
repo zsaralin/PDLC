@@ -28,9 +28,9 @@ function initializeVars() {
 
         roiX = document.getElementById("roiX");
         roiY = document.getElementById("roiY");
-        roiXOffset0 = document.getElementById("roiXOffset0");
+        roiXOffset0 = 0//document.getElementById("roiXOffset0");
         roiYOffset0 = document.getElementById("roiYOffset0");
-        roiXOffset1 = document.getElementById("roiXOffset1");
+        roiXOffset1 = 0//document.getElementById("roiXOffset1");
         roiYOffset1 = document.getElementById("roiYOffset1");
 
         gaussianBlur = document.getElementById('gaussianBlur');
@@ -52,7 +52,7 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
         const roiW = overlayCanvas.width * parseFloat(roiX.value);
         const roiH = overlayCanvas.height * parseFloat(roiY.value);
         const canvasDimension = overlayCanvas.width;
-        const offsetX = parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value) * canvasDimension;
+        const offsetX = 0//parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value) * canvasDimension;
         const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value) * canvasDimension;
         const centerX = (overlayCanvas.width - roiW) / 2 + offsetX;
         const centerY = overlayCanvas.height - roiH + offsetY; // Align ROI to the bottom
@@ -62,7 +62,11 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
             finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
             finalCtx.filter = `blur(${gaussianBlur.value}px)`;
             finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
+            finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
+            finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
+
         }
+        
         updatePixelatedCanvas(finalCanvas, finalCtx, 0);
 
         overlayCtx.beginPath();

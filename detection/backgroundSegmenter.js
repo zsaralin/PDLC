@@ -1,5 +1,5 @@
 let typeBP = "lite"; // lite, full, heavy
-export let model = "BodyPix"; // MoveNet, BlazePose
+export let model = "MoveNet"; // MoveNet, BlazePose
 
 async function getDetectorConfig(model) {
     switch (model) {
@@ -7,7 +7,8 @@ async function getDetectorConfig(model) {
             return {
                 chosenModel: poseDetection.SupportedModels.MoveNet,
                 detectorConfig: {
-                    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+                    // minPoseScore  : .1, 
+                    modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
                 }
             };
         case "BlazePose":
@@ -44,7 +45,9 @@ async function createBodyPixDetectors() {
     const bodyPixConfig = {
         architecture: 'MobileNetV1',
         outputStride: 16,
-        quantBytes: 4
+        quantBytes: 4,
+        numKeypointForMatching: 17,
+
     };
     const poseDetector0 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
     const poseDetector1 = await bodySegmentation.createSegmenter(model, bodyPixConfig);
