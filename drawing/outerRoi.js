@@ -36,6 +36,7 @@ export function updateOuterRoi() {
         width: roiWidth,
         height: roiHeight
     };
+    console.log( (video.videoWidth - roiWidth) / 2,video.videoWidth , roiWidth )
 }
 
 export function copyVideoToCanvas(ctx, video, canvas, i) {
