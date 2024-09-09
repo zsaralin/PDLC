@@ -1,8 +1,10 @@
-import { angle , mirror0, mirror1} from "../UIElements/videoOrientation.js";
+import { angle, mirror0, mirror1 } from "../UIElements/videoOrientation.js";
 let roi;
 let showOuterRoi = false;
-let outerRoiCheckbox ;
+let outerRoiCheckbox;
 let video;
+let initialRoiWidth;
+let initialRoiHeight;
 
 export function initOuterRoi(v) {
     outerRoiCheckbox = document.getElementById('outerRoi');
@@ -17,11 +19,14 @@ export function initOuterRoi(v) {
     const w = video.videoWidth;
     const h = video.videoHeight;
 
-    roiWidthInput.updateSliderProperties(w, 0 ,w)
-    roiHeightInput.updateSliderProperties(h, 0 , h)
+    // Store the initial values of the ROI width and height
+    initialRoiWidth = roiWidthInput.value
+    initialRoiHeight =roiHeightInput.value
+    // Set the slider properties using the initial values
+    roiWidthInput.updateSliderProperties(w - initialRoiWidth, 0, w);
+    roiHeightInput.updateSliderProperties(h - initialRoiHeight, 0, h);
 
-
-    updateOuterRoi()
+    updateOuterRoi();
 }
 
 export function updateOuterRoi() {
@@ -32,7 +37,7 @@ export function updateOuterRoi() {
 
     roi = {
         x: (video.videoWidth - roiWidth) / 2,
-        y: (video.videoHeight -roiHeight) / 2,
+        y: (video.videoHeight - roiHeight) / 2,
         width: roiWidth,
         height: roiHeight
     };
@@ -46,13 +51,12 @@ export function copyVideoToCanvas(ctx, video, canvas, i) {
 
     roi = {
         x: (video.videoWidth - roiWidth) / 2,
-        y: (video.videoHeight -roiHeight) / 2,
+        y: (video.videoHeight - roiHeight) / 2,
         width: roiWidth,
         height: roiHeight
     };
 
     const radians = angle * Math.PI / 180; // Convert to radians
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save(); // Save the current context state
 
     // Adjust translation to the center of the canvas
@@ -60,12 +64,13 @@ export function copyVideoToCanvas(ctx, video, canvas, i) {
 
     // Rotate the canvas
     ctx.rotate(radians);
+
     // Apply mirroring if needed
-    if (i === 0 && mirror0 || i === 1 && mirror1) {
+    if ((i === 0 && mirror0) || (i === 1 && mirror1)) {
         if (angle % 180 === 0) {
-            ctx.scale(-1, 1)
+            ctx.scale(-1, 1);
         } else {
-            ctx.scale(1, -1)
+            ctx.scale(1, -1);
         }
     }
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
@@ -85,9 +90,9 @@ export function copyVideoToCanvas(ctx, video, canvas, i) {
     ctx.restore();
 }
 
-export function drawOuterRoi(canvas){
-    const ctx = canvas.getContext('2d', {willReadFrequently: true});
-    if(showOuterRoi) {
+export function drawOuterRoi(canvas) {
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (showOuterRoi) {
         ctx.fillStyle = 'black';
         ctx.globalAlpha = 1;
         ctx.fillRect(0, 0, canvas.width, roi.y);
