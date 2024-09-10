@@ -7,4 +7,3 @@ Run in browser:
 - Mac: Need to download Live Server extension. Then do the same steps as for Windows. 
 On Chrome, navigate to chrome://settings/content/camera to change the default camera.
 
-Exposure changes do not work on Mac, so this program is better suited for Windows. 
