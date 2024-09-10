@@ -35,7 +35,7 @@ export async function detectVideo() {
 
     calculateFPS(0)
     copyVideoToCanvas(ctxWithOuterROI0, video0, canvas0, 0)
-    const poseDetections0 = await getSegmentation(canvasWithOuterROI0, 0)
+    const poseDetections0 = await getSegmentation(video0, 0)
     currentFaces0 = processDetection(poseDetections0, 0);
 
     if (numCameras === 2) {

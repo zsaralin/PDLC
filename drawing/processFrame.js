@@ -54,8 +54,8 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
         const roiW = overlayCanvas.width * parseFloat(i === 0 ? roiX0.value : roiX1.value);
         const roiH = overlayCanvas.height * parseFloat(i === 0 ? roiY0.value : roiY1.value);
         const canvasDimension = overlayCanvas.width;
-        const offsetX = 0//parseFloat(i === 0 ? roiXOffset0.value : roiXOffset1.value) * canvasDimension;
-        const offsetY = 0//parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value) * canvasDimension;
+        const offsetX = 0//parseFloat(i === 0 ? roiXOffset0.value : 0)//roiXOffset1.value)
+        const offsetY = parseFloat(i === 0 ? roiYOffset0.value : roiYOffset1.value) 
         const centerX = (overlayCanvas.width - roiW) / 2 + offsetX;
         const centerY = overlayCanvas.height - roiH + offsetY; // Align ROI to the bottom
 
@@ -69,6 +69,8 @@ export async function processFrame(video, overlayCanvas, overlayCtx, person, i) 
             finalCtx.filter = 'none'
             finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
 
+            finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
+            finalCtx.drawImage(can, centerX, centerY, roiW, roiH, 0, 0, finalCanvas.width, finalCanvas.height);
 
         }
         

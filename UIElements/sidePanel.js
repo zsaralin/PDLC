@@ -26,7 +26,7 @@ export function setupSidePanel() {
                 <input type="checkbox" id="mirrorCheckbox0" checked> Mirror 0
                 <input type="checkbox" id="mirrorCheckbox1"> Mirror 1
             </label>
-            <div id="pixelSmoothPerson" min="0.01" max="1" step=".01" value=".4" label="Pixel Smooth Person"></div>
+            <div id="pixelSmoothPerson" min="0.01" max="1" step=".01" value=".2" label="Pixel Smooth Person"></div>
             <div id="pixelSmoothScreensaver" min="0.01" max="1" step=".01" value=".03" label="Pixel Smooth Screensaver"></div>
             <div id="bg" min="-1" max="1" step=".1" value="-1" label="Background Col"></div>
             <div id="fg" min="-1" max="1" step=".1" value="1" label="Foreground Col"></div>
