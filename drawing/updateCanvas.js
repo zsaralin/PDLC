@@ -14,7 +14,7 @@ export function updateCanvas(croppedImageData) {
         img.src = croppedImageData;
         img.onload = () => {
             let drawWidth = 100;
-            let drawHeight = drawWidth / imgRatio;
+            let drawHeight = drawWidth /3;
 
             canvas.width = drawWidth;
             canvas.height = drawHeight;

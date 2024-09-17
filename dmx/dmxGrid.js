@@ -7,7 +7,7 @@ function generateDmxGrid(gridId, startCol, endCol) {
 
     dmxGrid.innerHTML = ''; // Clear existing content
 
-    for (let row = 0; row < 28; row++) {
+    for (let row = 0; row < 10; row++) {
         for (let col = startCol; col < endCol; col++) {
             const cell = document.createElement('div');
             cell.classList.add('dmxCell');
@@ -18,14 +18,12 @@ function generateDmxGrid(gridId, startCol, endCol) {
 }
 
 // Generate DMX grids
-generateDmxGrid('dmx1', 0, 10);
-generateDmxGrid('dmx2', 10, 20);
-generateDmxGrid('dmx3', 20, 30);
+generateDmxGrid('dmx1', 0, 30);
 handleGapChange(imgCol - 30);
 
 // Function to update the DMX grid with brightness values
 export function updateDMXGrid(brightnessValues, startColumn = 0) {
-    const rows = 28;
+    const rows = 10;
     const gridWidth = 30; // Number of columns to display
 
     for (let row = 0; row < rows; row++) {

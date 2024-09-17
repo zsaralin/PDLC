@@ -87,6 +87,7 @@ body {
     align-items: center;
     justify-content: flex-end;
     margin-right: 15px;
+    margin-bottom: 15px;
 }
 
 :root {
@@ -96,7 +97,7 @@ body {
 .dmxGrid {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(10, var(--cell-size));
+    grid-template-columns: repeat(30, var(--cell-size));
     grid-gap: 1px;
     width: max-content;
     margin: calc(var(--cell-size) / 2); /* Calculate the margin based on cell size */

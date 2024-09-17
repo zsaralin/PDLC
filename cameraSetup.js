@@ -8,7 +8,7 @@ import { setupPause } from './UIElements/pauseButton.js';
 export let numCameras;
 
 // Flag to determine whether to use camera mapping or auto-detect the first two cameras
-const useCameraMapping = true;  // Set to false to auto-detect
+const useCameraMapping = false;  // Set to false to auto-detect
 
 async function getCameraNativeResolution(deviceId) {
     const constraints = {
