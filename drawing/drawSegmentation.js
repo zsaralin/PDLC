@@ -85,29 +85,30 @@ export async function drawBodyPixSegmentation(canvas, ctx, person) {
     return copyCanvas;
 }
 export async function drawMoveNetSegmentation(canvas, ctx, person, i) {
-    const yOffset = i === 0 ? parseFloat(document.getElementById('segmentYOffset0').value) : parseFloat(document.getElementById('segmentYOffset1').value); // Get Y offset value
-    let xOffset = i === 0 ? parseFloat(document.getElementById('roiXOffset0').value) : parseFloat(document.getElementById('roiXOffset1').value); // Get X offset value
-    const feather = parseFloat(document.getElementById('segmentFeather').value) || 0; // Get feather value
-    const pushConstant = i === 0 ? parseFloat(document.getElementById('pushFactor0').value) : parseFloat(document.getElementById('pushFactor1').value); // Constant to push further to the left
-    const pushStart = canvas.width / 2; // Start applying push factor
-    const pushEnd = canvas.width / 2.8; // Full push factor at this point
-    const edgeAmplification = 25.0; // Amplification factor for movement beyond pushEnd
-    const armMultiple = parseFloat(document.getElementById('armMultiple').value); // Arm length multiplier
-    const legMultiple = armMultiple; // Leg length multiplier (use the same or adjust as needed)
-    const armOffset = 0; // Offset to move arms down slightly below the head
-    const legOffset = 30; // Offset to make legs connect properly
+    const yOffset = i === 0 ? parseFloat(document.getElementById('segmentYOffset0').value) : parseFloat(document.getElementById('segmentYOffset1').value);
+    let xOffset = i === 0 ? parseFloat(document.getElementById('roiXOffset0').value) : parseFloat(document.getElementById('roiXOffset1').value);
+    const feather = parseFloat(document.getElementById('segmentFeather').value) || 0;
+    const armMultiple = parseFloat(document.getElementById('armMultiple').value);
+    const legMultiple = armMultiple;
+    const armOffset = 0;
+    const legOffset = 30;
+
+    // Adjust xOffset to account for camera displacement (assuming 1/3 off-center)
+    const cameraOffsetFactor = i === 0 ? 1 / 3: 1/3; // Change to +1/3 if camera is right-shifted
+    const cameraOffset = cameraOffsetFactor * canvas.width * .8;
+    
+    // Create a temporary canvas to draw
     const copyCanvas = document.createElement('canvas');
     copyCanvas.width = canvas.width;
     copyCanvas.height = canvas.height;
     const copyCtx = copyCanvas.getContext('2d');
-    if (i === 0) {
-        // Flip the canvas horizontally by scaling it by -1 on the x-axis
+    if (i === 1) {
         copyCtx.save(); // Save the current context state
         copyCtx.scale(-1, 1); // Flip horizontally
         copyCtx.translate(-canvas.width, 0); // Adjust position to account for the flip
     }
-
-    copyCtx.lineWidth = 9;
+    
+    copyCtx.lineWidth = i==0 ? 9 : 15;
 
     person.forEach(pose => {
         const nose = pose.keypoints.find(kp => kp.name === 'nose');
@@ -115,127 +116,74 @@ export async function drawMoveNetSegmentation(canvas, ctx, person, i) {
         const rightHip = pose.keypoints.find(kp => kp.name === 'right_hip');
         const leftShoulder = pose.keypoints.find(kp => kp.name === 'left_shoulder');
         const rightShoulder = pose.keypoints.find(kp => kp.name === 'right_shoulder');
-        console.log(nose)
+
         if (nose && nose.score > 0.2 && leftHip && rightHip) {
-            // 1. Calculate distance between shoulders and hips
             const shoulderDist = leftShoulder && rightShoulder ? Math.abs(leftShoulder.x - rightShoulder.x) : 0;
+            const avgHipY = (leftHip.y + rightHip.y) / 2;
 
-            // 2. Calculate the average hip position
-            const avgHipY = (leftHip.y + rightHip.y) / 2;  // Midpoint between the hips
+            // Adjust X-offset to compensate for camera position
+            let adjustedXOffset = xOffset + cameraOffset;
 
-            let adjustedXOffset = xOffset;
-
-            // 3. Calculate pushFactor logic
-            let pushFactor = 1;
-            if (i === 0) {
-                if (nose.x > canvas.width / 2) {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * 15 * (canvas.width / nose.x);
-                } else if (nose.x < canvas.width * 2 / 3) {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * 5 * (canvas.width / nose.x);
-                } else {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * 1 * (canvas.width / nose.x);
-                }
-            } else {
-                if (nose.x < 130) {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * (pushConstant + 1) * (canvas.width / nose.x);
-                } else if (nose.x > 165) {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * (pushConstant + 15) * (canvas.width / nose.x);
-                } else if (nose.x > canvas.width / 2) {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * (pushConstant + 0) * (canvas.width / nose.x);
-                } else {
-                    const t = (pushStart - nose.x) / (pushStart - pushEnd);
-                    pushFactor = t * (pushConstant) * (canvas.width / nose.x);
-                }
-            }
-
-            adjustedXOffset -= pushFactor;
-
-            // Calculate bodyX
             const bodyX = nose.x + adjustedXOffset;
 
-            // 4. Draw body line stopping at the hips
+            // Draw body
             copyCtx.beginPath();
-            copyCtx.lineWidth = copyCtx.lineWidth * 2;
-            copyCtx.moveTo(bodyX, nose.y + yOffset); // Start at the nose
-            copyCtx.lineTo(bodyX, avgHipY + yOffset); // Stop at the average hip position
+            copyCtx.lineWidth *= 2;
+            copyCtx.moveTo(bodyX, nose.y + yOffset);
+            copyCtx.lineTo(bodyX, avgHipY + yOffset);
             copyCtx.strokeStyle = 'black';
             copyCtx.stroke();
 
-            // Face circle
+            // Draw face circle
             const faceRadius = shoulderDist / 4;
-            copyCtx.lineWidth = copyCtx.lineWidth / 2;
+            copyCtx.lineWidth /= 2;
             copyCtx.beginPath();
-            copyCtx.arc(bodyX, nose.y + yOffset, faceRadius, 0, 2 * Math.PI); // Apply adjusted X and Y offsets to the face position
+            copyCtx.arc(bodyX, nose.y + yOffset, faceRadius, 0, 2 * Math.PI);
             copyCtx.fillStyle = 'black';
             copyCtx.fill();
             copyCtx.stroke();
 
-            // Draw arms only if score > 0.3
+            // Draw arms
             const drawArm = (shoulder, elbow, wrist) => {
                 if (shoulder.score > 0.3 && elbow.score > 0.3 && wrist.score > 0.3) {
-                    const elbowVector = {
-                        x: elbow.x - shoulder.x,
-                        y: elbow.y - shoulder.y
-                    };
-
-                    const wristVector = {
-                        x: wrist.x - elbow.x,
-                        y: wrist.y - elbow.y
-                    };
+                    const elbowVector = { x: elbow.x - shoulder.x, y: elbow.y - shoulder.y };
+                    const wristVector = { x: wrist.x - elbow.x, y: wrist.y - elbow.y };
 
                     const stretchedElbow = {
                         x: bodyX + armMultiple * elbowVector.x,
-                        y: shoulder.y + armMultiple * elbowVector.y + yOffset + armOffset // Move arms down slightly below the head
+                        y: shoulder.y + armMultiple * elbowVector.y + yOffset + armOffset
                     };
 
                     const stretchedWrist = {
                         x: stretchedElbow.x + armMultiple * wristVector.x,
-                        y: elbow.y + armMultiple * wristVector.y + yOffset + armOffset // Move arms down slightly below the head
+                        y: elbow.y + armMultiple * wristVector.y + yOffset + armOffset
                     };
 
-                    // Draw arm with stretched lengths
                     copyCtx.beginPath();
-                    copyCtx.moveTo(bodyX, shoulder.y + yOffset + armOffset); // Move arms down slightly below the head
+                    copyCtx.moveTo(bodyX, shoulder.y + yOffset + armOffset);
                     copyCtx.lineTo(stretchedElbow.x, stretchedElbow.y);
                     copyCtx.lineTo(stretchedWrist.x, stretchedWrist.y);
                     copyCtx.stroke();
                 }
             };
 
-            // 5. Draw legs starting where the body ends (at the hips)
-
-            // 5. Draw legs starting where the body ends (at the hips)
+            // Draw legs
             const drawLeg = (hip, knee, ankle) => {
                 if (hip.score > 0.5 && knee.score > 0.5 && ankle.score > 0.5) {
-                    // Calculate the vector for knee relative to hip
-                    const kneeVector = {
-                        x: knee.x - hip.x,
-                        y: knee.y - hip.y
-                    };
-            
-                    // Calculate the stretched knee position, extending the leg beyond normal length
+                    const kneeVector = { x: knee.x - hip.x, y: knee.y - hip.y };
                     const stretchedKneeX = bodyX + legMultiple * 2 * kneeVector.x;
-            
-                    // Draw leg with stretched lengths starting from the hips
+
                     copyCtx.beginPath();
-                    copyCtx.moveTo(bodyX, hip.y + yOffset); // Start at the hip
-                    copyCtx.lineTo(stretchedKneeX, canvas.height + yOffset); // Extend the line to the bottom of the canvas
+                    copyCtx.moveTo(bodyX, hip.y + yOffset);
+                    copyCtx.lineTo(stretchedKneeX, canvas.height + yOffset);
                     copyCtx.stroke();
                 } else {
-                    // If any keypoint score (hip, knee, or ankle) is < 0.3, draw a straight line from hip to bottom
-                    copyCtx.lineWidth *= 2
+                    copyCtx.lineWidth *= 2;
                     copyCtx.beginPath();
-                    copyCtx.moveTo(bodyX, hip.y + yOffset); // Start at the hip
-                    copyCtx.lineTo(bodyX, 500); // Straight down to the bottom of the canvas
+                    copyCtx.moveTo(bodyX, hip.y + yOffset);
+                    copyCtx.lineTo(bodyX, 500);
                     copyCtx.stroke();
-                    copyCtx.lineWidth = copyCtx.lineWidth/2
-
+                    copyCtx.lineWidth /= 2;
                 }
             };
 
@@ -246,6 +194,7 @@ export async function drawMoveNetSegmentation(canvas, ctx, person, i) {
             if (rightHip && pose.keypoints.find(kp => kp.name === 'right_knee')) drawLeg(rightHip, pose.keypoints.find(kp => kp.name === 'right_knee'), pose.keypoints.find(kp => kp.name === 'right_ankle'));
         }
     });
+
 
     // Reset the transformation before applying the blur
     if (i === 0) {

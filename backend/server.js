@@ -130,7 +130,7 @@ app.post('/set-dmx', async (req, res) => {
             for (const [universe, channels] of Object.entries(universeData)) {
                 let values = new Array(512).fill(255); // Initialize with zeros for all channels
                 channels.forEach(({ channel, value }) => {
-                    if (channel <= 301) {
+                    if (channel <= 305) {
                         values[channel - 1] = value; // Subtracting 1 to adjust for zero-based indexing
                     }
                 });
