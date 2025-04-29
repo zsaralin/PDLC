@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { createCsvMapping } = require("./csvMapping");
-const { getAllControlValues, setCameraControl } = require('./uvcControl');
+// const { getAllControlValues, setCameraControl } = require('./uvcControl');
 const app = express();
 app.use(cors()); // Use CORS if needed
 app.use(express.json()); // Middleware to parse JSON bodies
@@ -157,7 +157,7 @@ app.listen(PORT, () => {
 app.post('/get-control-values', async (req, res) => {
     try {
         const { camIndex } = req.body;
-        const controlValues = await getAllControlValues(camIndex);
+        // const controlValues = await getAllControlValues(camIndex);
         res.json({ controlValues });
     } catch (error) {
         console.error('Error fetching control values:', error);

@@ -58,8 +58,8 @@ export async function setupCamera(video0, video1, canvas0, canvas1, topCanvas0, 
         if (useCameraMapping) {
             // Map cameras to the correct video elements based on deviceId
             const cameraMapping = {
-                'd1f3254ca5f6abea2620625465b9ce4280409872f0ba59072995ce8b60792311': video0,
-                '35fc358a0908369206d9e451e4c6828decdd7ca4b2f121c9a8e23da4fd0169c7': video1
+                '8b0870d6f45724fe3f7ff7ea0b9d1167bf31475d6bb177e01fd7279d640282df': video0,
+                'e97e461fa08e36fe76fc5e2c31b24710dcb7d7034aa29e1ac2056cae0c1334dc': video1
             };
 
             targetCameras.forEach((camera) => {
